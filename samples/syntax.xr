@@ -1,0 +1,39 @@
+#!./parse_dump
+# This is a comment
+
+object $root; # Declare an object called root.
+method foo()  # Method on $root called foo. Method parameters are unimplemented.
+{
+    # Semicolons are only needed if you have more than 1 statement per line
+    # Keep in mind that unary messages take precedence over binary ones so
+    "Hello " + "world!" showln
+    # is grouped as
+    "Hello " + ("world!" showln)
+
+    var s = "How long is this string? "
+
+    s show
+    var len = s length
+    len string showln
+
+    if (!nil) {
+        "nil always evaluates to false showln"
+    }
+
+    if (true) {
+        "false and true are reserved keywords, but they can be sent messages" show
+        " just like other objects" showln
+        "I just haven't really implemented any yet" showln
+    }
+
+    # Methods can't return anything yet as we don't have a proper stack
+    # Next step, sort that out + method arguments
+}
+
+#outbound_connection {
+    #port: 24
+    #send -> (data, len) {
+        #var a = len / 2
+        #_send(data, len)
+    #}
+#}

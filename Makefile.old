@@ -1,0 +1,57 @@
+CFLAGS = -m64 -std=c99 -I./src -I./src/types -Wextra -Wall -O0 -g -Wstrict-prototypes -ftrapv -Wfloat-equal -fno-omit-frame-pointer
+
+CFLAGS += -fsanitize=address
+CC = clang
+#CFLAGS += -DDMALLOC -DDMALLOC_FUNC_CHECK
+#LIBS += -ldmalloc
+SRC = src/grammar.c src/vm.c src/types/ast.c src/dbpack.c src/compile.c src/types/closure.c src/init.c src/lookup3.c src/types/list.c src/types/number.c src/objmodel.c src/types/xrstring.c src/types/symbol.c src/types/table.c src/types/primitives.c src/types/method.c
+OBJ = $(SRC:.c=.o)
+SRC_TEST = $(wildcard test/check_*.c)
+OBJ_TEST = $(subst .c,.o,$(SRC_TEST))
+OBJ_MAIN = src/parse_dump.o 
+LEG_D = tools/peg-0.1.9
+LEG = $(LEG_D)/leg
+
+all: elixr
+rebuild: clean elixr test
+
+clean:
+	@rm -f src/*.o
+	@rm -f src/types/*.o
+	@rm -f src/grammar.c
+	@rm -f ./elixr
+	@rm -f test/*.o
+	@rm -f test/run_tests
+
+test: elixr test/run_tests
+	@test/run_tests
+
+test/run_tests: $(OBJ_TEST)
+	@echo LINK run_tests
+	@$(CC) $(CFLAGS) $(OBJ) $(OBJ_TEST) -I./src -lcheck -o test/run_tests
+
+
+elixr: $(OBJ) src/parse_dump.o
+	@echo LINK elixr
+	$(CC) $(CFLAGS) $(OBJ) $(OBJ_MAIN) $(LIBS) -o ./parse_dump
+
+src/grammar.c: src/grammar.leg tools/peg-0.1.9/leg
+	@echo LEG src/grammar.leg
+	@$(LEG) src/grammar.leg -v -o src/grammar.c
+
+grammar:
+	@echo LEG src/grammar.leg
+	@$(LEG) src/grammar.leg -v -o src/grammar.c
+
+src/grammar.o: src/grammar.c
+	@echo CC src/grammar.c
+	@$(CC) $(CFLAGS) -o src/grammar.o -c src/grammar.c
+
+$(LEG):
+	@make -C $(LEG_D)
+
+.c.o:
+	@echo CC $<
+	$(CC) $(CFLAGS) -o $@ -c $<
+
+.PHONY: all clean rebuild test

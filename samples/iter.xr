@@ -1,0 +1,11 @@
+#!./parse_dump
+object $root;
+method foo()
+{
+    var i = 0;
+
+    while (i < 10) {
+        i = i + 1
+        i string showln
+    }
+}

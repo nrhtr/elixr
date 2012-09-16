@@ -1,0 +1,13 @@
+#!./parse_dump
+object $root;
+method foo()
+{
+    "Object name: " + (self symbol string) showln
+    self vt literal showln
+    self bar
+}
+
+method bar()
+{
+    "Bar." showln
+}

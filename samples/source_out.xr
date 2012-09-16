@@ -1,0 +1,15 @@
+#!./parse_dump
+object $root;
+method foo()
+{
+    var a
+    var b
+    if (a == b)
+    {
+        "hello " show
+        "world" showln
+        [1, 2, 3] at(1)
+    }
+    if (true)
+        "a thing happened!" showln
+}

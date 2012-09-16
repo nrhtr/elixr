@@ -1,0 +1,76 @@
+#!./parse_dump
+object $root;
+method foo()
+{
+    var limit = 10000
+    var x = 2
+    var numbers = [0, 0]
+    var primes = []
+    var num_primes = 0
+    while (x < limit)
+    {
+        numbers append(x)
+        x = x + 1
+    }
+
+    var p = 2
+    var marked_all = 0
+    while (marked_all == 0)
+    {
+        #"p = " show; p string showln
+        #mark multiples of p
+        var mp = p
+        while (mp < limit)
+        {
+            if (numbers at(mp) > p)
+            {
+                numbers put(mp, 0)
+                #"marking: " show; mp string showln
+            }
+            mp = mp + p
+        }
+
+
+        #find first number greater than p not marked
+        var i = 0
+        var inum = 0
+        var marked = 0
+        while (i < limit && marked != 1)
+        {
+            inum = numbers at(i)
+            #"is inum > p? (" show; inum string show; " > " show; p string show; ")" showln
+            if (inum > p) {
+               marked = 1
+               p = inum
+               #"restarting with p = " show; p string showln
+            }
+            i = i + 1
+        }
+        if (marked == 0)
+        {
+            #"marked all" showln
+            marked_all = 1
+        }
+    }
+
+    #spit out primes
+    var n = 0
+    var num = 0
+    while (n < limit)
+    {
+        num = numbers at(n)
+        if (num > 0) {
+            primes append(num)
+            num_primes = num_primes + 1
+        }
+        n = n + 1
+    }
+
+    #print primes
+    var pc = 0
+    while (pc < num_primes)
+    {
+        primes at(pc) string showln
+        pc = pc + 1
+    }
+}

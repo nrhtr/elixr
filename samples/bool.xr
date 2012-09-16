@@ -1,0 +1,7 @@
+#!./parse_dump
+object $root;
+method foo()
+{
+    if (true)
+       "hello" showln
+}

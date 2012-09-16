@@ -1,0 +1,18 @@
+#!./parse_dump
+object $root;
+method foo()
+{
+    var a = 42;
+    var b = 2;
+    var c = 16;
+
+    if (a / b != 21)
+        "Something has gone horribly wrong." showln
+
+    if (a + c - b != 56)
+        "Whoops!" showln
+
+    var d = 1.0
+    d = d * 16
+    d string showln
+}

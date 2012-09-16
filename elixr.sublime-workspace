@@ -1,0 +1,1315 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"xr_ast",
+				"xr_ast_compile(XR ast, struct XRMethod *m)	void"
+			],
+			[
+				"xr_table_",
+				"xr_table_raw_dump(XR cl, XR self)	XR"
+			],
+			[
+				"xr",
+				"xr_malloc_n(t, e)	macro"
+			],
+			[
+				"VAL",
+				"VAL_FALSE	macro"
+			],
+			[
+				"xrAsStr",
+				"xrStrPtr	macro"
+			],
+			[
+				"VAL_",
+				"VAL_FALSE	macro"
+			],
+			[
+				"xrAsStr_",
+				"xrStrLen	macro"
+			],
+			[
+				"val_sym",
+				"xrSymLen	macro"
+			],
+			[
+				"SOPuint",
+				"SOPHIST_uint16	typedef"
+			],
+			[
+				"val_is",
+				"xrIsPtr(n)	macro"
+			],
+			[
+				"symbol_",
+				"symbol_hash(value cl, value self)	unsigned int"
+			],
+			[
+				"symbol",
+				"symbol_hash(value cl, value self)	unsigned int"
+			],
+			[
+				"table_",
+				"table_empty()	value"
+			],
+			[
+				"val_",
+				"val_get_vtable(v)	macro"
+			],
+			[
+				"XR_TABLE_",
+				"xrTblBuckets(T)	macro"
+			],
+			[
+				"includ",
+				"include \"header\"	"
+			],
+			[
+				"include",
+				"include <header>	"
+			],
+			[
+				"fprint",
+				"for(init-statement;condition;inc-expression){\nstatements\n}	"
+			],
+			[
+				"int64",
+				"int_fast64_t	typedef"
+			],
+			[
+				"string_app",
+				"string_append_chars(value cl, value self, const char *extra)	value"
+			],
+			[
+				"test_ta",
+				"test_table_valid_key(int _i)	void"
+			],
+			[
+				"table_pu",
+				"table_put(value cl, value self, value key, value val)	value"
+			],
+			[
+				"XR_TABLE",
+				"xrTblBuckets"
+			],
+			[
+				"tcase_",
+				"tcase_add_test"
+			],
+			[
+				"string_w_",
+				"string_w_length"
+			],
+			[
+				"XR",
+				"XR"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"contents": "Searching 125 files for \"hashlittle\" (case sensitive)\n\n/home/jenga/projects/elixr/src/lookup3.c:\n    6  \n    7  These are functions for producing 32-bit hashes for hash table lookup.\n    8: hashword(), hashlittle(), hashlittle2(), hashbig(), mix(), and final() \n    9  are externally useful functions.  Routines to test the hash are included \n   10  if SELF_TEST is defined.  You can use this free for any purpose.  It's in\n   11  the public domain.  It has no warranty.\n   12  \n   13: You probably want to use hashlittle().  hashlittle() and hashbig()\n   14: hash byte arrays.  hashlittle() is is faster than hashbig() on\n   15  little-endian machines.  Intel and AMD are little-endian machines.\n   16: On second thought, you probably want hashlittle2(), which is identical to\n   17: hashlittle() except it returns two 32-bit hashes for the price of one.  \n   18  You could implement hashbig2() if you wanted but I haven't bothered here.\n   19  \n   ..\n   27  then use c as the hash value.  If you have a variable length array of\n   28  4-byte integers to hash, use hashword().  If you have a byte array (like\n   29: a character string), use hashlittle().  If you have several byte arrays, or\n   30: a mix of things, see the comments above hashlittle().  \n   31  \n   32  Why is this so big?  I read 12 bytes at a time into 3 4-byte integers, \n   ..\n  166   -- that the length be the number of uint32_t's in the key\n  167  \n  168:  The function hashword() is identical to hashlittle() on little-endian\n  169   machines, and identical to hashbig() on big-endian machines,\n  170   except that the length has to be measured in uint32_ts rather than in\n  171:  bytes.  hashlittle() is more complicated than hashword() only because\n  172:  hashlittle() has to dance around fitting the key bytes into registers.\n  173  --------------------------------------------------------------------\n  174  */\n  ...\n  257  /*\n  258  -------------------------------------------------------------------------------\n  259: hashlittle() -- hash a variable-length key into a 32-bit value\n  260    k       : the key (the unaligned variable-length array of bytes)\n  261    length  : the length of the key, counting by bytes\n  ...\n  272  \n  273  If you are hashing n strings (uint8_t **)k, do it like this:\n  274:   for (i=0, h=0; i<n; ++i) h = hashlittle( k[i], len[i], h);\n  275  \n  276  By Bob Jenkins, 2006.  bob_jenkins@burtleburtle.net.  You may use this\n  ...\n  282  */\n  283  \n  284: uint32_t hashlittle( const void *key, size_t length, uint32_t initval)\n  285  {\n  286    uint32_t a,b,c;                                          /* internal state */\n  ...\n  454  \n  455  /*\n  456:  * hashlittle2: return 2 32-bit hash values\n  457   *\n  458:  * This is identical to hashlittle(), except it returns two 32-bit hash\n  459   * values instead of just one.  This is good enough for hash table\n  460   * lookup with 2^^64 buckets, or if you want a second hash if you're not\n  ...\n  463   * a 64-bit value do something like \"*pc + (((uint64_t)*pb)<<32)\".\n  464   */\n  465: void hashlittle2( \n  466    const void *key,       /* the key to hash */\n  467    size_t      length,    /* length of the key */\n  ...\n  643   * hashbig():\n  644   * This is the same as hashword() on big-endian machines.  It is different\n  645:  * from hashlittle() on all machines.  hashbig() takes advantage of\n  646   * big-endian byte ordering. \n  647   */\n  ...\n  784    for (i=0; i<1; ++i) \n  785    {\n  786:     h = hashlittle(&buf[0],1,h);\n  787    }\n  788    time(&z);\n  ...\n  825  	    a[i] ^= (k<<j);\n  826  	    a[i] ^= (k>>(8-j));\n  827: 	     c[0] = hashlittle(a, hlen, m);\n  828  	    b[i] ^= ((k+1)<<j);\n  829  	    b[i] ^= ((k+1)>>(8-j));\n  830: 	     d[0] = hashlittle(b, hlen, m);\n  831  	    /* check every bit is 1, 0, set, and not set at least once */\n  832  	    for (l=0; l<HASHSTATE; ++l)\n  ...\n  886    p = q;\n  887    printf(\"%.8x %.8x %.8x %.8x %.8x %.8x %.8x %.8x %.8x %.8x %.8x %.8x\\n\",\n  888:          hashlittle(p, sizeof(q)-1, 13), hashlittle(p, sizeof(q)-2, 13),\n  889:          hashlittle(p, sizeof(q)-3, 13), hashlittle(p, sizeof(q)-4, 13),\n  890:          hashlittle(p, sizeof(q)-5, 13), hashlittle(p, sizeof(q)-6, 13),\n  891:          hashlittle(p, sizeof(q)-7, 13), hashlittle(p, sizeof(q)-8, 13),\n  892:          hashlittle(p, sizeof(q)-9, 13), hashlittle(p, sizeof(q)-10, 13),\n  893:          hashlittle(p, sizeof(q)-11, 13), hashlittle(p, sizeof(q)-12, 13));\n  894    p = &qq[1];\n  895    printf(\"%.8x %.8x %.8x %.8x %.8x %.8x %.8x %.8x %.8x %.8x %.8x %.8x\\n\",\n  896:          hashlittle(p, sizeof(q)-1, 13), hashlittle(p, sizeof(q)-2, 13),\n  897:          hashlittle(p, sizeof(q)-3, 13), hashlittle(p, sizeof(q)-4, 13),\n  898:          hashlittle(p, sizeof(q)-5, 13), hashlittle(p, sizeof(q)-6, 13),\n  899:          hashlittle(p, sizeof(q)-7, 13), hashlittle(p, sizeof(q)-8, 13),\n  900:          hashlittle(p, sizeof(q)-9, 13), hashlittle(p, sizeof(q)-10, 13),\n  901:          hashlittle(p, sizeof(q)-11, 13), hashlittle(p, sizeof(q)-12, 13));\n  902    p = &qqq[2];\n  903    printf(\"%.8x %.8x %.8x %.8x %.8x %.8x %.8x %.8x %.8x %.8x %.8x %.8x\\n\",\n  904:          hashlittle(p, sizeof(q)-1, 13), hashlittle(p, sizeof(q)-2, 13),\n  905:          hashlittle(p, sizeof(q)-3, 13), hashlittle(p, sizeof(q)-4, 13),\n  906:          hashlittle(p, sizeof(q)-5, 13), hashlittle(p, sizeof(q)-6, 13),\n  907:          hashlittle(p, sizeof(q)-7, 13), hashlittle(p, sizeof(q)-8, 13),\n  908:          hashlittle(p, sizeof(q)-9, 13), hashlittle(p, sizeof(q)-10, 13),\n  909:          hashlittle(p, sizeof(q)-11, 13), hashlittle(p, sizeof(q)-12, 13));\n  910    p = &qqqq[3];\n  911    printf(\"%.8x %.8x %.8x %.8x %.8x %.8x %.8x %.8x %.8x %.8x %.8x %.8x\\n\",\n  912:          hashlittle(p, sizeof(q)-1, 13), hashlittle(p, sizeof(q)-2, 13),\n  913:          hashlittle(p, sizeof(q)-3, 13), hashlittle(p, sizeof(q)-4, 13),\n  914:          hashlittle(p, sizeof(q)-5, 13), hashlittle(p, sizeof(q)-6, 13),\n  915:          hashlittle(p, sizeof(q)-7, 13), hashlittle(p, sizeof(q)-8, 13),\n  916:          hashlittle(p, sizeof(q)-9, 13), hashlittle(p, sizeof(q)-10, 13),\n  917:          hashlittle(p, sizeof(q)-11, 13), hashlittle(p, sizeof(q)-12, 13));\n  918    printf(\"\\n\");\n  919  \n  920:   /* check that hashlittle2 and hashlittle produce the same results */\n  921    i=47; j=0;\n  922:   hashlittle2(q, sizeof(q), &i, &j);\n  923:   if (hashlittle(q, sizeof(q), 47) != i)\n  924:     printf(\"hashlittle2 and hashlittle mismatch\\n\");\n  925  \n  926    /* check that hashword2 and hashword produce the same results */\n  ...\n  932  	   i, hashword(&len, 1, 47));\n  933  \n  934:   /* check hashlittle doesn't read before or after the ends of the string */\n  935    for (h=0, b=buf+1; h<8; ++h, ++b)\n  936    {\n  ...\n  941  \n  942        /* these should all be equal */\n  943:       ref = hashlittle(b, len, (uint32_t)1);\n  944        *(b+i)=(uint8_t)~0;\n  945        *(b-1)=(uint8_t)~0;\n  946:       x = hashlittle(b, len, (uint32_t)1);\n  947:       y = hashlittle(b, len, (uint32_t)1);\n  948        if ((ref != x) || (ref != y)) \n  949        {\n  ...\n  967    for (i=0, h=0; i<8; ++i)\n  968    {\n  969:     h = hashlittle(buf, 0, h);\n  970      printf(\"%2ld  0-byte strings, hash is  %.8x\\n\", i, h);\n  971    }\n  ...\n  975  {\n  976    uint32_t b,c;\n  977:   b=0, c=0, hashlittle2(\"\", 0, &c, &b);\n  978    printf(\"hash is %.8lx %.8lx\\n\", c, b);   /* deadbeef deadbeef */\n  979:   b=0xdeadbeef, c=0, hashlittle2(\"\", 0, &c, &b);\n  980    printf(\"hash is %.8lx %.8lx\\n\", c, b);   /* bd5b7dde deadbeef */\n  981:   b=0xdeadbeef, c=0xdeadbeef, hashlittle2(\"\", 0, &c, &b);\n  982    printf(\"hash is %.8lx %.8lx\\n\", c, b);   /* 9c093ccd bd5b7dde */\n  983:   b=0, c=0, hashlittle2(\"Four score and seven years ago\", 30, &c, &b);\n  984    printf(\"hash is %.8lx %.8lx\\n\", c, b);   /* 17770551 ce7226e6 */\n  985:   b=1, c=0, hashlittle2(\"Four score and seven years ago\", 30, &c, &b);\n  986    printf(\"hash is %.8lx %.8lx\\n\", c, b);   /* e3607cae bd371de4 */\n  987:   b=0, c=1, hashlittle2(\"Four score and seven years ago\", 30, &c, &b);\n  988    printf(\"hash is %.8lx %.8lx\\n\", c, b);   /* cd628161 6cbea4b3 */\n  989:   c = hashlittle(\"Four score and seven years ago\", 30, 0);\n  990    printf(\"hash is %.8lx\\n\", c);   /* 17770551 */\n  991:   c = hashlittle(\"Four score and seven years ago\", 30, 1);\n  992    printf(\"hash is %.8lx\\n\", c);   /* cd628161 */\n  993  }\n\n/home/jenga/projects/elixr/src/types/symbol.c:\n   73      sym->alloc = size;\n   74      /* FIXME: change to reflect use of khash */\n   75:     sym->hash = (unsigned long)hashlittle(str, len, 0xDEADBEEF);\n   76      /* Just allocing, symbol not necessarily interned */\n   77      sym->interned = 0;\n\n90 matches across 2 files\n",
+			"settings":
+			{
+				"buffer_size": 8728,
+				"line_ending": "Unix",
+				"name": "Find Results",
+				"scratch": true
+			}
+		},
+		{
+			"file": "src/types/symbol.c",
+			"settings":
+			{
+				"buffer_size": 6073,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "src/grammar.leg",
+			"settings":
+			{
+				"buffer_size": 7877,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "src/compile.c",
+			"settings":
+			{
+				"buffer_size": 12766,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "src/types/string.c",
+			"settings":
+			{
+				"buffer_size": 4872,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"contents": "Package Control Messages\n========================\n\nPackage Control:\n---------------\n\n  Package Control 1.6.0 Changelog:\n  \n  Wow! It has been 9 months since the last stable release of Package Control.\n  Quite a lot has happened since then, including the release of Sublime Text 2\n  stable, and hundreds upon hundreds of new packages from the community!\n  \n  A quick thank you to Kevin Yank (@sentience) for recently volunteering to help\n  review packages for inclusion in the default channel, and ninj0x\n  (https://github.com/ninj0x) for rewriting the Package Control Community\n  Packages search functionality so it is nice and fast once again! The lists\n  below include specific thanks for code contributions.\n  \n  As Sublime Text has become increasingly more popular, and the number of\n  packages has increased so rapidly, the bandwidth requirements have also\n  significantly increased. This month the default channel will very likely serve\n  over 1TB of JSON data. If you feel so inclined, consider pitching in a small\n  amount to help cover the cost:\n  http://wbond.net/sublime_packages/package_control/say_thanks. A big thank you\n  to all of the users who have already contributed!\n  \n  \n  Enhancements\n  \n  \n   - Added full (custom) proxy authentication support for HTTPS connections\n  \n   - Added NTLM authentication for proxies on Windows\n  \n   - Proxy authentication information is now set via the new proxy_username and\n     proxy_password settings.\n  \n   - If the https_proxy setting it set to false, it will not inherit from the\n     http_proxy setting (thanks planardothum!)\n  \n   - The time of the last successful run is no longer stored in\n     Packages/User/Package Control.sublime-settings, but rather in\n     Packages/User/Package Control.last-run making it easier to ignore via git,\n     hg, etc. (thanks schlamar!)\n  \n   - Packages are now ignored during install and upgrade to help prevents errors\n     where Sublime Text tries to read a file as it is being extracted\n  \n   - Packages that include DLLs for Windows can now be upgraded. In-use\n     DLLs will be detected and the user prompted to restart.\n  \n   - Package version numbers may now include non-numeric components, and semantic\n     versioning (http://semver.org) is fully supported\n  \n   - JSON parsing messages are now printed to the console instead of being shown\n     in an error popup\n  \n   - Added support for changes to the BitBucket API\n  \n   - Added support for changes to GitHub URLs\n  \n   - Added the debug setting to help track down HTTP connection issues\n  \n   - All of the downloaders will now try to use HTTP compression\n  \n   - All of the downloaders will now follow redirects\n  \n   - Added new install_missing setting to control if Package Control should try\n     to install any packages that appear to be missing from the current machine.\n     This defaults to true, and is really only useful if you want to prevent\n     Package Control from connecting to the internet without explicitly asking\n     it to.\n  \n   - Added lots of code comments as a first step towards making contributions\n     by other developers easier\n  \n  \n  Bug Fixes\n  \n  \n   - Added support for the new preferences filename (thanks titoBouzout!)\n  \n   - If a package is missing from a machine, but not available for that\n     platform, it is no longer considered an error (thanks schlamar!)\n  \n   - Updated CA certs\n  \n   - Fixed handling of install and upgrade messages that contain non-ASCII\n     characters\n  \n   - Fixed a unicode error trying to load the CA cert bundle file on Windows when\n     the install path to Sublime Text contains non-ASCII characters\n  \n   - Better handling for edge case HTTP errors (thanks tgecho!)\n  \n   - Fixed a number of errors related to non-ASCII error messages being created\n     by the operating system (thanks quarnster!)\n  \n   - GitHub URLs will now automatically be trimmed of trailing .git suffixes\n  \n   - Badly formatted messages.json files will no longer break the install process\n",
+			"settings":
+			{
+				"buffer_size": 3999,
+				"line_ending": "Unix",
+				"name": "Package Control Messages",
+				"scratch": true
+			}
+		}
+	],
+	"build_system": "Packages/Makefile/Make.sublime-build",
+	"command_palette":
+	{
+		"height": 231.0,
+		"selected_items":
+		[
+			[
+				":w",
+				":w - Save"
+			],
+			[
+				":wa",
+				":w - Save"
+			],
+			[
+				"Package Control: insta",
+				"Package Control: Install Package"
+			],
+			[
+				"Package Control: inst",
+				"Package Control: Install Package"
+			],
+			[
+				"Package Control: in",
+				"Package Control: Install Package"
+			],
+			[
+				"Package Control: ena",
+				"Package Control: Enable Package"
+			],
+			[
+				"Package Control: dis",
+				"Package Control: Disable Package"
+			],
+			[
+				"install",
+				"Package Control: Install Package"
+			],
+			[
+				"Package Control: rem",
+				"Package Control: Remove Package"
+			],
+			[
+				"Package Control: ",
+				"Package Control: Enable Package"
+			],
+			[
+				"Package Control: ins",
+				"Package Control: Install Package"
+			],
+			[
+				"Snippet: ",
+				"Snippet: #!/usr/bin/env"
+			],
+			[
+				"vect",
+				"Snippet: Vector For Loop"
+			]
+		],
+		"width": 400.0
+	},
+	"console":
+	{
+		"height": 125.0
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/home/jenga/github/elixr/src/opcodes.h",
+		"/home/jenga/.config/sublime-text-2/Packages/User/SublimeClang.sublime-settings",
+		"/home/jenga/github/elixr/src/types/table.c",
+		"/home/jenga/github/elixr/src/types/list.c",
+		"/home/jenga/github/elixr/src/types/string.h",
+		"/home/jenga/github/elixr/src/string.h",
+		"/home/jenga/.config/sublime-text-2/Packages/User/Preferences.sublime-settings",
+		"/home/jenga/github/elixr/src/compile.c",
+		"/home/jenga/github/elixr/src/elixr.h",
+		"/home/jenga/github/elixr/src/parser.c",
+		"/home/jenga/github/elixr/src/parser.y",
+		"/home/jenga/github/elixr/src/ast.c",
+		"/home/jenga/github/elixr/src/ast.h",
+		"/home/jenga/github/elixr/src/init.c",
+		"/home/jenga/github/elixr/src/list.c",
+		"/home/jenga/github/elixr/src/symbol.c",
+		"/home/jenga/github/elixr/src/table.c",
+		"/home/jenga/github/elixr/src/symbol.h",
+		"/home/jenga/github/elixr/src/compile.h",
+		"/home/jenga/github/elixr/src/test_grammar.c",
+		"/home/jenga/github/elixr/src/types/symbol.c",
+		"/home/jenga/.config/sublime-text-2/Packages/SublimeClang/SublimeClang.sublime-settings",
+		"/home/jenga/github/elixr/elixr.sublime-project",
+		"/home/jenga/.config/sublime-text-2/Packages/User/Package Control.sublime-settings",
+		"/home/jenga/github/elixr/src/objmodel.c",
+		"/home/jenga/github/elixr/src/types/symbol.h",
+		"/home/jenga/github/elixr/src/grammar.leg",
+		"/home/jenga/github/elixr/src/grammar.c",
+		"/home/jenga/github/elixr/test/check_symbol.c",
+		"/home/jenga/github/elixr/src/types/string.c",
+		"/home/jenga/github/elixr/src/vm.c",
+		"/home/jenga/github/elixr/src/types/.clang_complete",
+		"/home/jenga/github/genesis/textdump_rc",
+		"/home/jenga/github/elixr/elixr.sublime-workspace",
+		"/home/jenga/github/elixr/src/closure.c",
+		"/home/jenga/github/elixr/src/closure.h",
+		"/home/jenga/github/elixr/src/dbpack.c",
+		"/home/jenga/github/elixr/src/dump_info.c",
+		"/home/jenga/github/elixr/src/list.h",
+		"/home/jenga/github/elixr/src/number.c",
+		"/home/jenga/github/elixr/src/number.h",
+		"/home/jenga/github/elixr/src/main.c",
+		"/home/jenga/github/elixr/src/string.c",
+		"/home/jenga/github/elixr/src/table.h",
+		"/home/jenga/github/elixr/test/check_main.c",
+		"/home/jenga/github/elixr/test/check_table.c",
+		"/home/jenga/github/elixr/test/check_list.c",
+		"/home/jenga/github/elixr/test/check_string.c",
+		"/home/jenga/github/elixr/test/check_types.c",
+		"/home/jenga/github/elixr/TODO.md",
+		"/home/jenga/github/elixr/src/internal.h",
+		"/home/jenga/github/elixr/src/lexer.re",
+		"/home/jenga/github/elixr/src/object.c",
+		"/home/jenga/github/elixr/src/dbpack.h",
+		"/home/jenga/github/elixr/src/objmodel.h",
+		"/home/jenga/github/elixr/src/lexer.c",
+		"/home/jenga/github/elixr/src/driver.c",
+		"/home/jenga/github/elixr/src/elixr",
+		"/home/jenga/.config/sublime-text-2/Packages/Default/Preferences.sublime-settings",
+		"/home/jenga/github/elixr/README",
+		"/home/jenga/github/elixr/src/lexer.h",
+		"/home/jenga/github/elixr/dbpack.c",
+		"/home/jenga/github/elixr/timing/table_perf.c",
+		"/home/jenga/github/elixr/src/lookup3.c",
+		"/home/jenga/github/elixr/src/Makefile",
+		"/home/jenga/github/elixr/src/dump_info",
+		"/home/jenga/github/elixr/src/objcache.c",
+		"/home/jenga/github/elixr/src/parser.h",
+		"/home/jenga/github/elixr/src/parser.out",
+		"/home/jenga/github/elixr/src/sophist.h",
+		"/home/jenga/github/elixr/table.c",
+		"/home/jenga/C/pthreads.c",
+		"/home/jenga/github/elixr/list.c",
+		"/home/jenga/github/elixr/compile.c",
+		"/home/jenga/.config/sublime-text-2/Packages/SublimeClang/Default.sublime-keymap",
+		"/home/jenga/builds/Sublime Text 2/table.c",
+		"/home/jenga/github/elixr/TODO",
+		"/home/jenga/github/elixr/lemon/lemon.c",
+		"/home/jenga/github/elixr/test/a.out",
+		"/home/jenga/.config/sublime-text-2/Packages/User/Distraction Free.sublime-settings",
+		"/home/jenga/github/elixr/src.xr",
+		"/home/jenga/github/elixr/Makefile",
+		"/home/jenga/github/elixr/src/string.c~",
+		"/home/jenga/github/elixr/src/elixr.h~",
+		"/home/jenga/github/elixr/src/number.c~",
+		"/home/jenga/github/elixr/src/number.h~",
+		"/home/jenga/github/elixr/string.c",
+		"/home/jenga/github/elixr/src/main.c~",
+		"/home/jenga/github/elixr/src/table.c~"
+	],
+	"find":
+	{
+		"height": 34.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+			"",
+			"ast.c, ast.h, closure.c, closure.h, compile.c, compile.h, dbpack.c, dbpack.h, dump_info.c, elixr.h, init.c, lexer.re, list.c, list.h, main.c, number.c, number.h, objcache.c, objmodel.c, objmodel.h, opcodes.h, parser.y, string.c, string.h, symbol.c, symbol.h, table.c, table.h, check_*.c",
+			"ast.c, ast.h, closure.c, closure.h, compile.c, compile.h, dbpack.c, dbpack.h, dump_info.c, elixr.h, init.c, lexer.re, list.c, list.h, main.c, number.c, number.h, objcache.c, objmodel.c, objmodel.h, opcodes.h, parser.y, string.c, string.h, symbol.c, symbol.h, table.c, table.h",
+			"ast.c, ast.h, closure.c, closure.h, compile.c, compile.h, dbpack.c, dbpack.h, dump_info.c, elixr.h, init.c, lexer.re, list.c, list.h, main.c, number.c, number.h, objcache.c, objmodel.c, objmodel.h, opcodes.h, parser.y, string,c, string.h, symbol.c, symbol.h, table.c, table.h",
+			"ast.c, ast.h, closure.c, closure.h, compile.c, compile.h, dbpack.c, dbpack.h, dump_info.c, elixr.h, init.c, lexer.re, list.c, list.h, main.c, number.c, number.h, objcache.c, objmodel.c, objmodel.h, opcodes.h, parser.y, string,c, string.h, symbol.c, symbol.h, table.c, tabel.h",
+			"main.c, string.c",
+			""
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": true,
+		"find_history":
+		[
+			"hashlittle",
+			"github",
+			"\"string.h\"",
+			"DBL",
+			"dbl",
+			"xrListData",
+			"Message send",
+			"SYM",
+			"symbol_intern",
+			"h",
+			"str_hash",
+			"symbol_hash",
+			"     ",
+			"    ",
+			"//     ",
+			"// ",
+			"sym_num_eq",
+			"s->n[0], s, s->n[1]);",
+			"node%p",
+			"s->n[0], s, s->n[1]);",
+			"node%p",
+			"XRNode",
+			"elixr_double",
+			"elixr_init",
+			"elixr_str",
+			"elixr_str_",
+			"elixr_str(",
+			"elixr_str",
+			"strn",
+			"elixr",
+			"elixr_str",
+			"elixr",
+			"elixr_",
+			"string_table",
+			"strings",
+			"string",
+			"symbol_intern",
+			"xr_str",
+			"elixr_str",
+			"xr_str",
+			"OP",
+			"def_(.*)_methods",
+			"_(.*)_methods",
+			"sprintf",
+			"string_empty",
+			", string",
+			"string",
+			"string_([^\\(,;]*)\\(",
+			"table_([^\\(,;]*)\\(",
+			"s_get",
+			"elixr_table_get",
+			"table_empty",
+			"table_([^\\(,;]*)\\(",
+			"table_[^\\(,;]*\\(",
+			"table_[^\\(,]*\\(",
+			"table_[^\\(]*\\(",
+			"table_[^\\(]*",
+			"table_[^(]",
+			"table_[^\\(]",
+			"table_[^\\(]\\(",
+			"table_*(",
+			"table_[^(]*(",
+			"table_[^(]*\\(",
+			"table_[^(]*(",
+			"table_[^(]*",
+			"string_from_n",
+			"string_from",
+			"value",
+			"key",
+			"(%d)",
+			"(14)",
+			"14",
+			"_num",
+			"xrTblCmp",
+			"val_safe_cmp",
+			"xrStrPtr",
+			"string_append",
+			"2",
+			"XR_STR_LEN",
+			"symbol_hash",
+			"xrAsObjname",
+			"data_unpack",
+			"closure_new",
+			"xrStrPtr",
+			"s_unpack",
+			"s_pack",
+			"elixr_intern",
+			"symbol",
+			"string",
+			"val_name",
+			"XR_TABLE",
+			"xrAsTable",
+			"XR_STR_ALLOC",
+			"XR_STR_LEN",
+			"XR_STR_PTR",
+			"XR_STR_([^(]*)",
+			"XR_STR_[^(]*",
+			"XR_STR_[^(]",
+			"XR_SYM_ALLOC",
+			"xrListForeach",
+			"val_get_vtable",
+			"XR",
+			"XR_F",
+			"XR",
+			"XR_SYM_PTR",
+			"XR_SYM_LEN",
+			"TABLE_SIZE",
+			"LEN",
+			"table_dump",
+			"symbol_lookup",
+			"symbol_from_n",
+			"symbol_newn",
+			"xrHash",
+			"val_vtable(",
+			"table_vt(",
+			"symbol_vt(",
+			"_vt(",
+			"_vt",
+			"qsend",
+			"\"print\"",
+			"def_.*_vt()",
+			"def_*_vt()",
+			"num_vt",
+			"();",
+			"def_",
+			"elixr_number_add",
+			"elixr_number_string",
+			"VAL_NUM"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			"\"xrstring.h\"",
+			"XRAst",
+			"xr_double",
+			"xr_init",
+			"xr_str",
+			"xr_obj_addsym",
+			"elixr_str",
+			"elixr_$1_methods",
+			"elixr_str_empty",
+			"elixr_str_$1(",
+			"elixr_table_$1(",
+			"s_at",
+			"elixr_table_at",
+			"elixr_table_empty",
+			"elixr_table_$1(",
+			"elixr_table_$1",
+			"elixr_strn",
+			"elixr_str",
+			"XR",
+			"xrTblCmp",
+			"xrStrLen",
+			"val_name",
+			"xrAsObjname",
+			"xrAsTable",
+			"val_vtable",
+			"xrStrAlloc",
+			"xrStrLen",
+			"xrStrPtr",
+			"xrAsStr_$1",
+			"xrSymAlloc",
+			"xrAsTable",
+			"val_f",
+			"xrSymPtr",
+			"xrSymLen",
+			"symbol_from_n",
+			"xrAsTable(",
+			"number_add",
+			"number_string",
+			" symbol_from(",
+			" string_from(",
+			"string_from_n",
+			"list_build",
+			"string",
+			"double_pack",
+			"double_unpack",
+			"number_pack",
+			"number_unpack",
+			"list_empty",
+			"list_append",
+			"list_alloc",
+			"closure_new",
+			"elixr_closure_new",
+			"string_print",
+			"string_sprintf",
+			"def_closure",
+			"xr_sym(",
+			"string_append",
+			"def_method",
+			"symbol",
+			"symbol_",
+			"symbol_hash",
+			"str_hash",
+			"def_symbol_methods",
+			"def_symbol_vt",
+			"table_alloc",
+			"table_",
+			"def_table_vt",
+			"def_table_methods",
+			"string",
+			"string_append_chars",
+			"string_empty",
+			"xr_malloc",
+			"xr_malloc_n",
+			"value",
+			"xrListForeach",
+			"xrListHead",
+			"xrListAt",
+			"xrListAlloc",
+			"xrListLen",
+			"xrSafeLit",
+			"val_get_vtable",
+			"val_vtable",
+			"xrInt",
+			"xrNum",
+			"xrIsPtr",
+			"xrIsNum"
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"settings":
+					{
+						"buffer_size": 8728,
+						"regions":
+						{
+							"match":
+							{
+								"flags": 112,
+								"regions":
+								[
+									[
+										202,
+										212
+									],
+									[
+										216,
+										226
+									],
+									[
+										511,
+										521
+									],
+									[
+										526,
+										536
+									],
+									[
+										579,
+										589
+									],
+									[
+										741,
+										751
+									],
+									[
+										785,
+										795
+									],
+									[
+										1142,
+										1152
+									],
+									[
+										1240,
+										1250
+									],
+									[
+										1471,
+										1481
+									],
+									[
+										1664,
+										1674
+									],
+									[
+										1734,
+										1744
+									],
+									[
+										2001,
+										2011
+									],
+									[
+										2318,
+										2328
+									],
+									[
+										2474,
+										2484
+									],
+									[
+										2666,
+										2676
+									],
+									[
+										2748,
+										2758
+									],
+									[
+										3053,
+										3063
+									],
+									[
+										3301,
+										3311
+									],
+									[
+										3471,
+										3481
+									],
+									[
+										3612,
+										3622
+									],
+									[
+										3724,
+										3734
+									],
+									[
+										3981,
+										3991
+									],
+									[
+										4013,
+										4023
+									],
+									[
+										4061,
+										4071
+									],
+									[
+										4093,
+										4103
+									],
+									[
+										4141,
+										4151
+									],
+									[
+										4173,
+										4183
+									],
+									[
+										4221,
+										4231
+									],
+									[
+										4253,
+										4263
+									],
+									[
+										4301,
+										4311
+									],
+									[
+										4333,
+										4343
+									],
+									[
+										4382,
+										4392
+									],
+									[
+										4415,
+										4425
+									],
+									[
+										4567,
+										4577
+									],
+									[
+										4599,
+										4609
+									],
+									[
+										4647,
+										4657
+									],
+									[
+										4679,
+										4689
+									],
+									[
+										4727,
+										4737
+									],
+									[
+										4759,
+										4769
+									],
+									[
+										4807,
+										4817
+									],
+									[
+										4839,
+										4849
+									],
+									[
+										4887,
+										4897
+									],
+									[
+										4919,
+										4929
+									],
+									[
+										4968,
+										4978
+									],
+									[
+										5001,
+										5011
+									],
+									[
+										5154,
+										5164
+									],
+									[
+										5186,
+										5196
+									],
+									[
+										5234,
+										5244
+									],
+									[
+										5266,
+										5276
+									],
+									[
+										5314,
+										5324
+									],
+									[
+										5346,
+										5356
+									],
+									[
+										5394,
+										5404
+									],
+									[
+										5426,
+										5436
+									],
+									[
+										5474,
+										5484
+									],
+									[
+										5506,
+										5516
+									],
+									[
+										5555,
+										5565
+									],
+									[
+										5588,
+										5598
+									],
+									[
+										5742,
+										5752
+									],
+									[
+										5774,
+										5784
+									],
+									[
+										5822,
+										5832
+									],
+									[
+										5854,
+										5864
+									],
+									[
+										5902,
+										5912
+									],
+									[
+										5934,
+										5944
+									],
+									[
+										5982,
+										5992
+									],
+									[
+										6014,
+										6024
+									],
+									[
+										6062,
+										6072
+									],
+									[
+										6094,
+										6104
+									],
+									[
+										6143,
+										6153
+									],
+									[
+										6176,
+										6186
+									],
+									[
+										6264,
+										6274
+									],
+									[
+										6280,
+										6290
+									],
+									[
+										6348,
+										6358
+									],
+									[
+										6396,
+										6406
+									],
+									[
+										6450,
+										6460
+									],
+									[
+										6466,
+										6476
+									],
+									[
+										6643,
+										6653
+									],
+									[
+										6841,
+										6851
+									],
+									[
+										6957,
+										6967
+									],
+									[
+										7007,
+										7017
+									],
+									[
+										7165,
+										7175
+									],
+									[
+										7322,
+										7332
+									],
+									[
+										7452,
+										7462
+									],
+									[
+										7591,
+										7601
+									],
+									[
+										7712,
+										7722
+									],
+									[
+										7864,
+										7874
+									],
+									[
+										8016,
+										8026
+									],
+									[
+										8162,
+										8172
+									],
+									[
+										8284,
+										8294
+									],
+									[
+										8573,
+										8583
+									]
+								],
+								"scope": ""
+							}
+						},
+						"selection":
+						[
+							[
+								8578,
+								8578
+							]
+						],
+						"settings":
+						{
+							"detect_indentation": false,
+							"output_tag": 1,
+							"result_base_dir": "",
+							"result_file_regex": "^([A-Za-z\\\\/<].*):$",
+							"result_line_regex": "^ +([0-9]+):",
+							"scroll_past_end": true,
+							"syntax": "Packages/Default/Find Results.hidden-tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 1932.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "src/types/symbol.c",
+					"settings":
+					{
+						"buffer_size": 6073,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/C++/C.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 561.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "src/grammar.leg",
+					"settings":
+					{
+						"buffer_size": 7877,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 336.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "src/compile.c",
+					"settings":
+					{
+						"buffer_size": 12766,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/C++/C.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 398.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "src/types/string.c",
+					"settings":
+					{
+						"buffer_size": 4872,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								524,
+								524
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/C++/C.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 252.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"settings":
+					{
+						"buffer_size": 3999,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								3999,
+								3999
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage",
+							"word_wrap": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 34.0
+	},
+	"input":
+	{
+		"height": 30.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.clang":
+	{
+		"height": 136.0
+	},
+	"output.clang_static_analyzer":
+	{
+		"height": 100.0
+	},
+	"output.exec":
+	{
+		"height": 253.0
+	},
+	"output.unsaved_changes":
+	{
+		"height": 100.0
+	},
+	"replace":
+	{
+		"height": 0.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+			[
+				"comp",
+				"src/compile.c"
+			],
+			[
+				"gram",
+				"src/grammar.leg"
+			],
+			[
+				"vm",
+				"src/vm.c"
+			],
+			[
+				"com",
+				"src/compile.c"
+			],
+			[
+				"obj",
+				"src/objmodel.c"
+			],
+			[
+				"gra",
+				"src/grammar.leg"
+			],
+			[
+				"elixr",
+				"src/elixr.h"
+			],
+			[
+				"string",
+				"src/string.h"
+			],
+			[
+				"tabl",
+				"src/table.c"
+			],
+			[
+				"str",
+				"src/string.c"
+			],
+			[
+				"list",
+				"src/list.c"
+			],
+			[
+				"main",
+				"src/main.c"
+			],
+			[
+				"look",
+				"src/lookup3.c"
+			],
+			[
+				"check",
+				"test/check_table.c"
+			],
+			[
+				"symb",
+				"src/symbol.c"
+			],
+			[
+				"sym",
+				"src/symbol.c"
+			],
+			[
+				"strin",
+				"src/string.c"
+			],
+			[
+				"clos",
+				"src/closure.c"
+			],
+			[
+				"dbp",
+				"dbpack.c"
+			],
+			[
+				"re",
+				"README"
+			],
+			[
+				"tab",
+				"src/table.c"
+			],
+			[
+				"list.c",
+				"src/list.c"
+			],
+			[
+				"table",
+				"src/table.c"
+			],
+			[
+				"symbol",
+				"src/symbol.h"
+			],
+			[
+				"table.c",
+				"src/table.c"
+			],
+			[
+				"ast",
+				"src/ast.c"
+			],
+			[
+				"elixr.h",
+				"src/elixr.h"
+			]
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 500.0,
+		"selected_items":
+		[
+			[
+				"",
+				"/home/jenga/github/elixr/elixr.sublime-project"
+			]
+		],
+		"width": 380.0
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 179.0,
+	"status_bar_visible": true
+}

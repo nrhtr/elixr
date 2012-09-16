@@ -1,0 +1,252 @@
+%{
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "internal.h"
+#include "elixr.h"
+#include "compile.h"
+#include "types.h"
+
+#define YYSTYPE XR
+#define YY_CTX_LOCAL
+#define YY_CTX_MEMBERS XR src; XR method; XR object; XR dump;
+
+unsigned int lineNumber;
+
+#define YY_INPUT(buf, result, max)		\
+  {						\
+    int c= getc(stdin);				\
+    if ('\n' == c || '\r' == c) ++lineNumber;	\
+    result= (EOF == c) ? 0 : (*(buf)= c, 1);	\
+  }
+
+
+#define XR_AST1(type, a)       ast_node(AST_##type, a, VAL_NIL, VAL_NIL)
+#define XR_AST2(type, a, b)    ast_node(AST_##type, a, b, VAL_NIL)
+#define XR_AST3(type, a, b, c) ast_node(AST_##type, a, b, c)
+%}
+
+Dump = -- h:Object { $$ = h = list_new(h); }
+     ( -- t:Object { $$ = h = list_append(0, h, t); })*
+     { ctx->dump = h;}
+
+Object = "object" - '$' i:ID ';' - EOL
+       { ctx->object = (i == xr_sym("root")) ? root : object_new(0, i); }
+       ( m:Method { object_add_method(ctx->object, m); })*
+       { $$ = ctx->object; }
+                                
+Method = -- "method" - i:ID a:Params -- s:Code
+       {
+           struct XRMethod *m = xr_method_new(i, a); printf("CODE\n-----\n"); qsend(s, "source", xrNum(0));
+           xr_ast_compile(s, m); m->object = ctx->object;
+           $$ = ctx->method = (XR)m; assert(ctx->object); 
+       }
+
+Params = '(' - ')' { $$ = list_empty(); }
+       | '(' - p1:ID { p1 = list_new(p1); }
+       (',' - p2:ID { p1 = list_append(0, p1, p2); })* ')'
+       { $$ = p1; } 
+
+Code = SBLOCK -- s:Statements -- CBLOCK
+     { $$ = XR_AST1(CODE, s);}
+
+Statements = s1:Stmt { $$ = s1 = list_new(s1); }
+           ( SEP s2:Stmt { $$ = s1 = list_append(0, s1, s2); })* SEP?
+           { $$ = s1; }
+
+Stmt = b:andor                 { $$ = XR_AST1(EXPRSTMT, b); }
+       | VAR i:ID !ASSIGN           { $$ = XR_AST1(VDECL, i); }
+       | VAR i:ID ASSIGN b:andor { $$ = XR_AST2(VINIT, i, b); }
+       | i:ID ASSIGN b:andor     { $$ = XR_AST2(ASSIGN, i, b); }
+       | c:Code                     { $$ = c; }
+       | "if" - '(' - b:andor - ')' -- t:Stmt -- "else" -- f:Stmt { $$ = XR_AST3(IFELSE, b, t, f); }
+       | "if" - '(' - b:andor - ')' -- t:Stmt
+       { $$ = XR_AST2(IF, b, t); }
+       | "while" - '(' - b:andor - ')' -- t:Stmt
+       { $$ = XR_AST2(WHILE, b, t); }
+       #| "debug"                    { $$ = XR_AST1(DEBUG, 0); }
+       #| "print" - s:andor       { $$ = XR_AST1(PRINT, s); }
+       #| "do" -- c:Stmt "while" - '(' - e:Cmp - ')' { $$ = XR_AST2(DOWHILE, e, c; }
+
+#Top level expression?
+expr = andor
+
+andor = c:Cmp
+        ( AND x:Cmp { c = XR_AST2(AND, c, x); }
+        | OR x:Cmp  { c = XR_AST2(OR, c, x);  })*
+        { $$ = c; }
+
+Cmp = s:Sum
+      ( EQ  s2:Sum { s = XR_AST2(EQ, s, s2);  }
+              | NEQ s2:Sum { s = XR_AST2(NEQ, s, s2); }
+              | GT s2:Sum  { s = XR_AST2(GT, s, s2);  }
+              | LT s2:Sum  { s = XR_AST2(LT, s, s2);  }
+              | GTE s2:Sum { s = XR_AST2(GTE, s, s2); }
+              | LTE s2:Sum { s = XR_AST2(LTE, s, s2); })*
+              { $$ = s; }
+
+
+Arguments = OPEN - CLOSE           - { printf("args w/ empty parens\n"); fflush(stdout); $$ = VAL_NIL; }
+          | '(' - l:ExprList ')' - { printf("args w/ exprlist\n"); fflush(stdout); $$ = l; }
+
+List = '[' -- ']' - { puts("EMPTY LSIT\n"); $$ = list_empty(); }
+     | '[' -- l:ExprList -- ']' - { $$ = l; }
+
+ExprList = h:andor { h = list_new(h); } (',' -- t:andor { list_append(0, h, t);} )* { $$ = h; }
+
+Sum = l:Product
+      ( PLUS  r:Product { l = XR_AST2(PLUS, l, r); }
+      | MINUS r:Product { l = XR_AST2(MINUS, l, r); })*
+      { $$ = l; }
+
+Product = l:BinaryNot
+          ( TIMES  r:BinaryNot { l = XR_AST2(TIMES, l, r); }
+          | DIVIDE r:BinaryNot { l = XR_AST2(DIVIDE, l, r); })*
+          { $$ = l; }
+
+BinaryNot = v:Msg     { $$ = v;}
+       | NOT v:Msg { $$ = XR_AST1(NOT, v); }
+
+#Unary messages have highest priority after atomic values
+Msg         = s:Value { printf("got msg\n"); }
+              ( i:ID !Arguments            { printf("msg w/ no parens\n"); s = XR_AST3(SEND, s, XR_AST1(SYMBOL, i), VAL_NIL);}
+              | i:ID a:Arguments { printf("msg w/ args\n"); s = XR_AST3(SEND, s, XR_AST1(SYMBOL, i), a); })*
+              { $$ = s; }
+
+#FIXME: sort out values/symbols/ids
+Value       = v:NUMBER            { $$ = XR_AST1(NUMBER, v); }
+            | v:STRING            { $$ = XR_AST1(STRING, v); }
+            | ':' v:ID             { $$ = XR_AST1(SYMBOL, v); }
+            | v:List              { $$ = XR_AST1(LIST, v); }
+            | "false" -           { $$ = XR_AST1(VALUE, VAL_FALSE); }
+            | "true" -            { $$ = XR_AST1(VALUE, VAL_TRUE); }
+            | "nil" -             { $$ = XR_AST1(VALUE, VAL_NIL); }
+            | "self" -            { $$ = XR_AST1(SELF, 0); }
+            | v:ID !ASSIGN        { printf("got ID\n"); $$ = XR_AST1(VAR, v); }
+            | OPEN e:expr CLOSE    { $$ = e; }
+
+
+NUMBER  = FIXNUM | DECIMAL
+FIXNUM  = < '-'? [0-9]+ !'.' >          - { $$ = xrNum(atoi(yytext)); }
+DECIMAL = < [0-9]* '.'? [0-9]+ >        - { $$ = xr_double(atof(yytext)); }
+ID      = !KEYWORD < [a-z] [a-z0-9_]* > - { $$ = xr_sym_n(yytext, yyleng); }
+
+#FIXME: escapes
+CHAR    = !EOL ('\\' [abefnrtv'"\[\]\\]
+               | '\\' [0-3][0-7][0-7]
+               | '\\' [0-7][0-7]?
+               | !'\\' .
+               )
+STRING  = ["] < ( !["] CHAR )* > ["] - { $$ = xr_strn(yytext, yyleng); }
+
+SEP     = (';' | EOL)   --
+
+# TODO: sort out keywords
+KEYWORD = "debug" | "nil" | "while" | "self" | "else" | "true" | "false" | "if" |"var" | "print"
+
+ASSIGN  = '=' !'='      -
+PLUS    = '+'           -
+MINUS   = '-'           -
+TIMES   = '*'           -
+DIVIDE  = '/'           -
+OPEN    = '(' {printf("OPEN\n");}           -
+CLOSE   = ')' {printf("CLOSE\n");}         -
+VAR     = "var"         -
+SBLOCK  = '{'           -
+CBLOCK  = '}'           -
+NOT     = '!'           -
+
+EQ      = '=='          -
+NEQ     = '!='          -
+GT      = '>'           -
+LT      = '<'           -
+GTE     = '>='          -
+LTE     = '<='          -
+
+OR      = '||'          -
+AND     = '&&'          -
+
+SPACE = ' ' | '\f' | '\v' | '\t'
+COMMENT = '#' (!EOL .)*
+EOL     = '\n' | '\r\n' | '\r'
+-       = (SPACE | COMMENT)*
+--      = (SPACE | COMMENT | EOL)*
+#EOF     = !.
+%%
+
+void yyerror(char *message, yycontext *yyctx)
+{
+
+char *fileName = "<stdin>";
+FILE *input = stdin;
+  fprintf(stderr, "%s:%d: %s", fileName, lineNumber, message);
+  if (yyctx->text[0]) fprintf(stderr, " near token '%s'", yyctx->text);
+  if (yyctx->pos < yyctx->limit || !feof(input))
+    {
+      yyctx->buf[yyctx->limit]= '\0';
+      fprintf(stderr, " before text \"");
+      while (yyctx->pos < yyctx->limit)
+	{
+	  if ('\n' == yyctx->buf[yyctx->pos] || '\r' == yyctx->buf[yyctx->pos]) break;
+	  fputc(yyctx->buf[yyctx->pos++], stderr);
+	}
+      if (yyctx->pos == yyctx->limit)
+	{
+	  int c;
+	  while (EOF != (c= fgetc(input)) && '\n' != c && '\r' != c)
+	    fputc(c, stderr);
+	}
+      fputc('\"', stderr);
+    }
+  fprintf(stderr, "\n");
+}
+
+XR xr_parse_code_from_stdin()
+{
+    yycontext ctx;
+    memset(&ctx, 0, sizeof(yycontext));
+
+    while (yyparsefrom(&ctx, yy_Code));
+
+
+    return ctx.src;
+}
+
+XR xr_parse_method_from_stdin()
+{
+    yycontext ctx;
+    memset(&ctx, 0, sizeof(yycontext));
+
+    while (yyparsefrom(&ctx, yy_Method));
+
+    return ctx.method;
+}
+
+XR xr_parse_dump_from_stdin()
+{
+    lineNumber = 1;
+
+    yycontext ctx;
+    memset(&ctx, 0, sizeof(yycontext));
+
+    while (yyparsefrom(&ctx, yy_Dump));
+
+    yyerror("syntax error", &ctx);
+
+    return ctx.dump;
+}
+
+XR xr_parse_any_from_stdin()
+{
+    lineNumber = 1;
+
+    yycontext ctx;
+    memset(&ctx, 0, sizeof(yycontext));
+
+    while (yyparsefrom(&ctx, yy_Stmt));
+    yyerror("syntax error", &ctx);
+
+    return ctx.yy;
+}
+

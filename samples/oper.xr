@@ -1,0 +1,10 @@
+#!./parse_dump
+object $root;
+method foo()
+{
+    s = "Hello"
+    b = s length
+
+    # TODO: Decide on message precedence
+    "Hello" length + 1 string showln
+}

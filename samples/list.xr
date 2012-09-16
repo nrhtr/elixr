@@ -1,0 +1,18 @@
+#!./parse_dump
+object $root;
+method foo()
+{
+    var i = ["hey", 2, 3]
+
+    "i = " show; i string showln
+    "i[0] = " show
+     i at(0) showln
+     #string showln
+#    "append 12/2" showln
+#    i append(12 / 2)
+#    "i = " show; i string showln
+
+#    d = []
+#    d append(42) append(7)
+#    d string showln
+}

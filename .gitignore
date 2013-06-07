@@ -7,6 +7,8 @@ src/elixr
 src/dump_info
 src/grammar.c
 elixr
+parse_dump
+elixr.sublime-*
 *.~
 *.o
 *.a

@@ -21,6 +21,10 @@ void xr_run_method(struct XRMethod *m)
     pos = 0;
     size_t i;
     printf("####### Running VM ##############\n");
+	
+	/* We can just reuse the C stack, right? */
+	XR locals = list_new_len(xrListLen(m->locals));
+	
     for (i = 0; i < m->code.len; i++) {
         XR_OP op = m->code.ops[i];
         /*
@@ -112,12 +116,12 @@ void xr_run_method(struct XRMethod *m)
             case OP_LSTORE:
                 {
                     XR val = POP();
-                    xrListAt(m->locals, op.a) = val;
+                    xrListAt(locals, op.a) = val;
                 }
                 break;
             case OP_LLOAD:
                 {
-                    XR val = xrListAt(m->locals, op.a);
+                    XR val = xrListAt(locals, op.a);
                     PUSH(val);
                 }
                 break;

@@ -3,7 +3,7 @@
 
 void xr_list_methods(void);
 
-XR list_alloc(size_t size);
+XR list_alloc(unsigned long size);
 XR list_empty(void);
 XR list_new(XR v);
 XR list_new_len(unsigned long len);

@@ -1,10 +1,13 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "internal.h"
 #include "elixr.h"
 #include "opcodes.h"
 
 #include "types/list.h"
+
+#include "vm.h"
 
 XR stack[256];
 size_t pos;
@@ -193,11 +196,6 @@ void xr_run_method(struct XRMethod *m)
                     PUSH(self);
                 }
                 break;
-            case OP_BRK:
-                {
-                    __asm__("int $0x3\n");
-                }
-                break;
             case OP_PLUS:
                 {
                     XR a = POP();
@@ -237,6 +235,24 @@ void xr_run_method(struct XRMethod *m)
                         c = VM_MATH(a, /, div, b);
                     }
                     PUSH(c);
+                }
+                break;
+            case OP_ASSERT:
+                {
+                    XR a = POP();
+
+                    if (!xrTest(a)) {
+                        fprintf(stderr, "Assertion failed. Aborting.");
+                        exit(1);
+                    }
+                }
+                break;
+            case OP_RETURN:
+                {
+                    XR a = POP();
+
+                    /* TODO: reentry */
+                    return a;
                 }
                 break;
             default:

@@ -1,8 +1,6 @@
 #ifndef AST_H
 #define AST_H
 
-/* #include "elixr.h" */
-
 enum AST_TYPE {
     AST_TIMES,
     AST_DIVIDE,
@@ -18,7 +16,6 @@ enum AST_TYPE {
     AST_ASSIGN,
     AST_VAR,
     AST_VDECL,
-    AST_PRINT,
     AST_VINIT,
     AST_SEND,
     AST_SYMBOL,
@@ -33,15 +30,13 @@ enum AST_TYPE {
     AST_NOT,
     AST_SELF,
     AST_WHILE,
-    AST_DEBUG,
     AST_EXPRSTMT,
     AST_FOR_IN,
     AST_AND,
-    AST_OR
+    AST_OR,
+    AST_ASSERT,
+    AST_RETURN
 };
-
-#define  Z3_OP(T, A, B)  ast_node(T, A, B, 0)
-#define Z3_AST(T, A)     ast_node(T, A, 0, 0)
 
 XR ast_node(enum AST_TYPE t, XR a, XR b, XR c);
 

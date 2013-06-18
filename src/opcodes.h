@@ -34,11 +34,12 @@ enum XR_OPCODE {
     OP_LT,
     OP_GTE,
     OP_LTE,
-    OP_BRK,
     OP_POP,
     OP_BUILD_LIST,
     OP_AND,
-    OP_OR
+    OP_OR,
+    OP_ASSERT,
+    OP_RETURN
 };
 
 extern struct op_info op_info[];

@@ -80,8 +80,6 @@ XR xr_ast_name(XR cl, XR self)
         return xr_str("var");
     case AST_VDECL:
         return xr_str("vdecl");
-    case AST_PRINT:
-        return xr_str("print");
     case AST_VINIT:
         return xr_str("vinit");
     case AST_SEND:
@@ -110,8 +108,6 @@ XR xr_ast_name(XR cl, XR self)
         return xr_str("self");
     case AST_WHILE:
         return xr_str("while");
-    case AST_DEBUG:
-        return xr_str("debug");
     case AST_EXPRSTMT:
         return xr_str("expr");
     case AST_FOR_IN:

@@ -35,6 +35,8 @@ struct op_info op_info[] = {
     {"build_list"},
     {"and"},
     {"or"},
+    {"assert"},
+    {"return"},
 };
 
 /* Genesis has an additional pass to add values (strings anyway) to the object
@@ -151,12 +153,8 @@ void xr_ast_compile(XR ast, struct XRMethod *m)
                 xr_asm_op(&m->code, OP_SELF, 0, 0);
             }
             break;
-        case AST_DEBUG:
-                xr_asm_op(&m->code, OP_BRK, 0, 0);
-            break;
         case AST_SEND:
             {
-
                 /* FIXME: arguments */
                 int args = 0;
                 if (n->n[2] && xrIsPtr(n->n[2]))
@@ -410,6 +408,18 @@ void xr_ast_compile(XR ast, struct XRMethod *m)
                 xr_ast_compile(n->n[1], m);
                 xr_ast_compile(n->n[0], m);
                 xr_asm_op(&m->code, OP_DIV, 0, 0);
+            }
+            break;
+        case AST_ASSERT:
+            {
+                xr_ast_compile(n->n[0], m);
+                xr_asm_op(&m->code, OP_ASSERT, 0, 0);
+            }
+            break;
+        case AST_RETURN:
+            {
+                xr_ast_compile(n->n[0], m);
+                xr_asm_op(&m->code, OP_RETURN, 0, 0);
             }
             break;
         default:

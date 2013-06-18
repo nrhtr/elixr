@@ -62,11 +62,20 @@ XR bind(XR rcv, XR msg)
     return m;
 }
 
-
-void object_add_method(XR obj, XR method)
+void object_add_closure(XR obj, XR cl)
 {
-    struct XRMethod *m = (struct XRMethod *)method;
-    send(val_vtable(obj), s_put, m->name, m);
+    assert(cl);
+
+    XR m = xrClosureAt(cl, 0);
+
+    XR nm = ((struct XRClosure*)cl)->data[0];
+
+    assert(nm);
+    assert(m);
+
+    printf("Adding closure'd method to obj\n");
+
+    send(val_vtable(obj), s_put, xrMethName(m), cl);
 }
 
 /* testing this out */

@@ -9,13 +9,11 @@
 #include "symbol.h"
 #include "table.h"
 
-XR closure_new(val_f method, XR data)
+XR closure_new(val_f method, int dlen)
 {
-    (void) data;
-
-    struct XRClosure *closure = malloc(sizeof(struct XRClosure));
+    struct XRClosure *closure = malloc(sizeof(struct XRClosure) + dlen * sizeof(XR));
     closure->method = method;
-    closure->native = 0;
+    closure->native = 1;
     closure->mt = closure_vt;
 
     return (XR)closure;

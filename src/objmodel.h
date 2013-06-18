@@ -10,7 +10,7 @@ typedef XR (*val_f)(XR, XR, ...);
 
 XR bind(XR rcv, XR msg);
 XR object_new(XR parent, XR name);
-void object_add_method(XR obj, XR meth);
+void object_add_closure(XR obj, XR cl);
 
 void xr_root_methods(void);
 

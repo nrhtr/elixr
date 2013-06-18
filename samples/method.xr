@@ -2,12 +2,11 @@
 object $root;
 method foo()
 {
-    "Object name: " + (self symbol string) showln
-    self vt literal showln
+    "foo" show
     self bar
 }
 
 method bar()
 {
-    "Bar." showln
+    "bar." showln
 }

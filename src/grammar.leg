@@ -33,12 +33,23 @@ Dump = -- h:Object { $$ = h = list_new(h); }
 
 Object = "object" - '$' i:ID ';' - EOL
        { ctx->object = (i == xr_sym("root")) ? root : object_new(0, i); }
-       ( m:Method { object_add_method(ctx->object, m); })*
+       ( m:Method {
+            /* for each method we create a closure to hold it 
+             * 1st arg = fptr = NULL since we have no jit :(
+             * 2nd arg = 1 of slots to reserve, we need 1 for
+             * the method. this is all temporary and ugly */
+            XR cl = closure_new(NULL, 1);
+            ((struct XRClosure *)cl)->native = 0;
+            xrClosureAt(cl, 0) = m;
+            object_add_closure(ctx->object, cl); }
+        )*
        { $$ = ctx->object; }
                                 
 Method = -- "method" - i:ID a:Params -- s:Code
        {
-           struct XRMethod *m = xr_method_new(i, a); printf("CODE\n-----\n"); qsend(s, "source", xrNum(0));
+           struct XRMethod *m = xr_method_new(i, a); 
+           ast_graph_head(s);
+           qsend(s, "source", xrNum(0));
            xr_ast_compile(s, m); m->object = ctx->object;
            $$ = ctx->method = (XR)m; assert(ctx->object); 
        }

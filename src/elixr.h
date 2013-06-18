@@ -161,6 +161,9 @@ do { \
     } \
 } while (0)
 
+#define xrClosureAt(C, I) (((struct XRClosure *)C)->data[I])
+#define xrMethName(M) (((struct XRMethod *)M)->name)
+
 #if 0
 #define XR_HEAD XR mt; char *name;
 #else
@@ -199,8 +202,6 @@ struct XRClosure {
     XR_HEAD
     bool native;
 
-    /*long num_opcodes;*/
-    XR opcodes;
     val_f method;
 
     XR data[0];
@@ -218,10 +219,10 @@ struct XRMethod {
     XR object;
     XR name;
 
-    /* TODO: Change to flexible generic array */
+    /* TODO: change to flexible generic array? */
     struct XRAsm code;
 
-    XR values; /* list of direct const values */
+    XR values; /* list of literal values */
     XR locals; /* list of local names as symbols */
     XR args;   /* list of arg names as symbols */
 };

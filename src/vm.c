@@ -19,17 +19,19 @@ size_t pos;
 /* Temp function to quickly run a method,
  * should work for now just to get some proper
  * debugging going. Fix up and optimise later. */
-void xr_run_method(struct XRMethod *m)
+XR xr_run_method(struct XRMethod *m)
 {
     pos = 0;
     size_t i;
-    printf("####### Running VM ##############\n");
+    /*printf("####### Running VM ##############\n");*/
 	
 	/* We can just reuse the C stack, right? */
+    /* We don't have any scoping :( */
 	XR locals = list_new_len(xrListLen(m->locals));
 	
     for (i = 0; i < m->code.len; i++) {
         XR_OP op = m->code.ops[i];
+
         /*
         fprintf(stderr, "%d ; ", pos);
         fprintf(stderr, "[%d, %d, %d, %d, %d]\n", stack[0], stack[1], stack[2], stack[3], stack[4]);
@@ -153,8 +155,20 @@ void xr_run_method(struct XRMethod *m)
                     XR rcv = POP();
                     XR msg = POP();
 
-                    int num_args= op.a;
+                    int num_args = op.a;
                     XR ret = VAL_NIL;
+
+                    /* FIXME: seperate opcode for bind and remove later send's? */
+                    XR cl = bind(rcv, msg);
+
+                    struct XRClosure *c = cl;
+                    /* FIXME: binding, proper args, etc, FIX EEEVEERRRYOOOOONE */
+                    if (c->native == 0) {
+                        /*assert(0 && "NOT NATIVE");*/
+                        XR val = xr_run_method(c->data[0]);
+                        PUSH(val);
+                        break;
+                    }
 
                     /* FIXME: make this neater */
                     switch (num_args) {
@@ -262,4 +276,6 @@ void xr_run_method(struct XRMethod *m)
         /*printf("%s; %d\n", op_info[op.code].name, pos);*/
         /*printf("\ntop = %ld\nstack[pos] = %ld", pos, xrInt(stack[pos-1]));printf("\n");*/
     }
+
+    return VAL_NIL;
 }

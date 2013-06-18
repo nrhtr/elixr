@@ -10,52 +10,28 @@ int main(int argc, char *argv[])
 {
     xr_init();
 
-    int pexpr = 0;
-
     if (argc > 1)
         stdin = freopen(argv[1], "r", stdin);
 
-    if (argc > 2)
-        pexpr = 1;
-
-
-
     if (!stdin)
         return 1;
-
-    /*xr_parse_any_from_stdin();*/
-    //return 0;
-    /*assert(blah);*/
-    /*printf("%p\n", blah);*/
-    /*fflush(stdout);*/
-    /*//send(blah, s_literal);*/
-    /*//XR bs = send(blah, s_string);*/
-    /*//send(send(blah, s_string), s_print);*/
 
     XR obj_list = xr_parse_dump_from_stdin();
 
     printf("# Objs: %ld\n", xrListLen(obj_list));
     
-    /*XR newobj = xrListAt(obj_list, 0);*/
-    XR newobj = root;
-    XR objtable = val_vtable(newobj);
+    XR obj = root;
+    XR objtable = val_vtable(obj);
     assert(objtable);
     
-
-    /*XR ex_foo_s = xr_sym_lookup("foo");*/
-    /*printf("Looked up 'foo' sym.\nVal = %s\nVT = %p\nptr = %p\n", xrSymPtr(ex_foo_s), val_vtable(ex_foo_s), ex_foo_s);*/
-    /*printf("symbol_vt = %x\n", symbol_vt);*/
-
-    /*val_vtable(ex_foo_s) = symbol_vt;*/
-    /*printf("Looked up 'foo' sym.\nVal = %s\nVT = %x\n", xrSymPtr(ex_foo_s), val_vtable(ex_foo_s));*/
-
-
     /* Lookup the "foo" method */
     XR foo_s = xr_sym("foo");
     assert(val_vtable(foo_s) == symbol_vt);
-    XR foo_m = send(objtable, s_at, foo_s);
-    printf("foo_m: %ld\n", foo_m);
+    XR foo_c = send(objtable, s_at, foo_s);
+    assert(foo_c);
+    XR foo_m = xrClosureAt(foo_c, 0);
     assert(foo_m);
+    printf("foo_m: %ld\n", foo_m);
 
     /* xr_run_method(foo_m); */
 
@@ -97,6 +73,7 @@ int main(int argc, char *argv[])
         printf("\n");
     }
 
+    fprintf(stderr, "###### Running 'foo' #####\n");
     xr_run_method(m);
     #endif
 

@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
     XR_OP *p = m->code.ops;
     size_t i;
     for (i = 0; i < m->code.len; i++) {
-        printf("%ld: \t%s\t", i, op_info[p[i].code].name);
+        /*printf("%ld: \t%s\t", i, op_info[p[i].code].name);*/
         switch (p[i].code) {
             case OP_IVAL:
                 {

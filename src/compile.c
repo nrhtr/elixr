@@ -8,36 +8,11 @@
 #include "types.h"
 #include "opcodes.h"
 
-struct op_info op_info[] = {
-    {"nop"},
-    {"plus"},
-    {"minus"},
-    {"mult"},
-    {"div"},
-    {"mkvar"},
-    {"lload"},
-    {"lstore"},
-    {"ival"},
-    {"send"},
-    {"notjmp"}, /* Jump if false */
-    {"dval"},   /* Value stored in operand, 12 bits */
-    {"eq"},
-    {"neq"},
-    {"not"},
-    {"jmp"},    /* Unconditional jump */
-    {"self"},
-    {"gt"},
-    {"lt"},
-    {"gte"},
-    {"lte"},
-    {"break"},
-    {"pop"},
-    {"build_list"},
-    {"and"},
-    {"or"},
-    {"assert"},
-    {"return"},
-};
+#define X(a, b) b,
+struct op_info {
+    char *name;
+} op_info[] = { OPCODES };
+#undef X
 
 /* Genesis has an additional pass to add values (strings anyway) to the object
  * and all methods share the same string_table. We do it all in one pass (at

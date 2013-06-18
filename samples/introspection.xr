@@ -1,28 +1,32 @@
 #!./parse_dump
 object $root;
-method foo(weez, pooz)
+method foo()
 {
     var v = self vt
-    var m = v at(:foo)
-
+    var m = v at(:foo) get_m
+    
     "Object:   " show; self symbol showln
     "VT:       " show; v literal showln
     "Method:   " show; m name showln
     "Values:   " show; m values literal showln
+    "Locals:   " show; m locals literal showln
     "Args:     " show; m args literal showln
 
     "" showln showln
-    m = v at(:bar)
+
+    self bar
+}
+
+method bar()
+{
+    var v = self vt
+    m = v at(:bar) get_m
 
     "Object:   " show; self symbol showln
     "VT:       " show; v literal showln
     "Method:   " show; m name showln
     "Values:   " show; m values literal showln
+    "Locals:   " show; m locals literal showln
     "Args:     " show; m args literal showln
-}
-
-method bar(wee)
-{
-    "hey" showln
 }
 

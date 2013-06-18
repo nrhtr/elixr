@@ -3,6 +3,8 @@ bin/
 tools/peg-0.1.9/leg
 tools/peg-0.1.9/peg
 test/a.out
+test/run_tests
+nohup.out
 src/elixr
 src/dump_info
 src/grammar.c

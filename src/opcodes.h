@@ -34,6 +34,13 @@
 enum XR_OPCODE { OPCODES };
 #undef X
 
+struct op_info {
+    char *name;
+};
+
+/* In compile.c for whatever reason */
+extern struct op_info op_info[];
+
 typedef struct {
 	u8 code:8;
 	s32 a:12;

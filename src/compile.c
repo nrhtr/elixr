@@ -7,11 +7,10 @@
 
 #include "types.h"
 #include "opcodes.h"
+#include "compile.h"
 
 #define X(a, b) b,
-struct op_info {
-    char *name;
-} op_info[] = { OPCODES };
+struct op_info op_info[] = { OPCODES };
 #undef X
 
 /* Genesis has an additional pass to add values (strings anyway) to the object
@@ -39,15 +38,10 @@ struct XRMethod *xr_method_new(XR name, XR args)
 {
     struct XRMethod *meth = malloc(sizeof(struct XRMethod));
 
-    /* meth->code = malloc(sizeof(struct XRAsm)) */;
     meth->code.len = 0;
     meth->code.alloc = 0;
     meth->code.ops = NULL;
 
-    /* These are where actual locals and values go during runtime,
-     * but right now I'm reusing them for codegen to assign #s to vars/values.
-     * Seems strange but it should be fine for now at least.
-     * I didn't want to bother with some other intermediate structure */
     meth->locals = list_empty();
     meth->values = list_empty();
     meth->args = args;
@@ -71,7 +65,7 @@ struct XRMethod *xr_method_compile_new(XR name, XR args, XR ast)
     /*});*/
 }
 
-signed int find_local(XR locals, XR var)
+int find_local(XR locals, XR var)
 {
     int found = -1;
     xrListEach(locals, index, item, {
@@ -81,6 +75,18 @@ signed int find_local(XR locals, XR var)
     });
 
     return found;
+}
+
+void xr_ast_compile_method(XR ast, struct XRMethod *m)
+{
+    /* compile args/sig. */
+    int i = 0; //xrListLen(m->locals);
+    xrListEach(m->args, index, item, {
+        xr_asm_op(&m->code, OP_LSTORE, i, 0);
+        i++;
+    });
+
+    xr_ast_compile(ast, m);
 }
 
 /* TODO: factor out common code from simple ops (i.e. plus/minus/etc). */
@@ -109,9 +115,16 @@ void xr_ast_compile(XR ast, struct XRMethod *m)
         case AST_VDECL:
         case AST_VINIT:
             {
+                xrListEach(m->args, index, item, {
+                    if (xr_sym_eq(0, n->n[0], item) == VAL_TRUE) {
+                        fprintf(stderr, "Var already defined as parameter.\n");
+                        return;
+                    }
+                });
+
                 xrListEach(m->locals, index, item, {
                     if (xr_sym_eq(0, n->n[0], item) == VAL_TRUE) {
-                        fprintf(stderr, "Var already defined.\n");
+                        fprintf(stderr, "Var already defined as local.\n");
                         return;
                     }
                 });
@@ -119,7 +132,7 @@ void xr_ast_compile(XR ast, struct XRMethod *m)
                 list_append(0, m->locals, n->n[0]);
                 if (n->type == AST_VINIT) {
                     xr_ast_compile(n->n[1], m);
-                    xr_asm_op(&m->code, OP_LSTORE, xrListLen(m->locals)-1, 0);
+                    xr_asm_op(&m->code, OP_LSTORE, xrListLen(m->args) + xrListLen(m->locals)-1, 0);
                 }
             }
             break;
@@ -198,16 +211,18 @@ void xr_ast_compile(XR ast, struct XRMethod *m)
                 int var_index = -1;
                 xrListEach(m->locals, index, item, {
                     if (xr_sym_eq(0, n->n[0], item) == VAL_TRUE) {
-                        var_index = index;
+                        var_index = xrListLen(m->args) + index;
                         break;
                     }
                 });
 
-                printf("var_index: %d\n", var_index);
                 if (var_index == -1) {
-                    /*printf("Variable is undefined.\n");*/
-                    list_append(0, m->locals, n->n[0]);
-                    var_index = xrListLen(m->locals) - 1;
+                xrListEach(m->args, index, item, {
+                    if (xr_sym_eq(0, n->n[0], item) == VAL_TRUE) {
+                        var_index = index;
+                        break;
+                    }
+                });
                 }
 
                 xr_ast_compile(n->n[1], m);
@@ -350,11 +365,16 @@ void xr_ast_compile(XR ast, struct XRMethod *m)
                 int var = find_local(m->locals, n->n[0]);
 
                 if (var == -1) {
-                    printf("No such variable as '%s'\n", xrStrPtr(n->n[0]));
-                    return;
+                    var = find_local(m->args, n->n[0]);
+                    if (var == -1) {
+                        printf("No such variable as '%s'\n", xrStrPtr(n->n[0]));
+                        exit(1);
+                    } else {
+                        xr_asm_op(&m->code, OP_LLOAD, var, 0);
+                    }
+                } else {
+                    xr_asm_op(&m->code, OP_LLOAD, xrListLen(m->args) + var, 0);
                 }
-
-                xr_asm_op(&m->code, OP_LLOAD, var, 0);
             }
             break;
         case AST_PLUS:

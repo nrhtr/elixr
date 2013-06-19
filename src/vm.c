@@ -21,14 +21,13 @@ size_t pos;
  * debugging going. Fix up and optimise later. */
 XR xr_run_method(struct XRMethod *m)
 {
-    pos = 0;
     size_t i;
     /*printf("####### Running VM ##############\n");*/
 	
 	/* We can just reuse the C stack, right? */
     /* We don't have any scoping :( */
-	XR locals = list_new_len(xrListLen(m->locals));
-	
+	XR locals = list_new_len(xrListLen(m->locals) + xrListLen(m->args));
+
     for (i = 0; i < m->code.len; i++) {
         XR_OP op = m->code.ops[i];
 
@@ -164,7 +163,6 @@ XR xr_run_method(struct XRMethod *m)
                     struct XRClosure *c = cl;
                     /* FIXME: binding, proper args, etc, FIX EEEVEERRRYOOOOONE */
                     if (c->native == 0) {
-                        /*assert(0 && "NOT NATIVE");*/
                         XR val = xr_run_method(c->data[0]);
                         PUSH(val);
                         break;

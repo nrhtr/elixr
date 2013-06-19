@@ -156,6 +156,13 @@ XR xr_list_put(XR cl, XR self, XR pos, XR item)
     return self;
 }
 
+XR xr_list_len(XR cl, XR self)
+{
+    (void) cl;
+
+    return xrNum(xrListLen(self));
+}
+
 void xr_list_methods()
 {
     def_method(list_vt, s_literal, list_literal);
@@ -165,6 +172,7 @@ void xr_list_methods()
     /*def_method(list_vt, xr_sym("at"), xr_list_at);*/
     def_method(list_vt, s_at, xr_list_at);
     def_method(list_vt, s_put, xr_list_put);
+    def_method(list_vt, xr_sym("len"), xr_list_len);
     def_method(list_vt, xr_sym("append"), list_append);
     /*def_method(list_vt, s_put, xr_list_put);*/
 }

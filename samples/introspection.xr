@@ -20,7 +20,7 @@ method foo()
 method bar()
 {
     var v = self vt
-    m = v at(:bar) get_m
+    var m = v at(:bar) get_m
 
     "Object:   " show; self symbol showln
     "VT:       " show; v literal showln

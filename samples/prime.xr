@@ -17,7 +17,6 @@ method foo()
     var marked_all = 0
     while (marked_all == 0)
     {
-        #"p = " show; p string showln
         #mark multiples of p
         var mp = p
         while (mp < limit)
@@ -25,7 +24,6 @@ method foo()
             if (numbers at(mp) > p)
             {
                 numbers put(mp, 0)
-                #"marking: " show; mp string showln
             }
             mp = mp + p
         }
@@ -38,17 +36,14 @@ method foo()
         while (i < limit && marked != 1)
         {
             inum = numbers at(i)
-            #"is inum > p? (" show; inum string show; " > " show; p string show; ")" showln
             if (inum > p) {
                marked = 1
                p = inum
-               #"restarting with p = " show; p string showln
             }
             i = i + 1
         }
         if (marked == 0)
         {
-            #"marked all" showln
             marked_all = 1
         }
     }

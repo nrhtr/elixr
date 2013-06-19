@@ -10,17 +10,24 @@ method foo()  # Method on $root called foo.
 
     "Semicolons are only needed" show; " to seperate multiple statements on one line" showln
 
-    #Keep in mind that unary messages take precedence over binary ones:
+    #Keep in mind that unary messages currently take precedence over binary ones:
     #"Hello " + "world!" showln
     # is grouped as
     #"Hello " + ("world!" showln)
+    
+    var a;
 
-    # declare and initialise a variable
+    a = 5;
+
+    # declare and initialise a variable in one go
     var s = "How long is this string? "
 
     s show
     var len = s len
     len string showln
+
+    #not sure if braces and all that kinda stuff
+    #will be sticking around
 
     if (!nil) {
         "nil always evaluates to false" showln
@@ -30,6 +37,7 @@ method foo()  # Method on $root called foo.
         "false and true are reserved keywords, but they can be sent messages" show
         " just like other objects" showln
         "I just haven't really implemented any yet" showln
+        "And there's no inheritance or anything either" showln
     }
 
     self bar("jenga")

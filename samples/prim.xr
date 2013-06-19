@@ -1,9 +1,0 @@
-#!./parse_dump
-object $root;
-method foo()
-{
-    if (nil znil)
-        "nil is nil" showln
-    else
-        "?? nil is not nil?" showln
-}

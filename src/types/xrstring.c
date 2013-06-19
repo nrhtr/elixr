@@ -230,7 +230,7 @@ void xr_string_methods()
 
     qdef_method(string_vt, "show",  xr_str_print);
     qdef_method(string_vt, "showln",  xr_str_println);
-    qdef_method(string_vt, "length",  xr_str_length);
+    qdef_method(string_vt, "len",  xr_str_length);
     qdef_method(string_vt, "append", xr_str_append);
     qdef_method(string_vt, "eq",      xr_str_eq);
     qdef_method(string_vt, "intern",  xr_str_intern);

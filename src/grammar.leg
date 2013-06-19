@@ -74,8 +74,8 @@ Stmt = b:andor                 { $$ = XR_AST1(EXPRSTMT, b); }
      | "if" - '(' - b:andor - ')' -- t:Stmt -- "else" -- f:Stmt { $$ = XR_AST3(IFELSE, b, t, f); }
      | "if" - '(' - b:andor - ')' -- t:Stmt { $$ = XR_AST2(IF, b, t); }
      | "while" - '(' - b:andor - ')' -- t:Stmt { $$ = XR_AST2(WHILE, b, t); }
-     | "assert" - LP b:andor - RP { $$ = XR_AST1(ASSERT, b); }
-     | "return" - LP b:andor - RP { $$ = XR_AST1(RETURN, b); }
+     | "assert" - b:andor - { $$ = XR_AST1(ASSERT, b); }
+     | "return" - b:andor - { $$ = XR_AST1(RETURN, b); }
 
 #Top level expression?
 expr = andor

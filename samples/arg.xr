@@ -8,15 +8,13 @@ method foo()
 
 method bar(values)
 {
-    var i = 0;
     var sum = 0;
     
-    var l = values len
-
-    while (i < l) {
+    var i = 0;
+    while (i < values len) {
         sum = sum + values at(i)
         i = i + 1
     }
 
-    return(sum)
+    return sum
 }

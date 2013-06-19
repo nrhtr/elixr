@@ -1,0 +1,22 @@
+#!./parse_dump
+object $root;
+method foo()
+{
+    var v = [6,2,7,5,3,5,7]
+    self bar(v) string showln
+}
+
+method bar(values)
+{
+    var i = 0;
+    var sum = 0;
+    
+    var l = values len
+
+    while (i < l) {
+        sum = sum + values at(i)
+        i = i + 1
+    }
+
+    return(sum)
+}

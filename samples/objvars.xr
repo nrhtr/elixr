@@ -1,0 +1,25 @@
+#!./parse_dump
+object $root;
+
+var root_var = "this is a var";
+var other = 17;
+var test = :dog;
+
+method foo()
+{
+    var i = root_var
+    i string showln
+
+    self bar()
+}
+
+method bar()
+{
+    test string showln
+}
+
+object $sys;
+method sysfoo()
+{
+    return 5
+}

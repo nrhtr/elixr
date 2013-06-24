@@ -1,0 +1,37 @@
+#!./parse_dump
+object $root;
+method foo()
+{
+    var v = [1,7,4,7,3,5,3,1,9,6,4,3,4]
+
+    self sort(v)
+    v string showln
+}
+
+method sort(values)
+{
+    var v_len = values len
+    var sorted_len = 0
+
+    var done = false
+    while (sorted_len != v_len) {
+       #find smallest 
+       var i = sorted_len;
+       var smallest = values at(i)
+       var smallest_i = i
+       while (i < v_len) {
+         var cand = values at(i)
+         if (cand < smallest) {
+            smallest = cand
+            smallest_i = i
+         }
+         i = i + 1
+       }
+
+       #swap
+       var tmp = values at(sorted_len)
+       values put(sorted_len, smallest)
+       values put(smallest_i, tmp)
+       sorted_len = sorted_len + 1
+    }
+}

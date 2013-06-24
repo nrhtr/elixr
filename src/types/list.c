@@ -141,7 +141,8 @@ XR xr_list_at(XR cl, XR self, XR pos)
 {
     (void) cl;
 
-    assert(xrIsNum(pos));
+    if (!xrIsNum(pos) || xrInt(pos) >= xrListLen(self) || xrInt(pos) < 0)
+        return VAL_NIL;
 
     return xrListAt(self, xrInt(pos));
 }
@@ -150,7 +151,9 @@ XR xr_list_put(XR cl, XR self, XR pos, XR item)
 {
     (void) cl;
 
-    /* TODO: bounds checking + error handling */
+    if (!xrIsNum(pos) || xrInt(pos) >= xrListLen(self) || xrInt(pos) < 0)
+        return VAL_NIL;
+
     xrListAt(self, xrInt(pos)) = item;
 
     return self;

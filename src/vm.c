@@ -22,20 +22,12 @@ size_t pos;
 XR xr_run_method(struct XRMethod *m)
 {
     size_t i;
-    /*printf("####### Running VM ##############\n");*/
+    log("####### Running VM ##############\n");
 	
-	/* We can just reuse the C stack, right? */
-    /* We don't have any scoping :( */
 	XR locals = list_new_len(xrListLen(m->locals) + xrListLen(m->args));
 
     for (i = 0; i < m->code.len; i++) {
         XR_OP op = m->code.ops[i];
-
-        /*
-        fprintf(stderr, "%d ; ", pos);
-        fprintf(stderr, "[%d, %d, %d, %d, %d]\n", stack[0], stack[1], stack[2], stack[3], stack[4]);
-        fprintf(stderr, "%d: %s  \t--> ", i, op_info[op.code].name);
-        */
         
         switch (op.code) {
             case OP_IVAL:
@@ -169,14 +161,14 @@ XR xr_run_method(struct XRMethod *m)
                     XR cl = bind(rcv, msg);
 
                     struct XRClosure *c = cl;
-                    /* FIXME: binding, proper args, etc, FIX EEEVEERRRYOOOOONE */
                     if (c->native == 0) {
+                        /* TODO: reentry? */
                         XR val = xr_run_method(c->data[0]);
                         PUSH(val);
                         break;
                     }
 
-                    /* FIXME: make this neater */
+                    /* FIXME: make this neater, implement @rest / varargs? */
                     switch (num_args) {
                         case 0:
                             ret = send(rcv, msg);
@@ -279,8 +271,6 @@ XR xr_run_method(struct XRMethod *m)
                 printf("Unimplemented opcode");
                 break;
         }
-        /*printf("%s; %d\n", op_info[op.code].name, pos);*/
-        /*printf("\ntop = %ld\nstack[pos] = %ld", pos, xrInt(stack[pos-1]));printf("\n");*/
     }
 
     return VAL_NIL;

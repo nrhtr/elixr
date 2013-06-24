@@ -112,7 +112,7 @@ Cmp = s:Sum
 Arguments = LP - RP           - { $$ = VAL_NIL; }
           | '(' - l:ExprList ')' - { $$ = l; }
 
-List = '[' -- ']' - { puts("EMPTY LSIT\n"); $$ = list_empty(); }
+List = '[' -- ']' - { $$ = list_empty(); }
      | '[' -- l:ExprList -- ']' - { $$ = l; }
 
 ExprList = h:andor { h = list_new(h); } (',' -- t:andor { list_append(0, h, t);} )* { $$ = h; }

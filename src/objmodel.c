@@ -73,13 +73,10 @@ void object_add_closure(XR obj, XR cl)
     assert(nm);
     assert(m);
 
-    printf("Adding closure'd method to obj\n");
-
     send(val_vtable(obj), s_put, xrMethName(m), cl);
 }
 
-/* testing this out */
-XR obj_symbol_tmp(XR cl, XR self)
+XR xr_obj_symbol(XR cl, XR self)
 {
     (void) cl;
 
@@ -113,7 +110,7 @@ XR xr_root_vt(XR cl, XR self)
 
 void xr_root_methods(void)
 {
-    def_method(val_vtable(root), s_symbol, obj_symbol_tmp);
+    def_method(val_vtable(root), s_symbol, xr_obj_symbol);
 
     /* FIXME: sort out object model/cloning/lobby system */
     qdef_method(val_vtable(root), "List", xr_root_list);

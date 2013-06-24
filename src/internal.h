@@ -13,4 +13,6 @@ typedef SOPHIST_int16 s16;
 typedef SOPHIST_int32 s32;
 typedef SOPHIST_int64 s64;
 
+#define log(ARGS...) fprintf(stderr, ##ARGS);
+
 #endif

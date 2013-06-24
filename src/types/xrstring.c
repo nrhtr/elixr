@@ -220,7 +220,6 @@ XR xr_str_add(XR cl, XR self, XR other)
 
 void xr_string_methods()
 {
-    /* Predefined */
     def_method(string_vt, s_string,  xr_str_string);
     def_method(string_vt, s_print,   xr_str_print);
     def_method(string_vt, s_literal, xr_str_literal);

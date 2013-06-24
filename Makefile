@@ -3,6 +3,7 @@ all:
 
 check: all
 	@./test/run_tests
+	@./xr_tests/all_tests.sh
 
 clean:
 	@rm -f src/*.o

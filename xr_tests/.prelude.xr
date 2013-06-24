@@ -1,0 +1,3 @@
+object $root;
+method foo()
+{

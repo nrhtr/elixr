@@ -15,3 +15,4 @@ TODOs and other things
 * switch from GNU's 0-len arrays in structs to C99 flexible array members
 * implement packing/unpacking  - has dependencies on a bunch of other stuff
 * implement xr type to handle files
+* combine xr_tests with tests

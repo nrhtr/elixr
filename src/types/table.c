@@ -109,7 +109,7 @@ XR xr_table_put(XR cl, XR self, XR key, XR val)
 
     if (xrIsPtr(key) && val_vtable(key) != symbol_vt) {
         /* printf("Cannot use "); send(xrSafeLit(key), s_print); printf(" as a table key.\n"); */
-        return VAL_NIL;
+        return VAL_FALSE;
     }
 
     unsigned int hash = xrHash(key);
@@ -119,7 +119,7 @@ XR xr_table_put(XR cl, XR self, XR key, XR val)
     while (tgt != NULL) {
         if (tgt->key != VAL_NIL && sym_num_eq(tgt->key, key) == VAL_TRUE) {
             tgt->val = val;
-            return 1;
+            return VAL_TRUE;
         }
         tgt = tgt->next;
     }
@@ -130,14 +130,14 @@ XR xr_table_put(XR cl, XR self, XR key, XR val)
         tgt->key = key;
         tgt->val = val;
         xrTblSize(self)++;
-        return 1;
+        return VAL_TRUE;
     }
 
     /* We need to allocate a new node */
     struct dbt_bucket *it = malloc(sizeof(struct dbt_bucket));
     if (!it) {
         puts("Malloc failed.\n");
-        return 0;
+        return VAL_FALSE;
     }
 
     /* Insert new node just after the in-struct header */
@@ -147,7 +147,7 @@ XR xr_table_put(XR cl, XR self, XR key, XR val)
     tgt->next = it;
     xrTblSize(self)++;
 
-    return 1;
+    return VAL_FALSE;
 }
 
 XR xr_table_literal(XR cl, XR self)

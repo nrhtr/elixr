@@ -55,7 +55,7 @@ START_TEST (test_table_valid_key)
     XR val = xr_sym("val");
 
     int res = send(t, s_put, key, val);
-    fail_unless(res == VAL_NIL);
+    fail_unless(res == VAL_FALSE);
 }
 END_TEST
 

@@ -17,7 +17,6 @@
 
 #include "dbpack.h"
 
-
 #if 0
 #define bucket_index(table, hash) ((hash) & (xrTblAlloc(table) - 1))
 #else
@@ -50,6 +49,14 @@ XR xr_table_alloc(size_t desired)
 XR xr_table_empty(void)
 {
     return xr_table_alloc(32);
+}
+
+XR xr_table_with_one(XR k, XR v)
+{
+    XR t = xr_table_empty();
+    xr_table_put(0, t, k, v);
+
+    return t;
 }
 
 /* TODO: move matches into list head */

@@ -33,6 +33,7 @@ Dump = -- h:Object { $$ = h = list_new(h); }
 
 Object = "object" - '$' i:ID ';' - EOL
        { ctx->object = (i == xr_sym("root")) ? root : object_new(0, i); }
+       -- ( v:Objvars )? { xrObjectVars(ctx->object) = v; }
        ( m:Method {
             /* for each method we create a closure to hold it 
              * 1st arg = fptr = NULL since we have no jit :(
@@ -44,13 +45,27 @@ Object = "object" - '$' i:ID ';' - EOL
             object_add_closure(ctx->object, cl); }
         )*
        { $$ = ctx->object; }
+
+#Objvars = 'var' - i:ID '=' - v:Value ";" - EOL { XR tmp = xr_table_empty(); xr_table_put(0, tmp i, v); }
+            #('var' - i2:ID '=' - v2:Value ";" - EOL { xr_table_put(0, tmp, i2, v2); })*
+            #{ $$ = tmp; }
+
+
+Objvars = i:ObjvarItem ';' - { i = xr_table_with_one(xrListAt(i,0), xrListAt(i,1)); }
+            (EOL -- j:ObjvarItem ';' - { xr_table_put(0, i, xrListAt(j,0), xrListAt(j,1)); })*
+            { $$ = i; }
+    
+ObjvarItem = VAR i:ID ASSIGN b:andor { $$ = list_build(2, i, ((struct XRAst*)b)->n[0]); }
                                 
 Method = -- "method" - i:ID a:Params -- s:Code
        {
            struct XRMethod *m = xr_method_new(i, a); 
+#if 0
            ast_graph_head(s);
            qsend(s, "source", xrNum(0));
-           xr_ast_compile_method(s, m); m->object = ctx->object;
+#endif
+           m->object = ctx->object;
+           xr_ast_compile_method(s, m);
            $$ = ctx->method = (XR)m; assert(ctx->object); 
        }
 
@@ -66,16 +81,16 @@ Statements = s1:Stmt { $$ = s1 = list_new(s1); }
            ( SEP s2:Stmt { $$ = s1 = list_append(0, s1, s2); })* SEP?
            { $$ = s1; }
 
-Stmt = b:andor                 { $$ = XR_AST1(EXPRSTMT, b); }
-     | c:Code                     { $$ = c; }
-     | VAR i:ID !ASSIGN           { $$ = XR_AST1(VDECL, i); }
-     | VAR i:ID ASSIGN b:andor { $$ = XR_AST2(VINIT, i, b); }
-     | i:ID ASSIGN b:andor     { $$ = XR_AST2(ASSIGN, i, b); }
+Stmt = b:andor                  { $$ = XR_AST1(EXPRSTMT, b); }
+     | c:Code                   { $$ = c; }
+     | VAR i:ID !ASSIGN         { $$ = XR_AST1(VDECL, i); }
+     | VAR i:ID ASSIGN b:andor  { $$ = XR_AST2(VINIT, i, b); }
+     | i:ID ASSIGN b:andor      { $$ = XR_AST2(ASSIGN, i, b); }
      | "if" - '(' - b:andor - ')' -- t:Stmt -- "else" -- f:Stmt { $$ = XR_AST3(IFELSE, b, t, f); }
      | "if" - '(' - b:andor - ')' -- t:Stmt { $$ = XR_AST2(IF, b, t); }
      | "while" - '(' - b:andor - ')' -- t:Stmt { $$ = XR_AST2(WHILE, b, t); }
-     | "assert" - b:andor - { $$ = XR_AST1(ASSERT, b); }
-     | "return" - b:andor - { $$ = XR_AST1(RETURN, b); }
+     | "assert" - b:andor -     { $$ = XR_AST1(ASSERT, b); }
+     | "return" - b:andor -     { $$ = XR_AST1(RETURN, b); }
 
 #Top level expression?
 expr = andor

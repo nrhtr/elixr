@@ -65,7 +65,7 @@ struct XRMethod *xr_method_compile_new(XR name, XR args, XR ast)
     /*});*/
 }
 
-int find_local(XR locals, XR var)
+int find_var(XR locals, XR var)
 {
     int found = -1;
     xrListEach(locals, index, item, {
@@ -75,6 +75,16 @@ int find_local(XR locals, XR var)
     });
 
     return found;
+}
+
+int has_objvar(XR obj, XR var)
+{
+    XR vars = xrObjectVars(obj);
+
+    if (xr_table_at(0, vars, var) == VAL_NIL)
+        return 1;
+
+    return 0;
 }
 
 void xr_ast_compile_method(XR ast, struct XRMethod *m)
@@ -100,6 +110,7 @@ void xr_ast_compile(XR ast, struct XRMethod *m)
     /*printf("\n------\n");*/
 
     struct XRAst *n = (struct XRAst*) ast;
+    XR *oper = n->n;
 
     switch (n->type) {
         case AST_CODE:
@@ -116,22 +127,22 @@ void xr_ast_compile(XR ast, struct XRMethod *m)
         case AST_VINIT:
             {
                 xrListEach(m->args, index, item, {
-                    if (xr_sym_eq(0, n->n[0], item) == VAL_TRUE) {
+                    if (xr_sym_eq(0, oper[0], item) == VAL_TRUE) {
                         fprintf(stderr, "Var already defined as parameter.\n");
                         return;
                     }
                 });
 
                 xrListEach(m->locals, index, item, {
-                    if (xr_sym_eq(0, n->n[0], item) == VAL_TRUE) {
+                    if (xr_sym_eq(0, oper[0], item) == VAL_TRUE) {
                         fprintf(stderr, "Var already defined as local.\n");
                         return;
                     }
                 });
 
-                list_append(0, m->locals, n->n[0]);
+                list_append(0, m->locals, oper[0]);
                 if (n->type == AST_VINIT) {
-                    xr_ast_compile(n->n[1], m);
+                    xr_ast_compile(oper[1], m);
                     xr_asm_op(&m->code, OP_LSTORE, xrListLen(m->args) + xrListLen(m->locals)-1, 0);
                 }
             }
@@ -145,27 +156,27 @@ void xr_ast_compile(XR ast, struct XRMethod *m)
             {
                 /* FIXME: arguments */
                 int args = 0;
-                if (n->n[2] && xrIsPtr(n->n[2]))
-                    args = xrListLen(n->n[2]);
+                if (oper[2] && xrIsPtr(oper[2]))
+                    args = xrListLen(oper[2]);
                 
                 if (args) {
-                    xrListEachR(n->n[2], index, item, {
+                    xrListEachR(oper[2], index, item, {
                         xr_ast_compile(item, m);
                     });
                 }
 
-                xr_ast_compile(n->n[1], m);
-                xr_ast_compile(n->n[0], m);
+                xr_ast_compile(oper[1], m);
+                xr_ast_compile(oper[0], m);
 
                 xr_asm_op(&m->code, OP_SEND, args, 0);
             }
             break;
         case AST_IF:
             {
-                xr_ast_compile(n->n[0], m); /* emit conditional */
+                xr_ast_compile(oper[0], m); /* emit conditional */
                 int jmp = m->code.len; /* index to next opcode */
                 xr_asm_op(&m->code, OP_NOTJMP, 0, 0); /* skip over true block if false */
-                xr_ast_compile(n->n[1], m); /* emit true block */
+                xr_ast_compile(oper[1], m); /* emit true block */
 
                 /* update emitted notjmp, telling it to jump to next opcode after true block. */
                 m->code.ops[jmp].a = m->code.len - jmp - 1;
@@ -178,29 +189,29 @@ void xr_ast_compile(XR ast, struct XRMethod *m)
             break;
         case AST_IFELSE:
             {
-                xr_ast_compile(n->n[0], m); /* emit conditional */
+                xr_ast_compile(oper[0], m); /* emit conditional */
 
                 int fjmp = m->code.len; /* index to next opcode */
                 xr_asm_op(&m->code, OP_NOTJMP, 0, 0); /* skip over true block if false */
 
-                xr_ast_compile(n->n[1], m); /* emit true block */
+                xr_ast_compile(oper[1], m); /* emit true block */
 
                 int tjmp = m->code.len;
                 xr_asm_op(&m->code, OP_JMP, 0, 0); /* now skip over false block */
 
                 m->code.ops[fjmp].a = m->code.len - fjmp - 1; /*NOTJMP goes here*/
-                xr_ast_compile(n->n[2], m); /* emit false block */
+                xr_ast_compile(oper[2], m); /* emit false block */
                 m->code.ops[tjmp].a = m->code.len - tjmp - 1; /*JMP goes here*/
             }
             break;
         case AST_WHILE:
             {
                 int loop = m->code.len;
-                xr_ast_compile(n->n[0], m); /* conditional */
+                xr_ast_compile(oper[0], m); /* conditional */
                 int exit = m->code.len;
                 xr_asm_op(&m->code, OP_NOTJMP, 0, 0); /* if false exit loop */
 
-                xr_ast_compile(n->n[1], m);
+                xr_ast_compile(oper[1], m);
 
                 xr_asm_op(&m->code, OP_JMP, loop - m->code.len - 1, 0); /* hopefully jmp back to conditional */
                 m->code.ops[exit].a = m->code.len - exit - 1; /* loop exit jumps here */
@@ -208,25 +219,23 @@ void xr_ast_compile(XR ast, struct XRMethod *m)
             break;
         case AST_ASSIGN:
             {
-                int var_index = -1;
-                xrListEach(m->locals, index, item, {
-                    if (xr_sym_eq(0, n->n[0], item) == VAL_TRUE) {
-                        var_index = xrListLen(m->args) + index;
-                        break;
-                    }
-                });
+                /* TODO: how do objvars work? */
+                int var_index = find_var(m->locals, oper[0]);
 
-                if (var_index == -1) {
-                xrListEach(m->args, index, item, {
-                    if (xr_sym_eq(0, n->n[0], item) == VAL_TRUE) {
-                        var_index = index;
-                        break;
-                    }
-                });
+                if (var_index != -1) {
+                    xr_ast_compile(oper[1], m);
+                    xr_asm_op(&m->code, OP_LSTORE, xrListLen(m->args) + var_index, 0);
+                    break;
                 }
 
-                xr_ast_compile(n->n[1], m);
-                xr_asm_op(&m->code, OP_LSTORE, var_index, 0);
+                var_index = find_var(m->locals, oper[0]);
+                if (var_index != -1) {
+                    xr_ast_compile(oper[1], m);
+                    xr_asm_op(&m->code, OP_LSTORE, var_index, 0);
+                    break;
+                }
+
+                fprintf(stderr, "No such var '%s' for assignment\n", xrSymPtr(oper[0]));
             }
             break;
         case AST_EXPRSTMT:
@@ -234,19 +243,19 @@ void xr_ast_compile(XR ast, struct XRMethod *m)
                 /* Just a single expression statement.
                  * Compile the expr node then pop the stack to discard
                  * the result. */
-                xr_ast_compile(n->n[0], m);
+                xr_ast_compile(oper[0], m);
                 xr_asm_op(&m->code, OP_POP, 0, 0);
             }
             break;
         case AST_VALUE:
             {
                 /* Store the value directly in the operand */
-                xr_asm_op(&m->code, OP_DVAL, n->n[0], 0);
+                xr_asm_op(&m->code, OP_DVAL, oper[0], 0);
             }
             break;
         case AST_EQ: case AST_NEQ: case AST_GT: case AST_LT: case AST_GTE: case AST_LTE:
-            xr_ast_compile(n->n[1], m);
-            xr_ast_compile(n->n[0], m);
+            xr_ast_compile(oper[1], m);
+            xr_ast_compile(oper[0], m);
 
             switch (n->type) {
                 case AST_EQ:
@@ -271,21 +280,21 @@ void xr_ast_compile(XR ast, struct XRMethod *m)
             break;
         case AST_NOT:
             {
-                xr_ast_compile(n->n[0], m);
+                xr_ast_compile(oper[0], m);
                 xr_asm_op(&m->code, OP_NOT, 0, 0);
             }
             break;
         case AST_AND:
             {
-                xr_ast_compile(n->n[0], m);
-                xr_ast_compile(n->n[1], m);
+                xr_ast_compile(oper[0], m);
+                xr_ast_compile(oper[1], m);
                 xr_asm_op(&m->code, OP_AND, 0, 0);
             }
             break;
         case AST_OR:
             {
-                xr_ast_compile(n->n[0], m);
-                xr_ast_compile(n->n[1], m);
+                xr_ast_compile(oper[0], m);
+                xr_ast_compile(oper[1], m);
                 xr_asm_op(&m->code, OP_OR, 0, 0);
             }
             break;
@@ -297,7 +306,7 @@ void xr_ast_compile(XR ast, struct XRMethod *m)
 
                 /* Search for existing fixnum value */
                 xrListEach(m->values, index, item, {
-                    if (xrIsNum(item) && n->n[0] == item) {
+                    if (xrIsNum(item) && oper[0] == item) {
                         val_index = index;
                         break;
                     }
@@ -305,7 +314,7 @@ void xr_ast_compile(XR ast, struct XRMethod *m)
 
                 if (val_index == -1) {
                     /* Values are stored on the persistent Method object */
-                    list_append(0, m->values, n->n[0]);
+                    list_append(0, m->values, oper[0]);
                     val_index = xrListLen(m->values) - 1;
                 }
 
@@ -316,14 +325,14 @@ void xr_ast_compile(XR ast, struct XRMethod *m)
             {
                 int val_index = -1;
                 xrListEach(m->values, index, item, {
-                    if (xrIsPtr(item) && val_vtable(item) == string_vt && strcmp(xrStrPtr(n->n[0]), xrStrPtr(item)) == 0) {
+                    if (xrIsPtr(item) && val_vtable(item) == string_vt && strcmp(xrStrPtr(oper[0]), xrStrPtr(item)) == 0) {
                         val_index = index;
                         break;
                     }
                 });
 
                 if (val_index == -1) {
-                    list_append(0, m->values, n->n[0]);
+                    list_append(0, m->values, oper[0]);
                     val_index = xrListLen(m->values) - 1;
                 }
 
@@ -334,14 +343,14 @@ void xr_ast_compile(XR ast, struct XRMethod *m)
             {
                 int val_index = -1;
                 xrListEach(m->values, index, item, {
-                    if (xrIsPtr(item) && val_vtable(item) == symbol_vt && strcmp(xrSymPtr(n->n[0]), xrSymPtr(item)) == 0) {
+                    if (xrIsPtr(item) && val_vtable(item) == symbol_vt && strcmp(xrSymPtr(oper[0]), xrSymPtr(item)) == 0) {
                         val_index = index;
                         break;
                     }
                 });
 
                 if (val_index == -1) {
-                    list_append(0, m->values, n->n[0]);
+                    list_append(0, m->values, oper[0]);
                     val_index = xrListLen(m->values) - 1;
                 }
 
@@ -350,7 +359,7 @@ void xr_ast_compile(XR ast, struct XRMethod *m)
             break;
         case AST_LIST:
             {
-                XR expr_list = n->n[0];
+                XR expr_list = oper[0];
                 xrListEach(expr_list, index, item, {
                     xr_ast_compile(item, m);
                 });
@@ -362,58 +371,84 @@ void xr_ast_compile(XR ast, struct XRMethod *m)
             break;
         case AST_VAR:
             {
-                int var = find_local(m->locals, n->n[0]);
-
-                if (var == -1) {
-                    var = find_local(m->args, n->n[0]);
-                    if (var == -1) {
-                        printf("No such variable as '%s'\n", xrStrPtr(n->n[0]));
-                        exit(1);
-                    } else {
-                        xr_asm_op(&m->code, OP_LLOAD, var, 0);
-                    }
-                } else {
+                int var = find_var(m->locals, oper[0]);
+                if (var != -1) {
                     xr_asm_op(&m->code, OP_LLOAD, xrListLen(m->args) + var, 0);
+                    break;
                 }
+
+                var = find_var(m->args, oper[0]);
+                if (var != -1) {
+                    xr_asm_op(&m->code, OP_LLOAD, var, 0);
+                    break;
+                }
+
+                var = has_objvar(m->object, oper[0]);
+                if (var != -1) {
+                    /* Have to use an IVAL as we do a lookup
+                     * using the actualy symbol */
+
+                    /* FIXME: copy-pasted code to add value to use in IVAL */
+                    int val_index = -1;
+                    xrListEach(m->values, index, item, {
+                        if (xrIsPtr(item) && val_vtable(item) == symbol_vt
+                         && strcmp(xrSymPtr(oper[0]), xrSymPtr(item)) == 0) {
+                            val_index = index;
+                            break;
+                        }
+                    });
+
+                    if (val_index == -1) {
+                        list_append(0, m->values, oper[0]);
+                        val_index = xrListLen(m->values) - 1;
+                    }
+
+                    xr_asm_op(&m->code, OP_IVAL, val_index, 0);
+                    xr_asm_op(&m->code, OP_GETOBJVAR, 0, 0);
+                    break;
+                }
+
+                printf("No such variable as '%s'\n", xrStrPtr(oper[0]));
+                exit(1);
             }
             break;
         case AST_PLUS:
             {
-                xr_ast_compile(n->n[1], m);
-                xr_ast_compile(n->n[0], m);
+                xr_ast_compile(oper[1], m);
+                xr_ast_compile(oper[0], m);
                 xr_asm_op(&m->code, OP_PLUS, 0, 0);
             }
             break;
         case AST_MINUS:
             {
-                xr_ast_compile(n->n[1], m);
-                xr_ast_compile(n->n[0], m);
+                xr_ast_compile(oper[1], m);
+                xr_ast_compile(oper[0], m);
                 xr_asm_op(&m->code, OP_MINUS, 0, 0);
             }
             break;
         case AST_TIMES:
             {
-                xr_ast_compile(n->n[1], m);
-                xr_ast_compile(n->n[0], m);
+                xr_ast_compile(oper[1], m);
+                xr_ast_compile(oper[0], m);
                 xr_asm_op(&m->code, OP_MULT, 0, 0);
             }
             break;
         case AST_DIVIDE:
             {
-                xr_ast_compile(n->n[1], m);
-                xr_ast_compile(n->n[0], m);
+                xr_ast_compile(oper[1], m);
+                xr_ast_compile(oper[0], m);
                 xr_asm_op(&m->code, OP_DIV, 0, 0);
             }
             break;
         case AST_ASSERT:
             {
-                xr_ast_compile(n->n[0], m);
+                xr_ast_compile(oper[0], m);
                 xr_asm_op(&m->code, OP_ASSERT, 0, 0);
             }
             break;
         case AST_RETURN:
             {
-                xr_ast_compile(n->n[0], m);
+                xr_ast_compile(oper[0], m);
                 xr_asm_op(&m->code, OP_RETURN, 0, 0);
             }
             break;

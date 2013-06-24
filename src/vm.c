@@ -129,6 +129,14 @@ XR xr_run_method(struct XRMethod *m)
                     PUSH(val);
                 }
                 break;
+            case OP_GETOBJVAR:
+                {
+                    /* TODO: refactor to nice APIs */
+                    XR name = POP();
+                    XR val = xr_table_at(0, ((struct XRObject*)m->object)->vars, name);
+                    PUSH(val);
+                }
+                break;
             case OP_NOTJMP:
                 {
                     XR val = POP();

@@ -30,6 +30,7 @@
     X(OP_ASSERT, "assert") \
     X(OP_RETURN, "return") \
     X(OP_GETOBJVAR, "getobjvar") \
+    X(OP_SETOBJVAR, "setobjvar") \
 
 #define X(a, b) a,
 enum XR_OPCODE { OPCODES };

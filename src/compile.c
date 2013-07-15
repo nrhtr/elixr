@@ -235,6 +235,24 @@ void xr_ast_compile(XR ast, struct XRMethod *m)
                     break;
                 }
 
+                int val_index = -1;
+                xrListEach(m->values, index, item, {
+                    if (xrIsPtr(item) && val_vtable(item) == symbol_vt
+                     && strcmp(xrSymPtr(oper[0]), xrSymPtr(item)) == 0) {
+                        val_index = index;
+                        break;
+                    }
+                });
+
+                if (val_index == -1) {
+                    list_append(0, m->values, oper[0]);
+                    val_index = xrListLen(m->values) - 1;
+                }
+
+                xr_ast_compile(oper[1], m);
+                xr_asm_op(&m->code, OP_IVAL, val_index, 0);
+                xr_asm_op(&m->code, OP_SETOBJVAR, 0, 0);
+
                 fprintf(stderr, "No such var '%s' for assignment\n", xrSymPtr(oper[0]));
             }
             break;

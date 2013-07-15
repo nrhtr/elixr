@@ -129,6 +129,18 @@ XR xr_run_method(struct XRMethod *m)
                     PUSH(val);
                 }
                 break;
+            case OP_SETOBJVAR:
+                {
+                    XR name = POP();
+
+                    if (xr_table_at(0, xrObjectVars(m->object), name) == VAL_NIL) {
+                        log("Unable to find %s on object...\n", xrSymPtr(name));
+                        exit(1);
+                    }
+
+                    XR val = POP();
+                    xr_table_put(0, xrObjectVars(m->object), name, val);
+                }
             case OP_NOTJMP:
                 {
                     XR val = POP();

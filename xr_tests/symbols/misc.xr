@@ -1,0 +1,6 @@
+var s = :blah
+
+s string showln
+#- blah
+s literal showln
+#- :blah

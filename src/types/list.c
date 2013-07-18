@@ -166,6 +166,24 @@ XR xr_list_len(XR cl, XR self)
     return xrNum(xrListLen(self));
 }
 
+XR list_mktable(XR cl, XR self)
+{
+    if (xrListLen(self) % 2 != 0)
+        return VAL_NIL;
+
+    XR tbl = xr_table_empty();
+
+    for (int i = 0; i < xrListLen(self); i += 2)
+    {
+        XR key = xrListAt(self, i);
+        XR val = xrListAt(self, i+1);
+
+        xr_table_put(0, tbl, key, val);
+    }
+
+    return tbl;
+}
+
 void xr_list_methods()
 {
     def_method(list_vt, s_literal, list_literal);
@@ -177,5 +195,6 @@ void xr_list_methods()
     def_method(list_vt, s_put, xr_list_put);
     def_method(list_vt, xr_sym("len"), xr_list_len);
     def_method(list_vt, xr_sym("append"), list_append);
+    def_method(list_vt, xr_sym("mktable"), list_mktable);
     /*def_method(list_vt, s_put, xr_list_put);*/
 }

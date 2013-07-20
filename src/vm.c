@@ -14,7 +14,11 @@ size_t pos;
 
 #define PUSH(V)   stack[pos++] = V
 #define POP()     stack[--pos]
-#define VM_MATH(A, OP, MSG, B) ((xrIsNum(A) && xrIsNum(B)) ? xrNum(xrInt(A) OP xrInt(B)) : xr_send(A, s_##MSG, B))
+#define VM_MATH(A, OP, MSG, B) ((xrIsNum(A) && xrIsNum(B))\
+        ? xrNum(xrInt(A) OP xrInt(B))\
+        : (xrIsNum(A)\
+            ? number_##MSG(0, A, B)\
+            : xr_send(A, s_##MSG, B)))
 
 /* Temp function to quickly run a method,
  * should work for now just to get some proper

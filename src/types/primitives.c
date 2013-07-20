@@ -49,6 +49,7 @@ void xr_primitive_methods()
 	def_method(bool_vt, s_symbol,  xr_bool_symbol);
 
 	def_method(nil_vt, s_string,  xr_nil_string);
+	def_method(nil_vt, s_literal,  xr_nil_string);
 	def_method(nil_vt, s_symbol,  xr_nil_symbol);
 	qdef_method(nil_vt, "nil",  xr_nil_nil);
 }

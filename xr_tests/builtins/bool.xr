@@ -1,0 +1,23 @@
+true literal showln
+#true
+
+false literal showln
+#false
+
+!true literal showln
+#false
+
+!false literal showln
+#true
+
+(true == true) literal showln
+#true
+
+(false == false) literal showln
+#true
+
+(true != false) literal showln
+#true
+
+(false != true) literal showln
+#true

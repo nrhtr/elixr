@@ -1,0 +1,5 @@
+(nil nil?) string showln
+#true
+
+(nil == nil) string showln
+#true

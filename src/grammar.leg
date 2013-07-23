@@ -122,19 +122,18 @@ Sum = l:Product
       | MINUS r:Product { l = XR_AST2(MINUS, l, r); })*
       { $$ = l; }
 
-Product = l:BinaryNot
-          ( TIMES  r:BinaryNot { l = XR_AST2(TIMES, l, r); }
-          | DIVIDE r:BinaryNot { l = XR_AST2(DIVIDE, l, r); })*
+Product = l:Msg
+          ( TIMES  r:Msg { l = XR_AST2(TIMES, l, r); }
+          | DIVIDE r:Msg { l = XR_AST2(DIVIDE, l, r); })*
           { $$ = l; }
 
-BinaryNot = v:Msg     { $$ = v;}
-          | NOT v:Msg { $$ = XR_AST1(NOT, v); }
-
-#Unary messages have highest priority after atomic values
-Msg         = s:Value 
+Msg         = s:BinaryNot 
               ( i:ID !Arguments            { s = XR_AST3(SEND, s, XR_AST1(SYMBOL, i), VAL_NIL);}
               | i:ID a:Arguments { s = XR_AST3(SEND, s, XR_AST1(SYMBOL, i), a); })*
               { $$ = s; }
+
+BinaryNot = v:Value     { $$ = v;}
+          | NOT v:Value { $$ = XR_AST1(NOT, v); }
 
 #FIXME: sort out values/symbols/ids
 Value       = v:NUMBER          { $$ = XR_AST1(NUMBER, v); }
@@ -152,7 +151,7 @@ Value       = v:NUMBER          { $$ = XR_AST1(NUMBER, v); }
 NUMBER  = FIXNUM | DECIMAL
 FIXNUM  = < '-'? [0-9]+ !'.' >          - { $$ = xrNum(atoi(yytext)); }
 DECIMAL = < [0-9]* '.'? [0-9]+ >        - { $$ = xr_double(atof(yytext)); }
-ID      = !KEYWORD < [a-z] [a-z0-9_]* > - { $$ = xr_sym_n(yytext, yyleng); }
+ID      = !KEYWORD < [a-z] [a-z0-9_]* [?!]?> - { $$ = xr_sym_n(yytext, yyleng); }
 
 #FIXME: escapes
 CHAR    = !EOL ('\\' [abefnrtv'"\[\]\\]
@@ -165,7 +164,7 @@ STRING  = ["] < ( !["] CHAR )* > ["] - { $$ = xr_strn(yytext, yyleng); }
 SEP     = (';' | EOL)   --
 
 # TODO: sort out keywords
-KEYWORD = "nil" | "while" | "self" | "else" | "true" | "false" | "if" | "var" | "assert" | "return"
+KEYWORD = "nil" !. | "while" | "self" | "else" | "true" | "false" | "if" | "var" | "assert" | "return"
 
 ASSIGN  = '=' !'='      -
 PLUS    = '+'           -

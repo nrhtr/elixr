@@ -1,6 +1,6 @@
 [] literal showln
-#-[]
+#[]
 
 var a = :a
 [a, :b, 3, "four"] literal showln
-#-[:a, :b, 3, "four"]
+#[:a, :b, 3, "four"]

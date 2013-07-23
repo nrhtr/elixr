@@ -4,4 +4,4 @@ lst put(0, "blue")
 lst put(3, :fish)
 lst literal showln
 
-#-["blue", "apple", "bear", :fish]
+#["blue", "apple", "bear", :fish]

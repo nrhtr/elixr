@@ -1,6 +1,5 @@
-var s = :blah
+:blah string showln
+#blah
 
-s string showln
-#-blah
-s literal showln
-#-:blah
+:blah literal showln
+#:blah

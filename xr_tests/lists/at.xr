@@ -1,4 +1,4 @@
 var lst = ["red","blue","apple","bear","salmon"]
 
 [lst at(0), lst at(2), lst at(4), lst at(-1), lst at(5)] string showln
-#-[red, apple, salmon, nil, nil]
+#[red, apple, salmon, nil, nil]

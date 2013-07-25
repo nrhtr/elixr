@@ -1,0 +1,17 @@
+"hello" string showln
+#hello
+
+"hello" literal showln
+#"hello"
+
+"hello" at(0) string showln
+#h
+
+"ab" at(-1) string showln
+#b
+
+"ab" at(-2) string showln
+#a
+
+"ab" at(-3) string showln
+#b

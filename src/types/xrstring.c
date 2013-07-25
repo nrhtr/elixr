@@ -206,6 +206,7 @@ XR xr_str_add(XR cl, XR self, XR other)
     (void) cl;
 #if 1
     /* Only add strings for now */
+    /* I suppose the proper way to do this would be to use other#string */
     if (!xrIsPtr(other) || val_vtable(other) != string_vt)
         return VAL_NIL;
 #else
@@ -218,6 +219,26 @@ XR xr_str_add(XR cl, XR self, XR other)
     return xr_str_append(0, self, str);
 }
 
+/* Currently treats Strings as just byte arrays */
+XR xr_str_at(XR cl, XR self, XR _index)
+{
+    int index = xrInt(_index);
+
+    if (index > (int) xrStrLen(self) - 1) {
+        return VAL_NIL;
+    }
+
+    while (index < 0) {
+        index = xrStrLen(self) + index;
+    }
+
+    XR ch = xr_str_alloc(1);
+    xrStrLen(ch) = 1;
+    xrStrPtr(ch)[0] = xrStrPtr(self)[index];
+
+    return ch;
+}
+
 void xr_string_methods()
 {
     def_method(string_vt, s_string,  xr_str_string);
@@ -226,6 +247,7 @@ void xr_string_methods()
     def_method(string_vt, s_pack,    xr_str_pack);
     def_method(string_vt, s_unpack,  xr_str_unpack);
     def_method(string_vt, s_add,      xr_str_add);
+    def_method(string_vt, s_at,      xr_str_at);
 
     qdef_method(string_vt, "show",  xr_str_print);
     qdef_method(string_vt, "showln",  xr_str_println);

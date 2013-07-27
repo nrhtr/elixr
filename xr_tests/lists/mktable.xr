@@ -1,0 +1,8 @@
+[:a, 1, :b, 2] mktable literal showln
+#{:a => 1, :b => 2}
+
+[:a, 1, :b] mktable literal showln
+#nil
+
+[] mktable literal showln
+#{}

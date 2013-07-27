@@ -1,0 +1,6 @@
+[] string showln
+#[]
+
+var a = :a
+[a, :b, 3, "four"] string showln
+#[a, b, 3, four]

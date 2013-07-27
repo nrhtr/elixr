@@ -5,3 +5,6 @@ lst put(3, :fish)
 lst literal showln
 
 #["blue", "apple", "bear", :fish]
+
+[:a, :b, :c] put(3, :d) literal showln
+#nil

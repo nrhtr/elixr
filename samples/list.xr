@@ -2,7 +2,8 @@
 object $root;
 method foo()
 {
-    var i = ["hey", 2, 3]
+    var item = :beep
+    var i = ["hey", 2, item]
 
     "i = " show; i string showln
 
@@ -18,4 +19,11 @@ method foo()
     var d = []
     d append(42) append(7)
     d string showln
+
+    # build table from list
+    var tbl = [:a, 1,
+               :b, 2,
+               :c, 43] mktable
+
+    tbl literal showln
 }

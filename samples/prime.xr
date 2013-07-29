@@ -1,6 +1,6 @@
 #!./parse_dump
 object $root;
-method foo()
+method init()
 {
     var limit = 10000
     var x = 2

@@ -67,18 +67,16 @@ int main(int argc, char *argv[])
     XR obj = root;
     XR objtable = val_vtable(obj);
     assert(objtable);
-
-    //log("Variables on $foo: "); send(xrObjectVars(obj), s_print); log("\n");
     
-    /* Lookup the "foo" method */
-    XR foo_c = send(objtable, s_at, xr_sym("foo"));
-    XR foo_m = xrClosureAt(foo_c, 0);
+    /* Lookup the "init" method */
+    XR init_c = send(objtable, s_at, xr_sym("init"));
+    XR init_m = xrClosureAt(init_c, 0);
 
-    struct XRMethod *fm = (struct XRMethod *) foo_m;
+    struct XRMethod *m = (struct XRMethod *) init_m;
 
-    print_method_stats(fm);
+    print_method_stats(m);
 
-    xr_run_method(fm);
+    xr_run_method(m);
 
     return 0;
 }

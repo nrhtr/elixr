@@ -3,7 +3,7 @@ object $root;
 
 var test = :dog;
 
-method foo()
+method init()
 {
     test literal showln
 

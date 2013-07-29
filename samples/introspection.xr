@@ -1,9 +1,9 @@
 #!./parse_dump
 object $root;
-method foo()
+method init()
 {
     var v = self vt
-    var m = v at(:foo) get_m
+    var m = v at(:init) get_m
     
     "Object:   " show; self symbol showln
     "VT:       " show; v literal showln

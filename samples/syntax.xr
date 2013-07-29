@@ -2,7 +2,7 @@
 # This is a comment
 
 object $root; # Declare an object called root.
-method foo()  # Method on $root called foo.
+method init()  # Method on $root called init. This is the entry point called by the driver
 {
     "This is a string";
 

@@ -1,6 +1,6 @@
 #!./parse_dump
 object $root;
-method foo()
+method init()
 {
     var v = [1,7,4,7,3,5,3,1,9,6,4,3,4]
 

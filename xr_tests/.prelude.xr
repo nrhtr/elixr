@@ -1,3 +1,3 @@
 object $root;
-method foo()
+method init()
 {

@@ -1,6 +1,6 @@
 #!./parse_dump
 object $root;
-method foo()
+method init()
 {
     var p16 = 1.0
     var pi = 0.0

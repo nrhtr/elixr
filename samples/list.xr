@@ -1,6 +1,6 @@
 #!./parse_dump
 object $root;
-method foo()
+method init()
 {
     var item = :beep
     var i = ["hey", 2, item]

@@ -1,6 +1,6 @@
 #!./parse_dump
 object $root;
-method foo()
+method init()
 {
     var i = 0;
     var a = 0;

@@ -31,14 +31,14 @@ Dump = -- h:Object { $$ = h = list_new(h); }
      ( -- t:Object { $$ = h = list_append(0, h, t); })*
      { ctx->dump = h;}
 
-Object = "object" - '$' i:ID ';' - EOL
+Object = "object" - i:OBJREF ';' - EOL
        { ctx->object = (i == xr_sym("root")) ? root : object_new(0, i); }
        -- ( v:Objvars )? { xrObjectVars(ctx->object) = v; }
        ( m:Method {
             /* for each method we create a closure to hold it 
              * 1st arg = fptr = NULL since we have no jit :(
              * 2nd arg = 1 of slots to reserve, we need 1 for
-             * the method. this is all temporary and ugly */
+             * the method. this is all temporary and weird and i'm not sure what im doing */
             XR cl = closure_new(NULL, 1);
             ((struct XRClosure *)cl)->native = 0;
             xrClosureAt(cl, 0) = m;
@@ -138,16 +138,17 @@ BinaryNot = v:Value     { $$ = v;}
 #FIXME: sort out values/symbols/ids
 Value       = v:NUMBER          { $$ = XR_AST1(NUMBER, v); }
             | v:STRING          { $$ = XR_AST1(STRING, v); }
-            | ':' v:ID           { $$ = XR_AST1(SYMBOL, v); }
-            | v:List              { $$ = XR_AST1(LIST, v); }
-            | "false" -           { $$ = XR_AST1(VALUE, VAL_FALSE); }
-            | "true" -            { $$ = XR_AST1(VALUE, VAL_TRUE); }
-            | "nil" -             { $$ = XR_AST1(VALUE, VAL_NIL); }
-            | "self" -            { $$ = XR_AST1(SELF, 0); }
-            | v:ID !ASSIGN        { $$ = XR_AST1(VAR, v); }
-            | LP e:expr RP    { $$ = e; }
+            | ':' v:ID          { $$ = XR_AST1(SYMBOL, v); }
+            | v:OBJREF          { $$ = v; }
+            | v:List            { $$ = XR_AST1(LIST, v); }
+            | "false" -         { $$ = XR_AST1(VALUE, VAL_FALSE); }
+            | "true" -          { $$ = XR_AST1(VALUE, VAL_TRUE); }
+            | "nil" -           { $$ = XR_AST1(VALUE, VAL_NIL); }
+            | "self" -          { $$ = XR_AST1(SELF, 0); }
+            | v:ID !ASSIGN      { $$ = XR_AST1(VAR, v); }
+            | LP e:expr RP      { $$ = e; }
 
-
+OBJREF  = '$' v:ID { $$ = v; }
 NUMBER  = FIXNUM | DECIMAL
 FIXNUM  = < '-'? [0-9]+ !'.' >          - { $$ = xrNum(atoi(yytext)); }
 DECIMAL = < [0-9]* '.'? [0-9]+ >        - { $$ = xr_double(atof(yytext)); }
@@ -171,8 +172,8 @@ PLUS    = '+'           -
 MINUS   = '-'           -
 TIMES   = '*'           -
 DIVIDE  = '/'           -
-LP  = '('           -
-RP  = ')'           -
+LP      = '('           -
+RP      = ')'           -
 VAR     = "var"         -
 LBRACE  = '{'           -
 RBRACE  = '}'           -

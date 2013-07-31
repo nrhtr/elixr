@@ -54,13 +54,13 @@ XR xr_table_empty(void)
 XR xr_table_with_one(XR k, XR v)
 {
     XR t = xr_table_empty();
-    xr_table_put(0, t, k, v);
+    table_put(0, t, k, v);
 
     return t;
 }
 
 /* TODO: move matches into list head */
-XR xr_table_at(XR cl, XR self, XR key)
+XR table_at(XR cl, XR self, XR key)
 {
     (void) cl;
 
@@ -99,7 +99,7 @@ XR xr_table_at(XR cl, XR self, XR key)
 }
 
 /* TODO: check for overloaded table and resize as needed, return new table */
-XR xr_table_put(XR cl, XR self, XR key, XR val)
+XR table_put(XR cl, XR self, XR key, XR val)
 {
     (void) cl;
 
@@ -150,7 +150,7 @@ XR xr_table_put(XR cl, XR self, XR key, XR val)
     return VAL_FALSE;
 }
 
-XR xr_table_literal(XR cl, XR self)
+XR table_literal(XR cl, XR self)
 {
     (void) cl;
 
@@ -175,7 +175,7 @@ XR xr_table_literal(XR cl, XR self)
     return string;
 }
 
-XR xr_table_pack(XR cl, XR self, FILE *fp)
+XR table_pack(XR cl, XR self, FILE *fp)
 {
     (void) cl;
 
@@ -200,7 +200,7 @@ XR xr_table_pack(XR cl, XR self, FILE *fp)
     return self;
 }
 
-XR xr_table_unpack(FILE *fp)
+XR table_unpack(FILE *fp)
 {
     XR self = xr_table_empty();
     unsigned long size;
@@ -218,13 +218,13 @@ XR xr_table_unpack(FILE *fp)
 
         a = data_unpack(fp);
         b = data_unpack(fp);
-        xr_table_put(0, self, a, b);
+        table_put(0, self, a, b);
     }
 
     return self;
 }
 
-XR xr_table_print(XR cl, XR self)
+XR table_print(XR cl, XR self)
 { 
     (void) cl;
 
@@ -246,7 +246,7 @@ XR xr_table_print(XR cl, XR self)
     return self;
 }
 
-XR xr_table_dump(XR cl, XR self)
+XR table_dump(XR cl, XR self)
 {
     (void) cl;
 
@@ -267,7 +267,7 @@ XR xr_table_dump(XR cl, XR self)
     return VAL_NIL;
 }
 
-XR xr_table_raw_dump(XR cl, XR self)
+XR table_raw_dump(XR cl, XR self)
 {
     (void) cl;
 
@@ -297,12 +297,11 @@ XR xr_table_raw_dump(XR cl, XR self)
 
 void xr_table_methods()
 {
-    xr_table_put(0, table_vt, s_put, def_closure(xr_table_put));
-    xr_table_put(0, table_vt, s_at, def_closure(xr_table_at));
+    table_put(0, table_vt, s_put, def_closure(table_put));
+    table_put(0, table_vt, s_at, def_closure(table_at));
 
-    /* TODO: should table just have .string instead of .print? */
-    def_method(table_vt, s_print,   xr_table_print);
-    def_method(table_vt, s_literal, xr_table_literal);
-    def_method(table_vt, s_pack,    xr_table_pack);
-    def_method(table_vt, s_unpack,  xr_table_unpack);
+    def_method(table_vt, s_print,   table_print);
+    def_method(table_vt, s_literal, table_literal);
+    def_method(table_vt, s_pack,    table_pack);
+    def_method(table_vt, s_unpack,  table_unpack);
 }

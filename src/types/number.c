@@ -76,24 +76,18 @@ XR number_div(XR cl, XR self, XR num)
     return xr_double(xrDbl(self) / xrDbl(num));
 }
 
-/* TODO: merge pack/unpack functions for both types? */
 XR number_pack(XR cl, XR self, FILE *fp)
 {
     (void) cl;
 
-    fwrite("N", 1, 1, fp);
-    fwrite(&self, sizeof(self), 1, fp);
-
-    return self;
-}
-
-XR double_pack(XR cl, XR self, FILE *fp)
-{
-    (void) cl;
-
-    fwrite("D", 1, 1, fp);
-    double val = xrDbl(self);
-    fwrite(&val, sizeof(double), 1, fp);
+    if (xrIsNum(self)) {
+        fwrite("N", 1, 1, fp);
+        fwrite(&self, sizeof(self), 1, fp);
+    } else {
+        fwrite("D", 1, 1, fp);
+        double val = xrDbl(self);
+        fwrite(&val, sizeof(double), 1, fp);
+    }
 
     return self;
 }
@@ -118,7 +112,7 @@ void xr_number_methods(void)
 {
     def_method(num_vt, s_string, number_string);
     def_method(num_vt, s_literal, number_string);
-    def_method(num_vt, s_pack, double_pack);
+    def_method(num_vt, s_pack, number_pack);
     
     def_method(num_vt, s_add, number_add);
     def_method(num_vt, s_sub, number_sub);

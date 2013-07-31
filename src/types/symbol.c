@@ -13,6 +13,18 @@
 KHASH_MAP_INIT_STR(sym, XR);
 khash_t(sym) *g_sym_table;
 
+XR sym_lookup(const char *str)
+{
+    khiter_t k = kh_get(sym, g_sym_table, str);
+
+    if (k != kh_end(g_sym_table)) {
+        return kh_val(g_sym_table, k);
+    }
+
+    return VAL_NIL;
+}
+
+
 XR symbol_print(XR cl, XR self)
 {
     (void) cl;
@@ -32,25 +44,11 @@ XR symbol_println(XR cl, XR self)
     return VAL_NIL;
 }
 
-XR xr_sym_lookup(const char *str)
-{
-    khiter_t k = kh_get(sym, g_sym_table, str);
-
-    if (k != kh_end(g_sym_table)) {
-        return kh_val(g_sym_table, k);
-    }
-
-    return VAL_NIL;
-}
-
 void xr_sym_put(XR s)
 {
     int ret;
     khiter_t k = kh_put(sym, g_sym_table, xrSymPtr(s), &ret);
     kh_val(g_sym_table, k) = s;
-
-    /*printf("Putting sym in symtable: "); symbol_print(0, s); printf("\n");*/
-    /*printf("ptr = %ld, vptr = %ld\n", s, val_vtable(s));*/
 }
 
 XR _xr_sym_alloc(const char *str)
@@ -94,18 +92,15 @@ XR _xr_sym_alloc_n(const char *str, size_t len)
 
 XR xr_sym(const char *str)
 {
-    XR sym = xr_sym_lookup(str);
+    XR sym = sym_lookup(str);
 
-    /*printf("Considering interning of %s -> ", str);*/
     if (sym == VAL_NIL) {
-        /*printf("Creating.\n");*/
         /* Create a new symbol and intern it in 
          * global symbol table */
         sym = _xr_sym_alloc(str);
         ((struct XRSymbol*)sym)->interned = 1;
         xr_sym_put(sym);
-    }/*else
-        printf("Existing.\n");*/
+    }
     
     return sym;
 }
@@ -116,28 +111,7 @@ XR xr_sym_n(const char *str, size_t len)
     strncpy(buf, str, 64);
     buf[len] = '\0';
 
-    XR sym = xr_sym_lookup(buf);
-
-    if (sym == VAL_NIL) {
-        /* Create a new symbol and intern it in 
-         * global symbol table */
-        sym = _xr_sym_alloc_n(str, len);
-        //sym->interned = 1;
-        ((struct XRSymbol*)sym)->interned = 1;
-        xr_sym_put(sym);
-    }
-
-    assert(sym);
-    
-    return sym;   
-}
-
-XR symbol_lookup(XR cl, const char *string)
-{
-    (void) cl;
-    (void) string;
-
-    return VAL_NIL;
+    return xr_sym(buf);
 }
 
 XR symbol_string(XR cl, XR self)
@@ -191,22 +165,6 @@ XR xr_sym_eq(XR cl, XR self, XR other)
     return VAL_FALSE;
 }
 
-XR xr_sym_eq2(XR cl, XR self, XR other)
-{
-    (void) cl;
-
-    if (val_vtable(other) != symbol_vt)
-        return VAL_FALSE;
-
-    const char *stra = xrStrPtr(self);
-    const char *strb = xrStrPtr(other);
-
-    if (strncmp(stra, strb, xrSymLen(self)) == 0)
-        return VAL_TRUE;
-
-    return VAL_FALSE;
-}
-
 XR symbol_pack(XR cl, XR self, FILE *fp)
 {
     (void) cl;
@@ -219,7 +177,6 @@ XR symbol_pack(XR cl, XR self, FILE *fp)
     return VAL_TRUE;
 }
 
-/* Messagify as in TODO */
 XR symbol_unpack(FILE *fp)
 {
     unsigned long len;

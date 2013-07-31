@@ -54,7 +54,7 @@ XR bind(XR rcv, XR msg)
     assert(vt);
     assert(msg);
 
-    XR m = xr_table_at(0, vt, msg);
+    XR m = table_at(0, vt, msg);
     if (m == VAL_NIL) {
         printf("Method lookup %s failed.\n", xrSymPtr(msg));
     }

@@ -82,7 +82,7 @@ XR xr_send(XR a, XR msg, XR b);
 --------------------- */
 #define def_closure(FUN)            closure_new((val_f)(FUN), 0)
 #define qdef_method(VT, MSG, FN)    send(VT, s_put, xr_sym(MSG), (XR)closure_new((val_f)FN, 0))
-#define def_method(VT, SYM, FN)     xr_table_put(0, VT, SYM, (XR)closure_new((val_f)FN, 0))
+#define def_method(VT, SYM, FN)     table_put(0, VT, SYM, (XR)closure_new((val_f)FN, 0))
 
 /* Header macros
 ---------------- */

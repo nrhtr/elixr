@@ -62,6 +62,8 @@ XR list_build(unsigned int n, ...)
     return list;
 }
 
+/////// Messages ///////
+
 XR list_dump(XR self, FILE *fp)
 {
     unsigned long len = xrListLen(self);
@@ -137,7 +139,7 @@ XR list_string(XR cl, XR self)
     return lit;
 }
 
-XR xr_list_at(XR cl, XR self, XR pos)
+XR list_at(XR cl, XR self, XR pos)
 {
     (void) cl;
 
@@ -147,7 +149,7 @@ XR xr_list_at(XR cl, XR self, XR pos)
     return xrListAt(self, xrInt(pos));
 }
 
-XR xr_list_put(XR cl, XR self, XR pos, XR item)
+XR list_put(XR cl, XR self, XR pos, XR item)
 {
     (void) cl;
 
@@ -159,7 +161,7 @@ XR xr_list_put(XR cl, XR self, XR pos, XR item)
     return self;
 }
 
-XR xr_list_len(XR cl, XR self)
+XR list_len(XR cl, XR self)
 {
     (void) cl;
 
@@ -178,7 +180,7 @@ XR list_mktable(XR cl, XR self)
         XR key = xrListAt(self, i);
         XR val = xrListAt(self, i+1);
 
-        xr_table_put(0, tbl, key, val);
+        table_put(0, tbl, key, val);
     }
 
     return tbl;
@@ -188,13 +190,10 @@ void xr_list_methods()
 {
     def_method(list_vt, s_literal, list_literal);
     def_method(list_vt, s_string, list_string);
+    def_method(list_vt, s_at, list_at);
+    def_method(list_vt, s_put, list_put);
 
-    /* FIXME: just testing out crap */
-    /*def_method(list_vt, xr_sym("at"), xr_list_at);*/
-    def_method(list_vt, s_at, xr_list_at);
-    def_method(list_vt, s_put, xr_list_put);
-    def_method(list_vt, xr_sym("len"), xr_list_len);
+    def_method(list_vt, xr_sym("len"), list_len);
     def_method(list_vt, xr_sym("append"), list_append);
     def_method(list_vt, xr_sym("mktable"), list_mktable);
-    /*def_method(list_vt, s_put, xr_list_put);*/
 }

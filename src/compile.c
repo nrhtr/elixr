@@ -81,7 +81,7 @@ int has_objvar(XR obj, XR var)
 {
     XR vars = xrObjectVars(obj);
 
-    if (xr_table_at(0, vars, var) == VAL_NIL)
+    if (table_at(0, vars, var) == VAL_NIL)
         return 1;
 
     return 0;

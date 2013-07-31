@@ -35,12 +35,10 @@ XR root;
 /* Bootstrap message-sending, etc. */
 void xr_init()
 {
-    /* Init base types */
     xr_init_symtable();
 
     table_vt = xr_table_empty();
     val_vtable(table_vt) = table_vt;
-    /*val_name(table_vt) = "Table_VT";*/
 
     string_vt   = xr_table_empty(); 
     symbol_vt   = xr_table_empty(); 
@@ -84,27 +82,4 @@ void xr_init()
     xr_ast_methods();
     xr_root_methods();
     xr_method_methods();
-
-#if 0
-        if (val_vtable(key) != symbol_vt) {
-            printf("Y U NO SYMBOL\n");
-            printf("%s\n", xrSymPtr(key));
-            printf("vt: %lu\n", val_vtable(key));
-            printf("symvt: %lu\n", symbol_vt);
-            printf("strvt: %lu\n", string_vt);
-            printf("numvt: %lu\n", num_vt);
-            printf("tblvt: %lu\n", table_vt);
-            printf("clvt: %lu\n", closure_vt);
-            printf("lstvt: %lu\n", list_vt);
-            printf("astvt: %lu\n", ast_vt);
-            printf("bolvt: %lu\n", bool_vt);
-            printf("nilvt: %lu\n", nil_vt);
-            printf("rootvt: %lu\n", xrAsObj(root)->mt);
-        }
-    puts("Dumping table.");
-    puts("-------------------------");
-    xr_table_dump(0, xrAsObj(root)->string_table);
-    puts("");
-    puts("-------------------------");
-#endif
 }

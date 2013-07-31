@@ -46,13 +46,8 @@ Object = "object" - i:OBJREF ';' - EOL
         )*
        { $$ = ctx->object; }
 
-#Objvars = 'var' - i:ID '=' - v:Value ";" - EOL { XR tmp = xr_table_empty(); xr_table_put(0, tmp i, v); }
-            #('var' - i2:ID '=' - v2:Value ";" - EOL { xr_table_put(0, tmp, i2, v2); })*
-            #{ $$ = tmp; }
-
-
 Objvars = i:ObjvarItem ';' - { i = xr_table_with_one(xrListAt(i,0), xrListAt(i,1)); }
-            (EOL -- j:ObjvarItem ';' - { xr_table_put(0, i, xrListAt(j,0), xrListAt(j,1)); })*
+            (EOL -- j:ObjvarItem ';' - { table_put(0, i, xrListAt(j,0), xrListAt(j,1)); })*
             { $$ = i; }
     
 ObjvarItem = VAR i:ID ASSIGN b:andor { $$ = list_build(2, i, ((struct XRAst*)b)->n[0]); }

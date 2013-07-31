@@ -129,7 +129,7 @@ XR xr_run_method(struct XRMethod *m)
                 {
                     /* TODO: refactor to nice APIs */
                     XR name = POP();
-                    XR val = xr_table_at(0, ((struct XRObject*)m->object)->vars, name);
+                    XR val = table_at(0, ((struct XRObject*)m->object)->vars, name);
                     PUSH(val);
                 }
                 break;
@@ -137,13 +137,13 @@ XR xr_run_method(struct XRMethod *m)
                 {
                     XR name = POP();
 
-                    if (xr_table_at(0, xrObjectVars(m->object), name) == VAL_NIL) {
+                    if (table_at(0, xrObjectVars(m->object), name) == VAL_NIL) {
                         log("Unable to find %s on object...\n", xrSymPtr(name));
                         exit(1);
                     }
 
                     XR val = POP();
-                    xr_table_put(0, xrObjectVars(m->object), name, val);
+                    table_put(0, xrObjectVars(m->object), name, val);
                 }
             case OP_NOTJMP:
                 {

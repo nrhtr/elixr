@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
     log("# Objs: %ld\n", xrListLen(obj_list));
     
     XR obj = root;
-    XR objtable = val_vtable(obj);
+    XR objtable = xrMTable(obj);
     assert(objtable);
     
     /* Lookup the "init" method */

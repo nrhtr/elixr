@@ -33,7 +33,7 @@ Dump = -- h:Object { $$ = h = list_new(h); }
 
 Object = "object" - i:OBJREF ';' - EOL
        { ctx->object = (i == xr_sym("root")) ? root : object_new(0, i); }
-       -- ( v:Objvars )? { xrObjectVars(ctx->object) = v; }
+       -- ( v:Objvars )? { xrObjVars(ctx->object) = v; }
        ( m:Method {
             /* for each method we create a closure to hold it 
              * 1st arg = fptr = NULL since we have no jit :(

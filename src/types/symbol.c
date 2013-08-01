@@ -137,7 +137,7 @@ XR symbol_eq(XR cl, XR self, XR other)
     if (!xrIsPtr(other))
         return VAL_FALSE;
 
-    if (val_vtable(other) != symbol_vt)
+    if (xrMTable(other) != symbol_vt)
         return VAL_FALSE;
 
     if (xrSymLen(self) != xrSymLen(other))

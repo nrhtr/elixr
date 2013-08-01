@@ -29,7 +29,7 @@ XR xr_str_empty(void)
 
 XR xr_strn(const char *str, size_t len)
 {
-    struct XRString *s = xrAsStr(xr_str_alloc(len + 1));
+    struct XRString *s = xrStr(xr_str_alloc(len + 1));
     s->len = len;
     memcpy(s->chars, str, len);
     s->chars[len] = '\0';
@@ -207,7 +207,7 @@ XR xr_str_add(XR cl, XR self, XR other)
 #if 1
     /* Only add strings for now */
     /* I suppose the proper way to do this would be to use other#string */
-    if (!xrIsPtr(other) || val_vtable(other) != string_vt)
+    if (!xrIsPtr(other) || xrMTable(other) != string_vt)
         return VAL_NIL;
 #else
     if (xrIsNum(other)) {

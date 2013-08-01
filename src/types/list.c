@@ -78,7 +78,7 @@ XR list_append(XR cl, XR self, XR item)
 {
     (void) cl;
 
-    struct XRList *list = xrAsList(self);
+    struct XRList *list = xrList(self);
 
     const unsigned delta = 4;
 

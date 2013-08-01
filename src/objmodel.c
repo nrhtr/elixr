@@ -44,7 +44,7 @@ XR bind(XR rcv, XR msg)
     } else if (rcv == VAL_TRUE || rcv == VAL_FALSE) {
         vt = bool_vt;
     } else if (xrIsPtr(rcv)) {
-        vt = val_vtable(rcv);
+        vt = xrMTable(rcv);
     } else if (xrIsNum(rcv)) {
         vt = num_vt;
     } else {
@@ -73,14 +73,14 @@ void object_add_closure(XR obj, XR cl)
     assert(nm);
     assert(m);
 
-    send(val_vtable(obj), s_put, xrMethName(m), cl);
+    send(xrMTable(obj), s_put, xrMethName(m), cl);
 }
 
 XR xr_obj_symbol(XR cl, XR self)
 {
     (void) cl;
 
-    return xrAsObj(self)->name;
+    return xrObj(self)->name;
 }
 
 XR object_new(XR parent, XR name)
@@ -105,14 +105,14 @@ XR xr_root_vt(XR cl, XR self)
 {
     (void) cl;
 
-    return val_vtable(self);
+    return xrMTable(self);
 }
 
 void xr_root_methods(void)
 {
-    def_method(val_vtable(root), s_symbol, xr_obj_symbol);
+    def_method(xrMTable(root), s_symbol, xr_obj_symbol);
 
     /* FIXME: sort out object model/cloning/lobby system */
-    qdef_method(val_vtable(root), "List", xr_root_list);
-    qdef_method(val_vtable(root), "vt", xr_root_vt);
+    qdef_method(xrMTable(root), "List", xr_root_list);
+    qdef_method(xrMTable(root), "vt", xr_root_vt);
 }

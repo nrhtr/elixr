@@ -137,13 +137,13 @@ XR xr_run_method(struct XRMethod *m)
                 {
                     XR name = POP();
 
-                    if (table_at(0, xrObjectVars(m->object), name) == VAL_NIL) {
+                    if (table_at(0, xrObjVars(m->object), name) == VAL_NIL) {
                         log("Unable to find %s on object...\n", xrSymPtr(name));
                         exit(1);
                     }
 
                     XR val = POP();
-                    table_put(0, xrObjectVars(m->object), name, val);
+                    table_put(0, xrObjVars(m->object), name, val);
                 }
             case OP_NOTJMP:
                 {

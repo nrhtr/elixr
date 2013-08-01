@@ -68,10 +68,10 @@ XR table_at(XR cl, XR self, XR key)
     assert(key);
 
     
-    if (xrIsPtr(key) && val_vtable(key) != symbol_vt) {
+    if (xrIsPtr(key) && xrMTable(key) != symbol_vt) {
         printf("Cannot use as a table key: %lu\n", key);
         assert(0);
-        printf("VT: %lu\n", val_vtable(key));
+        printf("VT: %lu\n", xrMTable(key));
         printf("SYMVT: %lu\n", symbol_vt);
         printf("STRVT: %lu\n", string_vt);
         /*printf("Cannot use "); send(xrSafeLit(key), s_print); printf(" as a table key.\n");*/
@@ -107,7 +107,7 @@ XR table_put(XR cl, XR self, XR key, XR val)
     assert(val);
     assert(self);
 
-    if (xrIsPtr(key) && val_vtable(key) != symbol_vt) {
+    if (xrIsPtr(key) && xrMTable(key) != symbol_vt) {
         /* printf("Cannot use "); send(xrSafeLit(key), s_print); printf(" as a table key.\n"); */
         return VAL_FALSE;
     }

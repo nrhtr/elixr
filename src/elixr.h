@@ -46,10 +46,11 @@ XR xr_send(XR a, XR msg, XR b);
 
 /* Typecast macros
 ------------------ */
-#define xrAsTable(v)        ((struct XRTable*)v)
-#define xrAsStr(v)          ((struct XRString*)v)
-#define xrAsObj(v)          ((struct XRObject*)v)
-#define xrAsList(v)         ((struct XRList*)v)
+#define xrTable(v)        ((struct XRTable*)v)
+#define xrStr(v)          ((struct XRString*)v)
+#define xrObj(v)          ((struct XRObject*)v)
+#define xrList(v)         ((struct XRList*)v)
+#define xrSym(v)         ((struct XRList*)v)
 
 /* Objmodel macros
 ------------------ */
@@ -65,7 +66,7 @@ XR xr_send(XR a, XR msg, XR b);
 #define xrMkBool(i)         ((i) == 0 ? VAL_FALSE : VAL_TRUE)
 #define xrTest(v)         ((v) != VAL_NIL && (v) != VAL_FALSE)
 
-#define xrObjectVars(o) (((struct XRObject*)o)->vars)
+#define xrObjVars(o) (((struct XRObject*)o)->vars)
 
 #define VAL_NIL   ((XR)0)
 #define VAL_ZERO  ((XR)1)
@@ -86,8 +87,7 @@ XR xr_send(XR a, XR msg, XR b);
 
 /* Header macros
 ---------------- */
-#define val_vtable(v)     (((struct XRObject*)v)->mt)
-#define val_name(v)       (((struct XRObject*)v)->name)
+#define xrMTable(v)     (((struct XRObject*)v)->mt)
 
 /* List macros
 -------------- */
@@ -136,10 +136,10 @@ for (int n = 0, XR I = xrListAt(L, n); n < xrListLen(L); n++, I = xrListAt(L, n)
 
 /* Table macros
 ---------------- */
-#define xrTblIndex(T,I) (xrAsTable(T)->buckets[I])
-#define xrTblSize(T)    (xrAsTable(T)->len)
-#define xrTblAlloc(T)   (xrAsTable(T)->alloc)
-#define xrTblBuckets(T) (xrAsTable(T)->buckets)
+#define xrTblIndex(T,I) (xrTable(T)->buckets[I])
+#define xrTblSize(T)    (xrTable(T)->len)
+#define xrTblAlloc(T)   (xrTable(T)->alloc)
+#define xrTblBuckets(T) (xrTable(T)->buckets)
 
 #define xrTblForeach(T, K, V)\
     for (int i = 0; i < xrTblAlloc(T); i++) \

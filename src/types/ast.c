@@ -135,7 +135,7 @@ XR ast_string(XR cl, XR self)
 
         if (xrIsNum(n)) {
             str = xr_str_append(0, str, xr_str_sprintf("%d", xrInt(n)));
-        /*} else if (val_vtable(n) == list_vt) {*/
+        /*} else if (xrMTable(n) == list_vt) {*/
             /*xrListEach(n, index, item, {*/
                 /*str = xr_str_append(0, str, send(item, s_string));*/
                 /*if (index != xrListLen(n) - 1)*/

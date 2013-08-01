@@ -79,7 +79,7 @@ int find_var(XR locals, XR var)
 
 int has_objvar(XR obj, XR var)
 {
-    XR vars = xrObjectVars(obj);
+    XR vars = xrObjVars(obj);
 
     if (table_at(0, vars, var) == VAL_NIL)
         return 1;
@@ -237,7 +237,7 @@ void ast_compile(XR ast, struct XRMethod *m)
 
                 int val_index = -1;
                 xrListEach(m->values, index, item, {
-                    if (xrIsPtr(item) && val_vtable(item) == symbol_vt
+                    if (xrIsPtr(item) && xrMTable(item) == symbol_vt
                      && strcmp(xrSymPtr(oper[0]), xrSymPtr(item)) == 0) {
                         val_index = index;
                         break;
@@ -343,7 +343,7 @@ void ast_compile(XR ast, struct XRMethod *m)
             {
                 int val_index = -1;
                 xrListEach(m->values, index, item, {
-                    if (xrIsPtr(item) && val_vtable(item) == string_vt && strcmp(xrStrPtr(oper[0]), xrStrPtr(item)) == 0) {
+                    if (xrIsPtr(item) && xrMTable(item) == string_vt && strcmp(xrStrPtr(oper[0]), xrStrPtr(item)) == 0) {
                         val_index = index;
                         break;
                     }
@@ -361,7 +361,7 @@ void ast_compile(XR ast, struct XRMethod *m)
             {
                 int val_index = -1;
                 xrListEach(m->values, index, item, {
-                    if (xrIsPtr(item) && val_vtable(item) == symbol_vt && strcmp(xrSymPtr(oper[0]), xrSymPtr(item)) == 0) {
+                    if (xrIsPtr(item) && xrMTable(item) == symbol_vt && strcmp(xrSymPtr(oper[0]), xrSymPtr(item)) == 0) {
                         val_index = index;
                         break;
                     }
@@ -409,7 +409,7 @@ void ast_compile(XR ast, struct XRMethod *m)
                     /* FIXME: copy-pasted code to add value to use in IVAL */
                     int val_index = -1;
                     xrListEach(m->values, index, item, {
-                        if (xrIsPtr(item) && val_vtable(item) == symbol_vt
+                        if (xrIsPtr(item) && xrMTable(item) == symbol_vt
                          && strcmp(xrSymPtr(oper[0]), xrSymPtr(item)) == 0) {
                             val_index = index;
                             break;

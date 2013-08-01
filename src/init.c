@@ -38,7 +38,7 @@ void xr_init()
     xr_init_symtable();
 
     table_vt = xr_table_empty();
-    val_vtable(table_vt) = table_vt;
+    xrMTable(table_vt) = table_vt;
 
     string_vt   = xr_table_empty(); 
     symbol_vt   = xr_table_empty(); 

@@ -60,7 +60,7 @@ Method = -- "method" - i:ID a:Params -- s:Code
            qsend(s, "source", xrNum(0));
 #endif
            m->object = ctx->object;
-           xr_ast_compile_method(s, m);
+           ast_compile_method(s, m);
            $$ = ctx->method = (XR)m; assert(ctx->object); 
        }
 

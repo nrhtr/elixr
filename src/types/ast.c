@@ -47,7 +47,7 @@ const char *ast_node_name(XR n)
 }
 */
 
-XR xr_ast_name(XR cl, XR self)
+XR ast_name(XR cl, XR self)
 {
     (void) cl;
 
@@ -118,13 +118,13 @@ XR xr_ast_name(XR cl, XR self)
     }
 }
 
-XR xr_ast_string(XR cl, XR self)
+XR ast_string(XR cl, XR self)
 {
     (void) cl;
 
     XR str = xr_str_alloc(64);
     struct XRAst * s = ((struct XRAst *)self);
-    str = xr_str_append(0, str, xr_ast_name(0, self));
+    str = xr_str_append(0, str, ast_name(0, self));
 
     int i;
     if (s->n[0])
@@ -158,7 +158,7 @@ void ast_graph_string_each(XR self)
 {
 
     struct XRAst * s = ((struct XRAst *)self);
-    send(xr_ast_name(0, self), s_print);
+    send(ast_name(0, self), s_print);
 
     int i;
     for (i = 0; i < 3; i++) {
@@ -208,7 +208,7 @@ void ast_graph_nodex(XR self)
         break;
     };
 
-    XR label = xr_ast_name(0, self);
+    XR label = ast_name(0, self);
     printf("node%p [label=\"", s); send(label, s_print); printf("\"];\n");
 }
 
@@ -255,7 +255,7 @@ XR ast_literal(XR cl, XR self)
 {
     (void) cl;
 
-    return xr_ast_name(0, self);
+    return ast_name(0, self);
 }
 
 /*
@@ -278,7 +278,7 @@ void print_spaces(int spaces)
         printf(" ");
 }
 
-XR xr_ast_source(XR cl, XR self, XR indent)
+XR ast_source(XR cl, XR self, XR indent)
 {
     (void) cl;
 
@@ -302,16 +302,16 @@ XR xr_ast_source(XR cl, XR self, XR indent)
     switch (ast->type) {
         case AST_IF:
             printf("if (");
-            xr_ast_source(0, ast->n[0], indent);
+            ast_source(0, ast->n[0], indent);
             printf(")\n");
             if (((struct XRAst *)ast->n[1])->type != AST_CODE)
                 print_spaces(_indent);
-            xr_ast_source(0, ast->n[1], indent);
+            ast_source(0, ast->n[1], indent);
             break;
         case AST_EQ:
-            xr_ast_source(0, ast->n[0], indent);
+            ast_source(0, ast->n[0], indent);
             printf(" == ");
-            xr_ast_source(0, ast->n[1], indent);
+            ast_source(0, ast->n[1], indent);
             break;
         case AST_VALUE:
             /* We don't store the actual names in the AST */
@@ -335,13 +335,13 @@ XR xr_ast_source(XR cl, XR self, XR indent)
             }
             break;
         case AST_EXPRSTMT:
-            xr_ast_source(0, ast->n[0], indent);
+            ast_source(0, ast->n[0], indent);
             printf("\n");
             break;
         case AST_CODE:
             printf("{\n");
             xrListEach(ast->n[0], index, item, {
-                xr_ast_source(0, item, xrNum(_indent + 4));
+                ast_source(0, item, xrNum(_indent + 4));
             });
             print_spaces(_indent);
             printf("}\n");
@@ -351,19 +351,19 @@ XR xr_ast_source(XR cl, XR self, XR indent)
             break;
         case AST_VINIT:
             printf("var %s = ", xrSymPtr(ast->n[0]));
-            xr_ast_source(0, ast->n[1], indent);
+            ast_source(0, ast->n[1], indent);
             printf("\n");
             break;
         case AST_ASSIGN:
             /* FIXME: BLAH BLAH BLAH SYMBOLS MSGS AND SHIT */
             printf("%s = ", xrSymPtr(ast->n[0]));
-            xr_ast_source(0, ast->n[1], indent);
+            ast_source(0, ast->n[1], indent);
             printf("\n");
             break;
         case AST_SEND:
-            xr_ast_source(0, ast->n[0], indent);
+            ast_source(0, ast->n[0], indent);
             printf(" ");
-            /*xr_ast_source(0, ast->n[1], indent);*/
+            /*ast_source(0, ast->n[1], indent);*/
 
             /* FIXME: sort out literals vs messages, and toliteral() type stuff */
             printf("%s", xrSymPtr(((struct XRAst *)ast->n[1])->n[0]));
@@ -371,7 +371,7 @@ XR xr_ast_source(XR cl, XR self, XR indent)
             if (ast->n[2]) {
                 printf("(");
                 xrListEach(ast->n[2], index, item, {
-                    xr_ast_source(0, item, indent);
+                    ast_source(0, item, indent);
                     if (index != xrListLen(ast->n[2]) - 1) {
                         printf(", ");
                     }
@@ -382,7 +382,7 @@ XR xr_ast_source(XR cl, XR self, XR indent)
         case AST_LIST:
             printf("[");
             xrListEach(ast->n[0], index, item, {
-                xr_ast_source(0, item, indent);
+                ast_source(0, item, indent);
                 if (index != xrListLen(ast->n[0]) - 1) {
                     printf(", ");
                 }
@@ -401,24 +401,24 @@ XR xr_ast_source(XR cl, XR self, XR indent)
             printf(":%s", xrSymPtr(ast->n[0]));
             break;
         case AST_TIMES:
-            xr_ast_source(0, ast->n[0], indent);
+            ast_source(0, ast->n[0], indent);
             printf(" * ");
-            xr_ast_source(0, ast->n[1], indent);
+            ast_source(0, ast->n[1], indent);
             break;
         case AST_DIVIDE:
-            xr_ast_source(0, ast->n[0], indent);
+            ast_source(0, ast->n[0], indent);
             printf(" / ");
-            xr_ast_source(0, ast->n[1], indent);
+            ast_source(0, ast->n[1], indent);
             break;
         case AST_PLUS:
-            xr_ast_source(0, ast->n[0], indent);
+            ast_source(0, ast->n[0], indent);
             printf(" + ");
-            xr_ast_source(0, ast->n[1], indent);
+            ast_source(0, ast->n[1], indent);
             break;
         case AST_MINUS:
-            xr_ast_source(0, ast->n[0], indent);
+            ast_source(0, ast->n[0], indent);
             printf(" - ");
-            xr_ast_source(0, ast->n[1], indent);
+            ast_source(0, ast->n[1], indent);
             break;
         default:
             printf("[%d]\n", ast->type);
@@ -431,8 +431,8 @@ XR xr_ast_source(XR cl, XR self, XR indent)
 void xr_ast_methods()
 {
     def_method(ast_vt, s_literal, ast_literal);
-    def_method(ast_vt, s_string, xr_ast_string);
+    def_method(ast_vt, s_string, ast_string);
 
-    qdef_method(ast_vt, "name", xr_ast_name);
-    qdef_method(ast_vt, "source", xr_ast_source);
+    qdef_method(ast_vt, "name", ast_name);
+    qdef_method(ast_vt, "source", ast_source);
 }

@@ -49,6 +49,6 @@ void ast_print_digraph(XR tree);
 void ast_traverse(struct XRAst *tree, void (*func)(XR));
 
 /* Proper messages */
-XR xr_ast_name(XR cl, XR self);
+XR ast_name(XR cl, XR self);
 
 #endif

@@ -130,7 +130,7 @@ XR symbol_literal(XR cl, XR self)
     return literal;
 }
 
-XR xr_sym_eq(XR cl, XR self, XR other)
+XR symbol_eq(XR cl, XR self, XR other)
 {
     (void) cl;
 
@@ -207,10 +207,10 @@ XR sym_num_eq(XR a, XR b)
         if (xrIsNum(b)) {
             return (a == b) ? VAL_TRUE : VAL_FALSE;
         }
-        return xr_sym_eq(0, a, b);
+        return symbol_eq(0, a, b);
     }
     else
-        return xr_sym_eq(0, b, a);
+        return symbol_eq(0, b, a);
 }
 
 void xr_init_symtable()
@@ -227,5 +227,5 @@ void xr_symbol_methods()
 
     qdef_method(symbol_vt, "show", symbol_print);
     qdef_method(symbol_vt, "showln", symbol_println);
-    qdef_method(symbol_vt, "==",     xr_sym_eq);
+    qdef_method(symbol_vt, "==",     symbol_eq);
 }

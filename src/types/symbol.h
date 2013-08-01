@@ -17,7 +17,7 @@ XR xr_sym_n(const char *str, size_t len);
 
 /* FIXME: sort out the messy comparison functions */
 XR sym_num_eq(XR a, XR b);
-XR xr_sym_eq(XR cl, XR self, XR other);
+XR symbol_eq(XR cl, XR self, XR other);
 
 /* Messages */
 XR symbol_print(XR cl, XR self);

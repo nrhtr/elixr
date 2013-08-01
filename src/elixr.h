@@ -61,7 +61,7 @@ XR xr_send(XR a, XR msg, XR b);
 #define xrIsPtr(n)       (!xrIsNum(n))
 #define xrIsBool(n)      ((n) & 2)
 #define xrSafeLit(i)     (xrIsNum(i) ? xr_str_from_num(0, i) : send(i, s_literal))
-#define xrTblCmp(a,b)    (xrIsNum(a) ? (xrIsNum(b) ? (a) == (b) : xr_sym_eq(0, b, a)) : xr_sym_eq(0, a, b))
+#define xrTblCmp(a,b)    (xrIsNum(a) ? (xrIsNum(b) ? (a) == (b) : symbol_eq(0, b, a)) : symbol_eq(0, a, b))
 #define xrMkBool(i)         ((i) == 0 ? VAL_FALSE : VAL_TRUE)
 #define xrTest(v)         ((v) != VAL_NIL && (v) != VAL_FALSE)
 

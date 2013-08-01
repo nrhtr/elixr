@@ -6,7 +6,7 @@
 #include "xrstring.h"
 #include "closure.h"
 
-XR xr_method_name(XR cl, XR self)
+XR method_name(XR cl, XR self)
 {
     (void) cl;
     (void) self;
@@ -14,7 +14,7 @@ XR xr_method_name(XR cl, XR self)
     return ((struct XRMethod*)self)->name;
 }
 
-XR xr_method_literal(XR cl, XR self)
+XR method_literal(XR cl, XR self)
 {
     (void) cl;
     (void) self;
@@ -22,21 +22,21 @@ XR xr_method_literal(XR cl, XR self)
     return xr_str("(method)");
 }
 
-XR xr_method_values(XR cl, XR self)
+XR method_values(XR cl, XR self)
 {
     (void) cl;
 
     return ((struct XRMethod *)self)->values;
 }
 
-XR xr_method_locals(XR cl, XR self)
+XR method_locals(XR cl, XR self)
 {
     (void) cl;
 
     return ((struct XRMethod *)self)->locals;
 }
 
-XR xr_method_args(XR cl, XR self)
+XR method_args(XR cl, XR self)
 {
     (void) cl;
 
@@ -45,9 +45,9 @@ XR xr_method_args(XR cl, XR self)
 
 void xr_method_methods()
 {
-    qdef_method(method_vt, "name", xr_method_name);
-    qdef_method(method_vt, "literal", xr_method_literal);
-    qdef_method(method_vt, "locals", xr_method_locals);
-    qdef_method(method_vt, "values", xr_method_values);
-    qdef_method(method_vt, "args", xr_method_args);
+    qdef_method(method_vt, "name", method_name);
+    qdef_method(method_vt, "literal", method_literal);
+    qdef_method(method_vt, "locals", method_locals);
+    qdef_method(method_vt, "values", method_values);
+    qdef_method(method_vt, "args", method_args);
 }

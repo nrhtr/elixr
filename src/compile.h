@@ -4,8 +4,8 @@
 void compile_ast(XR tree);
 void compile_expr(XR expr_node);
 
-void xr_ast_compile(XR ast, struct XRMethod *m);
-void xr_ast_compile_method(XR ast, struct XRMethod *m);
+void ast_compile(XR ast, struct XRMethod *m);
+void ast_compile_method(XR ast, struct XRMethod *m);
 void xr_asm_op(struct XRAsm *m, u8 ins, int _a, int _b);
 
 XR xr_parse_dump_from_stdin(void);

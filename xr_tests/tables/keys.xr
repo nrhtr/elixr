@@ -1,0 +1,9 @@
+var t = [] mktable
+
+t keys literal showln
+#[]
+
+t put(:a, "ay")
+t put(:b, "bee")
+t keys literal showln
+#[:a, :b]

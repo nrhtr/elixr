@@ -1,0 +1,7 @@
+var dict = [:a, 2, :b, 4] mktable
+
+dict at(:a) literal showln
+#2
+
+dict at(:b) literal showln
+#4

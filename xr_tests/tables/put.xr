@@ -1,0 +1,6 @@
+var dict = [] mktable
+dict put(:a, 4)
+dict put(:b, 6)
+
+dict literal showln
+#{:a => 4, :b => 6}

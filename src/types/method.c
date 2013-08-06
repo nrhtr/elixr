@@ -43,6 +43,60 @@ XR method_args(XR cl, XR self)
     return ((struct XRMethod *)self)->args;
 }
 
+/* TODO: use AST#show or something similar instead of explicit switch */
+/* Also hopefully ramp up the homoiconicity by using some kind of tuple structure
+ * for ASTS */
+/* Sort out what goes to stderr/stdout and shit */
+XR method_show(XR cl, XR self)
+{
+    (void) cl;
+
+    struct XRMethod *m = xrMthd(self);
+
+    int oplen = m->code.len;
+    int llen = xrListLen(m->locals);
+    int vlen = xrListLen(m->values);
+    log("Method: "); log(xrSymPtr(m->name)); log("\n");
+    log("Opcodes: %d\t= [%3d x %ld = %3d bytes]\n", oplen, oplen, sizeof(XR_OP), oplen * sizeof(XR_OP));
+    log("Locals:  %d\t= [%3d x %ld = %3d bytes]\n", llen, llen, sizeof(XR), llen * sizeof(XR));
+    log("Values:  %d\t= [%3d x %ld = %3d bytes]\n", vlen, vlen, sizeof(XR), vlen * sizeof(XR));
+
+    XR_OP *p = m->code.ops;
+    size_t i;
+    for (i = 0; i < m->code.len; i++) {
+        log("%ld.\t%s\t", i, op_info[p[i].code].name);
+        switch (p[i].code) {
+            case OP_IVAL:
+                {
+                    XR val = xrListAt(m->values, p[i].a);
+                    XR str = xrSafeLit(val);
+                    log("%d\t(%s)", p[i].a, xrStrPtr(str));
+                    break;
+                }
+            case OP_LSTORE: case OP_LLOAD:
+            {
+                XR lsym;
+                if (p[i].a < xrListLen(m->args))
+                    lsym = xrListAt(m->args, p[i].a);
+                else
+                    lsym = xrListAt(m->locals, p[i].a - xrListLen(m->args));
+                log("%d\t(%s)", p[i].a, xrSymPtr(lsym));
+                break;
+            }
+            case OP_JMP: case OP_NOTJMP:
+                log("%d", p[i].a + 1);
+                break;
+            case OP_DIV: case OP_MULT: case OP_PLUS: case OP_MINUS:
+                break;
+            default:
+                log("%d, %d", p[i].a, p[i].b);
+        }
+        log("\n");
+    }
+
+    return VAL_NIL;
+}
+
 void xr_method_methods()
 {
     qdef_method(method_vt, "name", method_name);
@@ -50,4 +104,5 @@ void xr_method_methods()
     qdef_method(method_vt, "locals", method_locals);
     qdef_method(method_vt, "values", method_values);
     qdef_method(method_vt, "args", method_args);
+    qdef_method(method_vt, "show", method_show);
 }

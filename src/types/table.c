@@ -308,6 +308,19 @@ XR table_keys(XR cl, XR self)
     return lst;
 }
 
+XR table_values(XR cl, XR self)
+{
+    (void) cl;
+
+    XR lst = list_empty();
+
+    xrTblForeach(self, key, val) {
+        list_append(0, lst, val);
+    }
+
+    return lst;
+}
+
 void xr_table_methods()
 {
     table_put(0, table_vt, s_put, def_closure(table_put));
@@ -319,4 +332,5 @@ void xr_table_methods()
     def_method(table_vt, s_unpack,  table_unpack);
 
     def_method(table_vt, xr_sym("keys"), table_keys);
+    def_method(table_vt, xr_sym("values"), table_values);
 }

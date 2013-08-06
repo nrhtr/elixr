@@ -50,7 +50,8 @@ XR xr_send(XR a, XR msg, XR b);
 #define xrStr(v)          ((struct XRString*)v)
 #define xrObj(v)          ((struct XRObject*)v)
 #define xrList(v)         ((struct XRList*)v)
-#define xrSym(v)         ((struct XRList*)v)
+#define xrSym(v)          ((struct XRSymbol*)v)
+#define xrMthd(v)         ((struct XRMethod*)v)
 
 /* Objmodel macros
 ------------------ */

@@ -3,6 +3,10 @@ NOTES
 
 TODOs and other things
 ----------------------
+* change to slot-type system (activatable vs non-activatable)
+    - closures with generic getter/setters for values (as in piumarta's oop model)?
+    - do regular lookup then decide whether its "callable" or not?
+
 * quickcheck?
 * pseudo-bootstrap ASAP!
 * combine xr_tests with tests

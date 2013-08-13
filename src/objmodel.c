@@ -93,14 +93,6 @@ XR object_new(XR parent, XR name)
     return (XR)obj;
 }
 
-XR xr_root_list(XR cl, XR self)
-{
-    (void) cl;
-    (void) self;
-
-    return list_empty();
-}
-
 XR xr_root_vt(XR cl, XR self)
 {
     (void) cl;
@@ -112,7 +104,6 @@ void xr_root_methods(void)
 {
     def_method(xrMTable(root), s_symbol, xr_obj_symbol);
 
-    /* FIXME: sort out object model/cloning/lobby system */
-    qdef_method(xrMTable(root), "List", xr_root_list);
+    /* TODO: sort out object model/cloning/lobby system */
     qdef_method(xrMTable(root), "vt", xr_root_vt);
 }

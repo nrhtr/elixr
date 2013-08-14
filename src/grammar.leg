@@ -80,7 +80,8 @@ Stmt = b:andor                  { $$ = XR_AST1(EXPRSTMT, b); }
      | c:Code                   { $$ = c; }
      | VAR i:ID !ASSIGN         { $$ = XR_AST1(VDECL, i); }
      | VAR i:ID ASSIGN b:andor  { $$ = XR_AST2(VINIT, i, b); }
-     | i:ID ASSIGN b:andor      { $$ = XR_AST2(ASSIGN, i, b); }
+     | !'/'i:ID ASSIGN b:andor      { $$ = XR_AST2(ASSIGN, i, b); }
+     | '/' i:ID ASSIGN b:andor  { $$ = XR_AST2(OBJASSIGN, i, b); }
      | "if" - '(' - b:andor - ')' -- t:Stmt -- "else" -- f:Stmt { $$ = XR_AST3(IFELSE, b, t, f); }
      | "if" - '(' - b:andor - ')' -- t:Stmt { $$ = XR_AST2(IF, b, t); }
      | "while" - '(' - b:andor - ')' -- t:Stmt { $$ = XR_AST2(WHILE, b, t); }
@@ -141,6 +142,7 @@ Value       = v:NUMBER          { $$ = XR_AST1(NUMBER, v); }
             | "nil" -           { $$ = XR_AST1(VALUE, VAL_NIL); }
             | "self" -          { $$ = XR_AST1(SELF, 0); }
             | v:ID !ASSIGN      { $$ = XR_AST1(VAR, v); }
+            | "/" v:ID !ASSIGN  { $$ = XR_AST1(OBJVAR, v); }
             | LP e:expr RP      { $$ = e; }
 
 OBJREF  = '$' v:ID { $$ = v; }

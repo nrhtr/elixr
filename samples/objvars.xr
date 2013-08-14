@@ -2,17 +2,16 @@
 object $root;
 
 var test = :dog;
-
 method init()
 {
-    test literal showln
+    /test literal showln
 
     self bar
 
-    test literal showln
+    /test literal showln
 }
 
 method bar()
 {
-    test = :cat
+    /test = :cat
 }

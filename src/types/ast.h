@@ -35,7 +35,9 @@ enum AST_TYPE {
     AST_AND,
     AST_OR,
     AST_ASSERT,
-    AST_RETURN
+    AST_RETURN,
+    AST_OBJVAR,
+    AST_OBJASSIGN,
 };
 
 XR ast_node(enum AST_TYPE t, XR a, XR b, XR c);

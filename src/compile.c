@@ -219,14 +219,14 @@ void ast_compile(XR ast, struct XRMethod *m)
             break;
         case AST_ASSIGN:
             {
-                /* TODO: how do objvars work? */
                 int var_index = find_var(m->locals, oper[0]);
-
                 if (var_index != -1) {
                     ast_compile(oper[1], m);
                     xr_asm_op(&m->code, OP_LSTORE, xrListLen(m->args) + var_index, 0);
                     break;
                 }
+
+                /* FIXME: What's going on here?? */
 
                 var_index = find_var(m->locals, oper[0]);
                 if (var_index != -1) {
@@ -235,6 +235,12 @@ void ast_compile(XR ast, struct XRMethod *m)
                     break;
                 }
 
+
+                fprintf(stderr, "No such var '%s' for assignment\n", xrSymPtr(oper[0]));
+            }
+            break;
+        case AST_OBJASSIGN:
+            {
                 int val_index = -1;
                 xrListEach(m->values, index, item, {
                     if (xrIsPtr(item) && xrMTable(item) == symbol_vt
@@ -252,10 +258,7 @@ void ast_compile(XR ast, struct XRMethod *m)
                 ast_compile(oper[1], m);
                 xr_asm_op(&m->code, OP_IVAL, val_index, 0);
                 xr_asm_op(&m->code, OP_SETOBJVAR, 0, 0);
-
-                fprintf(stderr, "No such var '%s' for assignment\n", xrSymPtr(oper[0]));
             }
-            break;
         case AST_EXPRSTMT:
             {
                 /* Just a single expression statement.
@@ -401,10 +404,16 @@ void ast_compile(XR ast, struct XRMethod *m)
                     break;
                 }
 
-                var = has_objvar(m->object, oper[0]);
+                printf("No such variable as '%s'\n", xrStrPtr(oper[0]));
+                exit(1);
+            }
+            break;
+        case AST_OBJVAR:
+            {
+                int var = has_objvar(m->object, oper[0]);
                 if (var != -1) {
                     /* Have to use an IVAL as we do a lookup
-                     * using the actualy symbol */
+                     * using an actualy symbol */
 
                     /* FIXME: copy-pasted code to add value to use in IVAL */
                     int val_index = -1;
@@ -425,11 +434,7 @@ void ast_compile(XR ast, struct XRMethod *m)
                     xr_asm_op(&m->code, OP_GETOBJVAR, 0, 0);
                     break;
                 }
-
-                printf("No such variable as '%s'\n", xrStrPtr(oper[0]));
-                exit(1);
             }
-            break;
         case AST_PLUS:
             {
                 ast_compile(oper[1], m);

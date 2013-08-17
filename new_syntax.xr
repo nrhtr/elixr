@@ -1,0 +1,15 @@
+# Vague idea of how this will work.
+# So far this is just Io syntax & semantics
+
+# Root init method is called
+Root serverName := "JengaMUD"
+Root port := 1380
+Root init := method(
+    # setup some shit here
+    loop(
+        conn := Connection clone setPort(port) listen
+        msg = conn receive
+        conn send("=> " .. msg)
+        conn close
+    )
+)

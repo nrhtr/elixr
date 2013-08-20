@@ -16,18 +16,7 @@ int main(int argc, char *argv[])
     if (!stdin)
         return 1;
 
-    XR obj_list = xr_parse_dump_from_stdin();
-
-    log("# Objs: %ld\n", xrListLen(obj_list));
-    
-    XR root_mt = xrMTable(root);
-    assert(root_mt);
-    
-    /* Lookup the "init" method */
-    XR init_m = xrClosureAt(send(root_mt, s_at, xr_sym("init")), 0);
-
-    qsend(init_m, "show");
-    xr_run_method(init_m);
+    xr_parse_expr_from_stdin();
 
     return 0;
 }

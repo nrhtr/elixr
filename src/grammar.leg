@@ -27,171 +27,25 @@ unsigned int lineNumber;
 #define XR_AST3(type, a, b, c) ast_node(AST_##type, a, b, c)
 %}
 
-Dump = -- h:Object { $$ = h = list_new(h); }
-     ( -- t:Object { $$ = h = list_append(0, h, t); })*
-     { ctx->dump = h;}
+program = e:expression -- ';' --
+expression = (m:message)*
+message = s:symbol a:arguments?
+arguments = Open (a:arg (',' b:arg)* )? Close
+arg = expression
 
-Object = "object" - i:OBJREF ';' - EOL
-       { ctx->object = (i == xr_sym("root")) ? root : object_new(0, i); }
-       -- ( v:Objvars )? { xrObjVars(ctx->object) = v; }
-       ( m:Method {
-            /* for each method we create a closure to hold it 
-             * 1st arg = fptr = NULL since we have no jit :(
-             * 2nd arg = 1 of slots to reserve, we need 1 for
-             * the method. this is all temporary and weird and i'm not sure what im doing */
-            XR cl = closure_new(NULL, 1);
-            ((struct XRClosure *)cl)->native = 0;
-            xrClosureAt(cl, 0) = m;
-            object_add_closure(ctx->object, cl); }
-        )*
-       { $$ = ctx->object; }
+symbol = Identifier -
 
-Objvars = i:ObjvarItem ';' - { i = xr_table_with_one(xrListAt(i,0), xrListAt(i,1)); }
-            (EOL -- j:ObjvarItem ';' - { table_put(0, i, xrListAt(j,0), xrListAt(j,1)); })*
-            { $$ = i; }
-    
-ObjvarItem = VAR i:ID ASSIGN b:andor { $$ = list_build(2, i, ((struct XRAst*)b)->n[0]); }
-                                
-Method = -- "method" - i:ID a:Params -- s:Code
-       {
-           struct XRMethod *m = xr_method_new(i, a); 
-#if 0
-           ast_graph_head(s);
-           qsend(s, "source", xrNum(0));
-#endif
-           m->object = ctx->object;
-           ast_compile_method(s, m);
-           $$ = ctx->method = (XR)m; assert(ctx->object); 
-       }
+Identifier = < Letter (Letter | Digit)* >
+Letter = [a-z]
+Digit = [0-9]
 
-Params = '(' - ')' { $$ = list_empty(); }
-       | '(' - p1:ID { p1 = list_new(p1); }
-       (',' - p2:ID { p1 = list_append(0, p1, p2); })* ')'
-       { $$ = p1; } 
-
-Code = LBRACE -- s:Statements -- RBRACE
-     { $$ = XR_AST1(CODE, s);}
-
-Statements = s1:Stmt { $$ = s1 = list_new(s1); }
-           ( SEP s2:Stmt { $$ = s1 = list_append(0, s1, s2); })* SEP?
-           { $$ = s1; }
-
-Stmt = b:andor                  { $$ = XR_AST1(EXPRSTMT, b); }
-     | c:Code                   { $$ = c; }
-     | VAR i:ID !ASSIGN         { $$ = XR_AST1(VDECL, i); }
-     | VAR i:ID ASSIGN b:andor  { $$ = XR_AST2(VINIT, i, b); }
-     | !'/'i:ID ASSIGN b:andor      { $$ = XR_AST2(ASSIGN, i, b); }
-     | '/' i:ID ASSIGN b:andor  { $$ = XR_AST2(OBJASSIGN, i, b); }
-     | "if" - '(' - b:andor - ')' -- t:Stmt -- "else" -- f:Stmt { $$ = XR_AST3(IFELSE, b, t, f); }
-     | "if" - '(' - b:andor - ')' -- t:Stmt { $$ = XR_AST2(IF, b, t); }
-     | "while" - '(' - b:andor - ')' -- t:Stmt { $$ = XR_AST2(WHILE, b, t); }
-     | "assert" - b:andor -     { $$ = XR_AST1(ASSERT, b); }
-     | "return" - b:andor -     { $$ = XR_AST1(RETURN, b); }
-
-#Top level expression?
-expr = andor
-
-andor = c:Cmp
-        ( AND x:Cmp { c = XR_AST2(AND, c, x); }
-        | OR x:Cmp  { c = XR_AST2(OR, c, x);  })*
-        { $$ = c; }
-
-Cmp = s:Sum
-      ( EQ  s2:Sum { s = XR_AST2(EQ, s, s2);  }
-      | NEQ s2:Sum { s = XR_AST2(NEQ, s, s2); }
-      | GT s2:Sum  { s = XR_AST2(GT, s, s2);  }
-      | LT s2:Sum  { s = XR_AST2(LT, s, s2);  }
-      | GTE s2:Sum { s = XR_AST2(GTE, s, s2); }
-      | LTE s2:Sum { s = XR_AST2(LTE, s, s2); })*
-      { $$ = s; }
-
-Arguments = LP - RP           - { $$ = VAL_NIL; }
-          | '(' - l:ExprList ')' - { $$ = l; }
-
-List = '[' -- ']' - { $$ = list_empty(); }
-     | '[' -- l:ExprList -- ']' - { $$ = l; }
-
-ExprList = h:andor { h = list_new(h); } (',' -- t:andor { list_append(0, h, t);} )* { $$ = h; }
-
-Sum = l:Product
-      ( PLUS  r:Product { l = XR_AST2(PLUS, l, r); }
-      | MINUS r:Product { l = XR_AST2(MINUS, l, r); })*
-      { $$ = l; }
-
-Product = l:Msg
-          ( TIMES  r:Msg { l = XR_AST2(TIMES, l, r); }
-          | DIVIDE r:Msg { l = XR_AST2(DIVIDE, l, r); })*
-          { $$ = l; }
-
-Msg         = s:BinaryNot 
-              ( i:ID !Arguments            { s = XR_AST3(SEND, s, XR_AST1(SYMBOL, i), VAL_NIL);}
-              | i:ID a:Arguments { s = XR_AST3(SEND, s, XR_AST1(SYMBOL, i), a); })*
-              { $$ = s; }
-
-BinaryNot = v:Value     { $$ = v;}
-          | NOT v:Value { $$ = XR_AST1(NOT, v); }
-
-#FIXME: sort out values/symbols/ids
-Value       = v:NUMBER          { $$ = XR_AST1(NUMBER, v); }
-            | v:STRING          { $$ = XR_AST1(STRING, v); }
-            | ':' v:ID          { $$ = XR_AST1(SYMBOL, v); }
-            | v:OBJREF          { $$ = v; }
-            | v:List            { $$ = XR_AST1(LIST, v); }
-            | "false" -         { $$ = XR_AST1(VALUE, VAL_FALSE); }
-            | "true" -          { $$ = XR_AST1(VALUE, VAL_TRUE); }
-            | "nil" -           { $$ = XR_AST1(VALUE, VAL_NIL); }
-            | "self" -          { $$ = XR_AST1(SELF, 0); }
-            | v:ID !ASSIGN      { $$ = XR_AST1(VAR, v); }
-            | "/" v:ID !ASSIGN  { $$ = XR_AST1(OBJVAR, v); }
-            | LP e:expr RP      { $$ = e; }
-
-OBJREF  = '$' v:ID { $$ = v; }
-NUMBER  = FIXNUM | DECIMAL
-FIXNUM  = < '-'? [0-9]+ !'.' >          - { $$ = xrNum(atoi(yytext)); }
-DECIMAL = < [0-9]* '.'? [0-9]+ >        - { $$ = xr_double(atof(yytext)); }
-ID      = !KEYWORD < [a-z] [a-z0-9_]* [?!]?> - { $$ = xr_sym_n(yytext, yyleng); }
-
-#FIXME: escapes
-CHAR    = !EOL ('\\' [abefnrtv'"\[\]\\]
-               | '\\' [0-3][0-7][0-7]
-               | '\\' [0-7][0-7]?
-               | !'\\' .
-               )
-STRING  = ["] < ( !["] CHAR )* > ["] - { $$ = xr_strn(yytext, yyleng); }
-
-SEP     = (';' | EOL)   --
-
-# TODO: sort out keywords
-KEYWORD = "nil" !. | "while" | "self" | "else" | "true" | "false" | "if" | "var" | "assert" | "return"
-
-ASSIGN  = '=' !'='      -
-PLUS    = '+'           -
-MINUS   = '-'           -
-TIMES   = '*'           -
-DIVIDE  = '/'           -
-LP      = '('           -
-RP      = ')'           -
-VAR     = "var"         -
-LBRACE  = '{'           -
-RBRACE  = '}'           -
-NOT     = '!'           -
-
-EQ      = '=='          -
-NEQ     = '!='          -
-GT      = '>'           -
-LT      = '<'           -
-GTE     = '>='          -
-LTE     = '<='          -
-
-OR      = '||'          -
-AND     = '&&'          -
-
-SPACE   = ' ' | '\f' | '\v' | '\t'
-COMMENT = '#' (!EOL .)*
+Open    = '(' -
+Close   = ')' -
+Space   = ' ' | '\f' | '\v' | '\t'
+Comment = '#' (!EOL .)*
 EOL     = '\n' | '\r\n' | '\r'
--       = (SPACE | COMMENT)*
---      = (SPACE | COMMENT | EOL)*
-#EOF     = !.
+-       = (Space | Comment)*
+--      = (Space | Comment | EOL)*
 %%
 
 void yyerror(char *message, yycontext *yyctx)
@@ -223,49 +77,15 @@ void yyerror(char *message, yycontext *yyctx)
     fprintf(stderr, "\n");
 }
 
-XR xr_parse_code_from_stdin()
-{
-    yycontext ctx;
-    memset(&ctx, 0, sizeof(yycontext));
-
-    while (yyparsefrom(&ctx, yy_Code));
-
-    return ctx.src;
-}
-
-XR xr_parse_method_from_stdin()
-{
-    yycontext ctx;
-    memset(&ctx, 0, sizeof(yycontext));
-
-    while (yyparsefrom(&ctx, yy_Method));
-
-    return ctx.method;
-}
-
-XR xr_parse_dump_from_stdin()
+XR xr_parse_expr_from_stdin()
 {
     lineNumber = 1;
 
     yycontext ctx;
     memset(&ctx, 0, sizeof(yycontext));
 
-    while (yyparsefrom(&ctx, yy_Dump));
+    while (yyparsefrom(&ctx, yy_program));
 
     yyerror("syntax error", &ctx);
     return ctx.dump;
 }
-
-XR xr_parse_any_from_stdin()
-{
-    lineNumber = 1;
-
-    yycontext ctx;
-    memset(&ctx, 0, sizeof(yycontext));
-
-    while (yyparsefrom(&ctx, yy_Stmt));
-    yyerror("syntax error", &ctx);
-
-    return ctx.yy;
-}
-

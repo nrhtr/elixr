@@ -9,5 +9,5 @@ object $sword;
 var desc = "A shiny metal sword";
 method print_name()
 {
-    desc showln
+    /desc showln
 }

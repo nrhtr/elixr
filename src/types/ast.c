@@ -10,112 +10,51 @@
 #include "table.h"
 #include "closure.h"
 
-/*
-const char *ast_node_name(XR n)
-{
-    struct XRAst *node = (struct XRAst *) n;
+char *ast_node_names[] = {
+    "times",
+    "divide"
+    "plus",
+    "minus",
+    "number",
+    "float",
+    "string",
+    "symbol",
+    "list",
+    "value",
+    "code",
+    "assign",
+    "var",
+    "vdecl",
+    "vinit,"
+    "send,"
+    "if,"
+    "ifelse,"
+    "eq,"
+    "neq,"
+    "gt,"
+    "lt,"
+    "gte,"
+    "lte,"
+    "not,"
+    "self,"
+    "while,"
+    "exprstmt,"
+    "for_in,"
+    "and,"
+    "or,"
+    "assert,"
+    "return,"
+    "objvar,"
+    "objassign,"
+};
 
-    char *buf = malloc(64);
-    int len;
-
-    switch (node->type) {
-    case AST_TIMES:
-        sprintf(buf, "*");
-        break;
-    case AST_DIVIDE:
-        sprintf(buf, "/");
-        break;
-    case AST_PLUS:
-        sprintf(buf, "+");
-        break;
-    case AST_MINUS:
-        sprintf(buf, "-");
-        break;
-    case AST_NUMBER:
-        sprintf(buf, "%d", xrInt(node->n[0]));
-        break;
-    case AST_STRING:
-        len = xrStrLen(node->n[0]);
-        snprintf(buf, xrStrLen(node->n[0])+1, "%s", xrStrPtr(node->n[0]));
-        buf[len] = '\0';
-        break;
-    default:
-        sprintf(buf, "{%d}", node->type);
-    }
-
-    return buf;
-}
-*/
+#define AST_NAME(NODE) xr_str(ast_node_names[((struct XRAst*)NODE)->type])
 
 XR ast_name(XR cl, XR self)
 {
     (void) cl;
 
-    struct XRAst *node = (struct XRAst *) self; 
-
-    switch (node->type) {
-    case AST_TIMES:
-        return xr_str("times");
-    case AST_DIVIDE:
-        return xr_str("divide");
-    case AST_PLUS:
-        return xr_str("plus");
-    case AST_MINUS:
-        return xr_str("minus");
-    case AST_NUMBER:
-        return xr_str("number");
-    case AST_FLOAT:
-        return xr_str("decimal");
-    case AST_STRING:
-        return xr_str("string");
-    case AST_LIST:
-        return xr_str("list");
-    case AST_VALUE:
-        return xr_str("dval");
-    case AST_CODE:
-        return xr_str("code");
-    case AST_ASSIGN:
-        return xr_str("asssign");
-    case AST_VAR:
-        return xr_str("var");
-    case AST_VDECL:
-        return xr_str("vdecl");
-    case AST_VINIT:
-        return xr_str("vinit");
-    case AST_SEND:
-        return xr_str("send");
-    case AST_SYMBOL:
-        return xr_str("symbol");
-    case AST_IF:
-        return xr_str("if");
-    case AST_IFELSE:
-        return xr_str("ifelse");
-    case AST_EQ:
-        return xr_str("eq");
-    case AST_NEQ:
-        return xr_str("neq");
-    case AST_GT:
-        return xr_str("gq");
-    case AST_LT:
-        return xr_str("lt");
-    case AST_GTE:
-        return xr_str("gte");
-    case AST_LTE:
-        return xr_str("lte");
-    case AST_NOT:
-        return xr_str("not");
-    case AST_SELF:
-        return xr_str("self");
-    case AST_WHILE:
-        return xr_str("while");
-    case AST_EXPRSTMT:
-        return xr_str("expr");
-    case AST_FOR_IN:
-        return xr_str("for_in");
-    default:
-        printf("%d", node->type);
-        return xr_str("???");
-    }
+    return AST_NAME(self);
 }
 
 XR ast_string(XR cl, XR self)
@@ -124,7 +63,7 @@ XR ast_string(XR cl, XR self)
 
     XR str = xr_str_alloc(64);
     struct XRAst * s = ((struct XRAst *)self);
-    str = xr_str_append(0, str, ast_name(0, self));
+    str = xr_str_append(0, str, AST_NAME(self));
 
     int i;
     if (s->n[0])
@@ -158,7 +97,7 @@ void ast_graph_string_each(XR self)
 {
 
     struct XRAst * s = ((struct XRAst *)self);
-    send(ast_name(0, self), s_print);
+    send(AST_NAME(self), s_print);
 
     int i;
     for (i = 0; i < 3; i++) {
@@ -208,7 +147,7 @@ void ast_graph_nodex(XR self)
         break;
     };
 
-    XR label = ast_name(0, self);
+    XR label = AST_NAME(self);
     printf("node%p [label=\"", s); send(label, s_print); printf("\"];\n");
 }
 
@@ -255,27 +194,13 @@ XR ast_literal(XR cl, XR self)
 {
     (void) cl;
 
-    return ast_name(0, self);
+    return AST_NAME(self);
 }
-
-/*
-XR ast_emit(XR node)
-{
-    struct XRAst *n = node;
-
-    switch(n->type) {
-        case AST_PLUS:
-            printf("");
-            break;
-    }
-}
-
-*/
 
 void print_spaces(int spaces)
 {
     while (spaces--)
-        printf(" ");
+        printf("-");
 }
 
 XR ast_source(XR cl, XR self, XR indent)
@@ -289,117 +214,6 @@ XR ast_source(XR cl, XR self, XR indent)
     int _indent = xrInt(indent);
 
     switch (ast->type) {
-        case AST_VAR: case AST_VALUE: case AST_STRING:
-        case AST_NUMBER: case AST_EQ: case AST_SEND:
-        case AST_LIST: case AST_MINUS: case AST_PLUS:
-        case AST_TIMES: case AST_DIVIDE:
-            break;
-        default:
-            print_spaces(_indent);
-    }
-
-
-    switch (ast->type) {
-        case AST_IF:
-            printf("if (");
-            ast_source(0, ast->n[0], indent);
-            printf(")\n");
-            if (((struct XRAst *)ast->n[1])->type != AST_CODE)
-                print_spaces(_indent);
-            ast_source(0, ast->n[1], indent);
-            break;
-        case AST_EQ:
-            ast_source(0, ast->n[0], indent);
-            printf(" == ");
-            ast_source(0, ast->n[1], indent);
-            break;
-        case AST_VALUE:
-            /* We don't store the actual names in the AST */
-            if (ast->n[0] == VAL_TRUE)
-                printf("true");
-            else if (ast->n[1] == VAL_FALSE)
-                printf("false");
-            else if (ast->n[1] == VAL_NIL)
-                printf("nil");
-            break;
-        case AST_SELF:
-            printf("self");
-            break;
-        case AST_VAR:
-            printf("%s", xrSymPtr(ast->n[0]));
-            break;
-        case AST_STRING:
-            {
-                XR literal = send(ast->n[0], s_literal);
-                printf("%s", xrStrPtr(literal));
-            }
-            break;
-        case AST_EXPRSTMT:
-            ast_source(0, ast->n[0], indent);
-            printf("\n");
-            break;
-        case AST_CODE:
-            printf("{\n");
-            xrListEach(ast->n[0], index, item, {
-                ast_source(0, item, xrNum(_indent + 4));
-            });
-            print_spaces(_indent);
-            printf("}\n");
-            break;
-        case AST_VDECL:
-            printf("var %s\n", xrSymPtr(ast->n[0]));
-            break;
-        case AST_VINIT:
-            printf("var %s = ", xrSymPtr(ast->n[0]));
-            ast_source(0, ast->n[1], indent);
-            printf("\n");
-            break;
-        case AST_ASSIGN:
-            /* FIXME: BLAH BLAH BLAH SYMBOLS MSGS AND SHIT */
-            printf("%s = ", xrSymPtr(ast->n[0]));
-            ast_source(0, ast->n[1], indent);
-            printf("\n");
-            break;
-        case AST_SEND:
-            ast_source(0, ast->n[0], indent);
-            printf(" ");
-            /*ast_source(0, ast->n[1], indent);*/
-
-            /* FIXME: sort out literals vs messages, and toliteral() type stuff */
-            printf("%s", xrSymPtr(((struct XRAst *)ast->n[1])->n[0]));
-            /* if args */
-            if (ast->n[2]) {
-                printf("(");
-                xrListEach(ast->n[2], index, item, {
-                    ast_source(0, item, indent);
-                    if (index != xrListLen(ast->n[2]) - 1) {
-                        printf(", ");
-                    }
-                });
-                printf(")");
-            }
-            break;
-        case AST_LIST:
-            printf("[");
-            xrListEach(ast->n[0], index, item, {
-                ast_source(0, item, indent);
-                if (index != xrListLen(ast->n[0]) - 1) {
-                    printf(", ");
-                }
-            });
-            printf("]");
-            break;
-        case AST_NUMBER:
-            {
-                /* need to make sure this keep precision :S seems fragile */
-                XR lit = send(ast->n[0], s_literal);
-                printf("%s", xrStrPtr(lit));
-            }
-            break;
-        case AST_SYMBOL:
-            /* FIXME: see note in AST_SEND */
-            printf(":%s", xrSymPtr(ast->n[0]));
-            break;
         case AST_TIMES:
             ast_source(0, ast->n[0], indent);
             printf(" * ");
@@ -420,6 +234,119 @@ XR ast_source(XR cl, XR self, XR indent)
             printf(" - ");
             ast_source(0, ast->n[1], indent);
             break;
+        case AST_NUMBER:
+        case AST_FLOAT:
+            {
+                /* need to make sure this keep precision :s seems fragile */
+                XR lit = send(ast->n[0], s_literal);
+                printf("%s", xrStrPtr(lit));
+            }
+            break;
+        case AST_STRING:
+            {
+                XR literal = send(ast->n[0], s_literal);
+                printf("%s", xrStrPtr(literal));
+            }
+            break;
+        case AST_SYMBOL:
+            /* FIXME: see note in AST_SEND */
+            printf(":%s", xrSymPtr(ast->n[0]));
+            break;
+        case AST_LIST:
+            printf("[");
+            xrListEach(ast->n[0], index, item, {
+                ast_source(0, item, indent);
+                if (index != xrListLen(ast->n[0]) - 1) {
+                    printf(", ");
+                }
+            });
+            printf("]");
+            break;
+        case AST_VALUE:
+            /* We don't store the actual names in the AST */
+            if (ast->n[0] == VAL_TRUE)
+                printf("true");
+            else if (ast->n[1] == VAL_FALSE)
+                printf("false");
+            else if (ast->n[1] == VAL_NIL)
+                printf("nil");
+            break;
+
+        case AST_CODE:
+            printf("{\n");
+            xrListEach(ast->n[0], index, item, {
+                ast_source(0, item, xrNum(_indent + 4));
+            });
+            print_spaces(_indent);
+            printf("}\n");
+            break;
+        case AST_ASSIGN:
+            printf("%s = ", xrSymPtr(ast->n[0]));
+            ast_source(0, ast->n[1], indent);
+            printf("\n");
+            break;
+        case AST_VAR:
+            printf("%s", xrSymPtr(ast->n[0]));
+            break;
+        case AST_VDECL:
+            printf("var %s\n", xrSymPtr(ast->n[0]));
+            break;
+        case AST_VINIT:
+            printf("var %s = ", xrSymPtr(ast->n[0]));
+            ast_source(0, ast->n[1], indent);
+            printf("\n");
+            break;
+
+        case AST_IF:
+            printf("if (");
+            ast_source(0, ast->n[0], indent);
+            printf(")\n");
+            if (((struct XRAst *)ast->n[1])->type != AST_CODE)
+                print_spaces(_indent);
+            ast_source(0, ast->n[1], indent);
+            break;
+        case AST_EQ:
+            ast_source(0, ast->n[0], indent);
+            printf(" == ");
+            ast_source(0, ast->n[1], indent);
+            break;
+        case AST_SELF:
+            printf("self");
+            break;
+        case AST_EXPRSTMT:
+            ast_source(0, ast->n[0], indent);
+            printf("\n");
+            break;
+        case AST_SEND:
+            ast_source(0, ast->n[0], indent);
+            printf(" ");
+
+            //ast_source(0, ast->n[1], indent);
+            //we dont want the ':'
+            printf("%s", xrSymPtr(((struct XRAst *)ast->n[1])->n[0]));
+
+            /* if args */
+            if (ast->n[2]) {
+                printf("(");
+                xrListEach(ast->n[2], index, item, {
+                    ast_source(0, item, indent);
+                    if (index != xrListLen(ast->n[2]) - 1) {
+                        printf(", ");
+                    }
+                });
+                printf(")");
+            }
+            break;
+        case AST_OBJVAR: 
+            printf("/%s", xrSymPtr(ast->n[0]));
+            break;
+        case AST_OBJASSIGN:
+            printf("/%s", xrSymPtr(ast->n[0]));
+            printf(" = ");
+            ast_source(0, ast->n[1], indent);
+            printf("\n");
+            break;
+
         default:
             printf("[%d]\n", ast->type);
             break;

@@ -9,6 +9,7 @@ enum AST_TYPE {
     AST_NUMBER,
     AST_FLOAT,
     AST_STRING,
+    AST_SYMBOL,
     AST_LIST,
     AST_VALUE, /* TODO: Should be able to replace NUMBER, STRING,
                 * FLOAT, etc. Currently is just for OP_DVAL */
@@ -18,7 +19,6 @@ enum AST_TYPE {
     AST_VDECL,
     AST_VINIT,
     AST_SEND,
-    AST_SYMBOL,
     AST_IF,
     AST_IFELSE,
     AST_EQ,

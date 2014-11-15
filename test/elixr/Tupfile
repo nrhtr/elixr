@@ -1,0 +1,2 @@
+include_rules
+: ../../parse_dump |> ./all_tests.sh |> stderr.log

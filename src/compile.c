@@ -77,11 +77,11 @@ int find_var(XR locals, XR var)
     return found;
 }
 
-int has_objvar(XR obj, XR var)
+bool has_objvar(XR obj, XR var)
 {
     XR vars = xrObjVars(obj);
 
-    if (table_at(0, vars, var) == VAL_NIL)
+    if (table_at(0, vars, var) != VAL_NIL)
         return 1;
 
     return 0;
@@ -237,10 +237,17 @@ void ast_compile(XR ast, struct XRMethod *m)
 
 
                 fprintf(stderr, "No such var '%s' for assignment\n", xrSymPtr(oper[0]));
+                exit(1);
             }
             break;
         case AST_OBJASSIGN:
             {
+                bool found = has_objvar(m->object, oper[0]);
+                if (!found) {
+                    printf("No such objvar '%s' for assignment.\n", xrSymPtr(oper[0]));
+                    exit(1);
+                }
+
                 int val_index = -1;
                 xrListEach(m->values, index, item, {
                     if (xrIsPtr(item) && xrMTable(item) == symbol_vt
@@ -259,6 +266,7 @@ void ast_compile(XR ast, struct XRMethod *m)
                 xr_asm_op(&m->code, OP_IVAL, val_index, 0);
                 xr_asm_op(&m->code, OP_SETOBJVAR, 0, 0);
             }
+            break;
         case AST_EXPRSTMT:
             {
                 /* Just a single expression statement.
@@ -404,36 +412,39 @@ void ast_compile(XR ast, struct XRMethod *m)
                     break;
                 }
 
-                printf("No such variable as '%s'\n", xrStrPtr(oper[0]));
+                printf("No such var '%s'\n", xrStrPtr(oper[0]));
                 exit(1);
             }
             break;
         case AST_OBJVAR:
             {
-                int var = has_objvar(m->object, oper[0]);
-                if (var != -1) {
-                    /* Have to use an IVAL as we do a lookup
-                     * using an actualy symbol */
-
-                    /* FIXME: copy-pasted code to add value to use in IVAL */
-                    int val_index = -1;
-                    xrListEach(m->values, index, item, {
-                        if (xrIsPtr(item) && xrMTable(item) == symbol_vt
-                         && strcmp(xrSymPtr(oper[0]), xrSymPtr(item)) == 0) {
-                            val_index = index;
-                            break;
-                        }
-                    });
-
-                    if (val_index == -1) {
-                        list_append(0, m->values, oper[0]);
-                        val_index = xrListLen(m->values) - 1;
-                    }
-
-                    xr_asm_op(&m->code, OP_IVAL, val_index, 0);
-                    xr_asm_op(&m->code, OP_GETOBJVAR, 0, 0);
-                    break;
+                bool found = has_objvar(m->object, oper[0]);
+                if (!found) {
+                    printf("No such objvar '%s'.\n", xrSymPtr(oper[0]));
+                    exit(1);
                 }
+
+                /* Have to use an IVAL as we do a lookup
+                 * using an full-blown symbol */
+
+                /* FIXME: copy-pasted code to add value to use in IVAL */
+                int val_index = -1;
+                xrListEach(m->values, index, item, {
+                    if (xrIsPtr(item) && xrMTable(item) == symbol_vt
+                                      && strcmp(xrSymPtr(oper[0]), xrSymPtr(item)) == 0) {
+                        val_index = index;
+                        break;
+                    }
+                });
+
+                if (val_index == -1) {
+                    list_append(0, m->values, oper[0]);
+                    val_index = xrListLen(m->values) - 1;
+                }
+
+                xr_asm_op(&m->code, OP_IVAL, val_index, 0);
+                xr_asm_op(&m->code, OP_GETOBJVAR, 0, 0);
+                break;
             }
         case AST_PLUS:
             {

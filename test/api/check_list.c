@@ -1,9 +1,9 @@
 #include <check.h>
 #include <stdlib.h>
 
-#include "../src/internal.h"
-#include "../src/elixr.h"
-#include "../src/types.h"
+#include "internal.h"
+#include "elixr.h"
+#include "types.h"
 
 START_TEST (test_list_create_empty)
 {

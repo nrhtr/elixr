@@ -8,16 +8,21 @@
 #include "compile.h"
 #include "types.h"
 
+#include <types/xrstring.h>
+
+#undef YY_DEBUG
 #define YYSTYPE XR
 #define YY_CTX_LOCAL
 #define YY_CTX_MEMBERS XR src; XR method; XR object; XR dump;
 
-unsigned int lineNumber;
+unsigned int line_number;
+
+XR string_buf;
 
 #define YY_INPUT(buf, result, max)		\
   {						\
     int c= getc(stdin);				\
-    if ('\n' == c || '\r' == c) ++lineNumber;	\
+    if ('\n' == c || '\r' == c) ++line_number;	\
     result= (EOF == c) ? 0 : (*(buf)= c, 1);	\
   }
 
@@ -27,14 +32,14 @@ unsigned int lineNumber;
 #define XR_AST3(type, a, b, c) ast_node(AST_##type, a, b, c)
 %}
 
-Dump = -- h:Object { $$ = h = list_new(h); }
-     ( -- t:Object { $$ = h = list_append(0, h, t); })*
+dump = -- h:object { $$ = h = list_new(h); }
+     ( -- t:object { $$ = h = list_append(0, h, t); })*
      { ctx->dump = h;}
 
-Object = "object" - i:OBJREF ';' - EOL
+object = "object" - i:OBJREF ';' - EOL
        { ctx->object = (i == xr_sym("root")) ? root : object_new(0, i); }
-       -- ( v:Objvars )? { xrObjVars(ctx->object) = v; }
-       ( m:Method {
+       -- ( v:objvars )? { xrObjVars(ctx->object) = v; }
+       ( m:method {
             /* for each method we create a closure to hold it 
              * 1st arg = fptr = NULL since we have no jit :(
              * 2nd arg = 1 of slots to reserve, we need 1 for
@@ -46,13 +51,13 @@ Object = "object" - i:OBJREF ';' - EOL
         )*
        { $$ = ctx->object; }
 
-Objvars = i:ObjvarItem ';' - { i = xr_table_with_one(xrListAt(i,0), xrListAt(i,1)); }
-            (EOL -- j:ObjvarItem ';' - { table_put(0, i, xrListAt(j,0), xrListAt(j,1)); })*
+objvars = i:objvar_item ';' - { i = xr_table_with_one(xrListAt(i,0), xrListAt(i,1)); }
+            (EOL -- j:objvar_item ';' - { table_put(0, i, xrListAt(j,0), xrListAt(j,1)); })*
             { $$ = i; }
-    
-ObjvarItem = VAR i:ID ASSIGN b:andor { $$ = list_build(2, i, ((struct XRAst*)b)->n[0]); }
+
+objvar_item = VAR i:ID ASSIGN b:andor { $$ = list_build(2, i, ((struct XRAst*)b)->n[0]); }
                                 
-Method = -- "method" - i:ID a:Params -- s:Code
+method = -- "method" - i:ID a:params -- s:code
        {
            struct XRMethod *m = xr_method_new(i, a); 
 #if 0
@@ -64,79 +69,80 @@ Method = -- "method" - i:ID a:Params -- s:Code
            $$ = ctx->method = (XR)m; assert(ctx->object); 
        }
 
-Params = '(' - ')' { $$ = list_empty(); }
+    
+params = '(' - ')' { $$ = list_empty(); }
        | '(' - p1:ID { p1 = list_new(p1); }
        (',' - p2:ID { p1 = list_append(0, p1, p2); })* ')'
        { $$ = p1; } 
 
-Code = LBRACE -- s:Statements -- RBRACE
+code = LBRACE -- s:statements -- RBRACE
      { $$ = XR_AST1(CODE, s);}
 
-Statements = s1:Stmt { $$ = s1 = list_new(s1); }
-           ( SEP s2:Stmt { $$ = s1 = list_append(0, s1, s2); })* SEP?
+statements = s1:stmnt { $$ = s1 = list_new(s1); }
+           ( SEP s2:stmnt { $$ = s1 = list_append(0, s1, s2); })* SEP?
            { $$ = s1; }
 
-Stmt = b:andor                  { $$ = XR_AST1(EXPRSTMT, b); }
-     | c:Code                   { $$ = c; }
+stmnt = b:andor                  { $$ = XR_AST1(EXPRSTMT, b); }
+     | c:code                   { $$ = c; }
      | VAR i:ID !ASSIGN         { $$ = XR_AST1(VDECL, i); }
      | VAR i:ID ASSIGN b:andor  { $$ = XR_AST2(VINIT, i, b); }
      | !'/'i:ID ASSIGN b:andor      { $$ = XR_AST2(ASSIGN, i, b); }
      | '/' i:ID ASSIGN b:andor  { $$ = XR_AST2(OBJASSIGN, i, b); }
-     | "if" - '(' - b:andor - ')' -- t:Stmt -- "else" -- f:Stmt { $$ = XR_AST3(IFELSE, b, t, f); }
-     | "if" - '(' - b:andor - ')' -- t:Stmt { $$ = XR_AST2(IF, b, t); }
-     | "while" - '(' - b:andor - ')' -- t:Stmt { $$ = XR_AST2(WHILE, b, t); }
+     | "if" - '(' - b:andor - ')' -- t:stmnt -- "else" -- f:stmnt { $$ = XR_AST3(IFELSE, b, t, f); }
+     | "if" - '(' - b:andor - ')' -- t:stmnt { $$ = XR_AST2(IF, b, t); }
+     | "while" - '(' - b:andor - ')' -- t:stmnt { $$ = XR_AST2(WHILE, b, t); }
      | "assert" - b:andor -     { $$ = XR_AST1(ASSERT, b); }
      | "return" - b:andor -     { $$ = XR_AST1(RETURN, b); }
 
 #Top level expression?
 expr = andor
 
-andor = c:Cmp
-        ( AND x:Cmp { c = XR_AST2(AND, c, x); }
-        | OR x:Cmp  { c = XR_AST2(OR, c, x);  })*
+andor = c:cmp
+        ( AND x:cmp { c = XR_AST2(AND, c, x); }
+        | OR x:cmp  { c = XR_AST2(OR, c, x);  })*
         { $$ = c; }
 
-Cmp = s:Sum
-      ( EQ  s2:Sum { s = XR_AST2(EQ, s, s2);  }
-      | NEQ s2:Sum { s = XR_AST2(NEQ, s, s2); }
-      | GT s2:Sum  { s = XR_AST2(GT, s, s2);  }
-      | LT s2:Sum  { s = XR_AST2(LT, s, s2);  }
-      | GTE s2:Sum { s = XR_AST2(GTE, s, s2); }
-      | LTE s2:Sum { s = XR_AST2(LTE, s, s2); })*
+cmp = s:sum
+      ( EQ  s2:sum { s = XR_AST2(EQ, s, s2);  }
+      | NEQ s2:sum { s = XR_AST2(NEQ, s, s2); }
+      | GT s2:sum  { s = XR_AST2(GT, s, s2);  }
+      | LT s2:sum  { s = XR_AST2(LT, s, s2);  }
+      | GTE s2:sum { s = XR_AST2(GTE, s, s2); }
+      | LTE s2:sum { s = XR_AST2(LTE, s, s2); })*
       { $$ = s; }
 
-Arguments = LP - RP           - { $$ = VAL_NIL; }
-          | '(' - l:ExprList ')' - { $$ = l; }
+arguments = LP - RP           - { $$ = VAL_NIL; }
+          | '(' - l:expr_list ')' - { $$ = l; }
 
-List = '[' -- ']' - { $$ = list_empty(); }
-     | '[' -- l:ExprList -- ']' - { $$ = l; }
+list = '[' -- ']' - { $$ = list_empty(); }
+     | '[' -- l:expr_list -- ']' - { $$ = l; }
 
-ExprList = h:andor { h = list_new(h); } (',' -- t:andor { list_append(0, h, t);} )* { $$ = h; }
+expr_list = h:andor { h = list_new(h); } (',' -- t:andor { list_append(0, h, t);} )* { $$ = h; }
 
-Sum = l:Product
-      ( PLUS  r:Product { l = XR_AST2(PLUS, l, r); }
-      | MINUS r:Product { l = XR_AST2(MINUS, l, r); })*
+sum = l:product
+      ( PLUS  r:product { l = XR_AST2(PLUS, l, r); }
+      | MINUS r:product { l = XR_AST2(MINUS, l, r); })*
       { $$ = l; }
 
-Product = l:Msg
-          ( TIMES  r:Msg { l = XR_AST2(TIMES, l, r); }
-          | DIVIDE r:Msg { l = XR_AST2(DIVIDE, l, r); })*
+product = l:msg
+          ( TIMES  r:msg { l = XR_AST2(TIMES, l, r); }
+          | DIVIDE r:msg { l = XR_AST2(DIVIDE, l, r); })*
           { $$ = l; }
 
-Msg         = s:BinaryNot 
-              ( i:ID !Arguments            { s = XR_AST3(SEND, s, XR_AST1(SYMBOL, i), VAL_NIL);}
-              | i:ID a:Arguments { s = XR_AST3(SEND, s, XR_AST1(SYMBOL, i), a); })*
+msg         = s:binary_not 
+              ( i:ID !arguments            { s = XR_AST3(SEND, s, XR_AST1(SYMBOL, i), VAL_NIL);}
+              | i:ID a:arguments { s = XR_AST3(SEND, s, XR_AST1(SYMBOL, i), a); })*
               { $$ = s; }
 
-BinaryNot = v:Value     { $$ = v;}
-          | NOT v:Value { $$ = XR_AST1(NOT, v); }
+binary_not = v:value     { $$ = v;}
+          | NOT v:value { $$ = XR_AST1(NOT, v); }
 
 #FIXME: sort out values/symbols/ids
-Value       = v:NUMBER          { $$ = XR_AST1(NUMBER, v); }
-            | v:STRING          { $$ = XR_AST1(STRING, v); }
+value       = v:NUMBER          { $$ = XR_AST1(NUMBER, v); }
+            | v:str          { $$ = XR_AST1(STRING, v); }
             | ':' v:ID          { $$ = XR_AST1(SYMBOL, v); }
             | v:OBJREF          { $$ = v; }
-            | v:List            { $$ = XR_AST1(LIST, v); }
+            | v:list            { $$ = XR_AST1(LIST, v); }
             | "false" -         { $$ = XR_AST1(VALUE, VAL_FALSE); }
             | "true" -          { $$ = XR_AST1(VALUE, VAL_TRUE); }
             | "nil" -           { $$ = XR_AST1(VALUE, VAL_NIL); }
@@ -151,13 +157,26 @@ FIXNUM  = < '-'? [0-9]+ !'.' >          - { $$ = xrNum(atoi(yytext)); }
 DECIMAL = < [0-9]* '.'? [0-9]+ >        - { $$ = xr_double(atof(yytext)); }
 ID      = !KEYWORD < [a-z] [a-z0-9_]* [?!]?> - { $$ = xr_sym_n(yytext, yyleng); }
 
-#FIXME: escapes
-CHAR    = !EOL ('\\' [abefnrtv'"\[\]\\]
-               | '\\' [0-3][0-7][0-7]
-               | '\\' [0-7][0-7]?
-               | !'\\' .
-               )
-STRING  = ["] < ( !["] CHAR )* > ["] - { $$ = xr_strn(yytext, yyleng); }
+utf8 = [\t\40-\176]
+     | [\302-\337] [\200-\277]
+     | [\340-\357] [\200-\277] [\200-\277]
+     | [\360-\364] [\200-\277] [\200-\277] [\200-\277]
+     | EOL
+
+q = ["] { fprintf(stderr, "Matched quote.\n"); }
+esc   = '\\'
+esc_n = esc 'n' { string_buf = xr_str_append_chars_n(0, string_buf, "\n", 1) }
+esc_b = esc 'b' { string_buf = xr_str_append_chars_n(0, string_buf, "\b", 1) }
+esc_f = esc 'f' { string_buf = xr_str_append_chars_n(0, string_buf, "\f", 1) }
+esc_r = esc 'r' { string_buf = xr_str_append_chars_n(0, string_buf, "\r", 1) }
+esc_t = esc 't' { string_buf = xr_str_append_chars_n(0, string_buf, "\t", 1) }
+esc_q = '\\' ["] { string_buf = xr_str_append_chars_n(0, string_buf, "\"", 1) }
+char = < (!q !esc utf8)+ > { fprintf(stderr, "Matched utf8 seq = %.*s\n", yyleng, yytext); string_buf = xr_str_append_chars_n(0, string_buf, yytext, yyleng); fprintf(stderr, "Strbuf now contains [%s].\n", xrStrPtr(string_buf));}
+
+
+str = q { string_buf = xr_str_empty(); }
+            < ( esc_q | esc_n | esc_b | esc_f | esc_r | esc_t | char)* >
+            q - { $$ = string_buf; fprintf(stderr, "Matched whole string = [%s]\n", xrStrPtr(string_buf));  }
 
 SEP     = (';' | EOL)   --
 
@@ -198,7 +217,7 @@ void yyerror(char *message, yycontext *yyctx)
 {
     char *fileName = "<stdin>";
     FILE *input = stdin;
-    fprintf(stderr, "%s:%d: %s", fileName, lineNumber, message);
+    fprintf(stderr, "%s:%d: %s", fileName, line_number, message);
 
     if (yyctx->text[0]) fprintf(stderr, " near token '%s'", yyctx->text);
 
@@ -228,7 +247,7 @@ XR xr_parse_code_from_stdin()
     yycontext ctx;
     memset(&ctx, 0, sizeof(yycontext));
 
-    while (yyparsefrom(&ctx, yy_Code));
+    while (yyparsefrom(&ctx, yy_code));
 
     return ctx.src;
 }
@@ -238,19 +257,19 @@ XR xr_parse_method_from_stdin()
     yycontext ctx;
     memset(&ctx, 0, sizeof(yycontext));
 
-    while (yyparsefrom(&ctx, yy_Method));
+    while (yyparsefrom(&ctx, yy_method));
 
     return ctx.method;
 }
 
 XR xr_parse_dump_from_stdin()
 {
-    lineNumber = 1;
+    line_number = 1;
 
     yycontext ctx;
     memset(&ctx, 0, sizeof(yycontext));
 
-    while (yyparsefrom(&ctx, yy_Dump));
+    while (yyparsefrom(&ctx, yy_dump));
 
     yyerror("syntax error", &ctx);
     return ctx.dump;
@@ -258,12 +277,12 @@ XR xr_parse_dump_from_stdin()
 
 XR xr_parse_any_from_stdin()
 {
-    lineNumber = 1;
+    line_number = 1;
 
     yycontext ctx;
     memset(&ctx, 0, sizeof(yycontext));
 
-    while (yyparsefrom(&ctx, yy_Stmt));
+    while (yyparsefrom(&ctx, yy_stmnt));
     yyerror("syntax error", &ctx);
 
     return ctx.yy;

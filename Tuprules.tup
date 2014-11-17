@@ -1,5 +1,5 @@
 .gitignore
 #CFLAGS = -m64 -std=c99 -Wextra -Wall -g -Wstrict-prototypes -ftrapv -Wfloat-equal -fno-omit-frame-pointer -fsanitize=address -O0 -fno-optimize-sibling-calls
-CFLAGS = -m64 -std=c99 -Wextra -Wall -g3 -Wstrict-prototypes -ftrapv -Wfloat-equal -fno-omit-frame-pointer -O0 -fno-optimize-sibling-calls -Wno-unused-function
+CFLAGS = -m64 -std=c99 -Werror=implicit-function-declaration -Wextra -Wall -g3 -Wstrict-prototypes -ftrapv -Wfloat-equal -fno-omit-frame-pointer -O0 -fno-optimize-sibling-calls -Wno-unused-function
 #CFLAGS = -v -std=c99 -Wextra -Wall -Wstrict-prototypes -ftrapv -Wfloat-equal -fno-omit-frame-pointer -O4 -fno-optimize-sibling-calls
 CC = clang

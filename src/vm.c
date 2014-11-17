@@ -6,6 +6,8 @@
 #include "opcodes.h"
 
 #include "types/list.h"
+#include "types/number.h"
+#include "types/table.h"
 
 #include "vm.h"
 
@@ -19,6 +21,7 @@ size_t pos;
         : (xrIsNum(A)\
             ? number_##MSG(0, A, B)\
             : xr_send(A, s_##MSG, B)))
+
 
 /* Temp function to quickly run a method,
  * should work for now just to get some proper

@@ -12,5 +12,6 @@ XR list_build(unsigned int n, ...);
 /* Messages */
 XR list_append(XR cl, XR self, XR item);
 XR list_literal(XR cl, XR self);
+XR list_len(XR cl, XR self);
 
 #endif

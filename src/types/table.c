@@ -14,6 +14,7 @@
 #include "table.h"
 #include "closure.h"
 #include "number.h"
+#include "types/list.h"
 
 #include "dbpack.h"
 

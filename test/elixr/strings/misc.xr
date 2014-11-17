@@ -15,3 +15,7 @@
 
 "ab" at(-3) string showln
 #b
+
+"new\nline" show
+#new
+##line

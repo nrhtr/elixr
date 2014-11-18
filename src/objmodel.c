@@ -20,6 +20,8 @@ XR xr_bind(XR rcv, XR msg)
 }
 */
 
+
+
 XR xr_send(XR a, XR msg, XR b)
 {
     if (a == VAL_NIL)
@@ -31,14 +33,68 @@ XR xr_send(XR a, XR msg, XR b)
     return send(a, msg, b);
 }
 
+XR call_method_args(XR cl, XR self, int argc, XR *argv)
+{
+    struct XRClosure *c = cl;
+
+    switch (argc) {
+        case 0:
+            return c->method(cl, self);
+        case 1:
+            return c->method(cl, self, argv[0]);
+        case 2:
+            return c->method(cl, self, argv[0], argv[1]);
+        case 3:
+            return c->method(cl, self, argv[0], argv[1], argv[2]);
+        case 4:
+            return c->method(cl, self, argv[0], argv[1], argv[2], argv[3]);
+        case 5:
+            return c->method(cl, self, argv[0], argv[1], argv[2], argv[3], argv[4]);
+        case 6:
+            return c->method(cl, self, argv[0], argv[1], argv[2], argv[3], argv[4],
+                    argv[5]);
+        case 7:
+            return c->method(cl, self, argv[0], argv[1], argv[2], argv[3], argv[4],
+                    argv[5], argv[6]);
+        case 8:
+            return c->method(cl, self, argv[0], argv[1], argv[2], argv[3], argv[4],
+                    argv[5], argv[6], argv[7]);
+        case 9:
+            return c->method(cl, self, argv[0], argv[1], argv[2], argv[3], argv[4],
+                    argv[5], argv[6], argv[7], argv[8]);
+        case 10:
+            return c->method(cl, self, argv[0], argv[1], argv[2], argv[3], argv[4],
+                    argv[5], argv[6], argv[7], argv[8], argv[9]);
+        case 11:
+            return c->method(cl, self, argv[0], argv[1], argv[2], argv[3], argv[4],
+                    argv[5], argv[6], argv[7], argv[8], argv[9], argv[10]);
+        case 12:
+            return c->method(cl, self, argv[0], argv[1], argv[2], argv[3], argv[4],
+                    argv[5], argv[6], argv[7], argv[8], argv[9], argv[10], argv[11]);
+        case 13:
+            return c->method(cl, self, argv[0], argv[1], argv[2], argv[3], argv[4],
+                    argv[5], argv[6], argv[7], argv[8], argv[9], argv[10], argv[11],
+                    argv[12]);
+        case 14:
+            return c->method(cl, self, argv[0], argv[1], argv[2], argv[3], argv[4],
+                    argv[5], argv[6], argv[7], argv[8], argv[9], argv[10], argv[11],
+                    argv[12], argv[13]);
+        case 15:
+            return c->method(cl, self, argv[0], argv[1], argv[2], argv[3], argv[4],
+                    argv[5], argv[6], argv[7], argv[8], argv[9], argv[10], argv[11],
+                    argv[12], argv[13], argv[14]);
+    }
+}
+
 XR bind(XR rcv, XR msg)
 {
     /* TODO: Use proper message-sending lookups */
 
     XR vt = 0;
 
-    /* TODO: Is there a cleaner way to handle message sends
-     * on primitives/fixnums ? */
+    /* FIXME: We do this instead of just boxing everything with a reference to its vtable.
+     * Is that reasonable?
+     */
     if (rcv == VAL_NIL) {
         vt = nil_vt;
     } else if (rcv == VAL_TRUE || rcv == VAL_FALSE) {

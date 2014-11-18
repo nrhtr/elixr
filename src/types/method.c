@@ -36,6 +36,13 @@ XR method_locals(XR cl, XR self)
     return ((struct XRMethod *)self)->locals;
 }
 
+XR method_scope_locals(XR cl, XR self)
+{
+    (void) cl;
+
+    return ((struct XRMethod *)self)->running_scope.locals;
+}
+
 XR method_args(XR cl, XR self)
 {
     (void) cl;
@@ -102,6 +109,7 @@ void xr_method_methods()
     qdef_method(method_vt, "name", method_name);
     qdef_method(method_vt, "literal", method_literal);
     qdef_method(method_vt, "locals", method_locals);
+    qdef_method(method_vt, "scope_locals", method_scope_locals);
     qdef_method(method_vt, "values", method_values);
     qdef_method(method_vt, "args", method_args);
     qdef_method(method_vt, "show", method_show);

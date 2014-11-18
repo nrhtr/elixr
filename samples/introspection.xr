@@ -10,23 +10,40 @@ method init()
     "Method:   " show; m name showln
     "Values:   " show; m values literal showln
     "Locals:   " show; m locals literal showln
+    "Scope Locals:" show; m scope_locals literal showln
     "Args:     " show; m args literal showln
 
     "" showln showln
 
-    self bar
+    self bar(55)
 }
 
-method bar()
+method bar(baz)
 {
     var v = self vt
     var m = v at(:bar) get_m
 
-    "Object:   " show; self symbol showln
-    "VT:       " show; v literal showln
-    "Method:   " show; m name showln
-    "Values:   " show; m values literal showln
-    "Locals:   " show; m locals literal showln
-    "Args:     " show; m args literal showln
+"Object: %s
+-----------
+VT:      %s
+-----------
+Method:  %s
+-----------
+Locals:  %s
+-----------
+Args:    %s
+-----------
+Scope:   %s
+-----------" fmt([self symbol string, v literal, m name, m locals literal, m args literal, m scope_locals literal]) showln
+
+    # Why aren't these in a table??? ARGGHHH
+    var i = 0
+    while (i < m locals len) {
+        var name = m locals at(i)
+        var value = m scope_locals at(i + m args len) literal
+        "%s [%s] = %s" fmt([name, i literal, value]) showln
+        i = i + 1
+    }
+
 }
 

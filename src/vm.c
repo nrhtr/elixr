@@ -22,7 +22,6 @@ size_t pos;
             ? number_##MSG(0, A, B)\
             : xr_send(A, s_##MSG, B)))
 
-
 /* Temp function to quickly run a method,
  * should work for now just to get some proper
  * debugging going. Fix up and optimise later. */
@@ -30,8 +29,13 @@ XR xr_run_method(struct XRMethod *m)
 {
     size_t i;
     log("####### Running VM ##############\n");
-	
-	XR locals = list_new_len(xrListLen(m->locals) + xrListLen(m->args));
+
+    XR locals = list_new_len(xrListLen(m->locals) + xrListLen(m->args));
+    fprintf(stderr, "Scope locals len = %ld.\n", xrInt(list_len(0, locals)));
+
+    XRScope new;
+    new.locals = locals;
+    m->running_scope = new;
 
     for (i = 0; i < m->code.len; i++) {
         XR_OP op = m->code.ops[i];
@@ -179,45 +183,19 @@ XR xr_run_method(struct XRMethod *m)
                     /* FIXME: seperate opcode for bind and remove later send's? */
                     XR cl = bind(rcv, msg);
 
-                    struct XRClosure *c = cl;
+                    struct XRClosure *c = (struct XRClosure *) cl;
                     if (c->native == 0) {
                         /* TODO: reentry? */
-                        XR val = xr_run_method(c->data[0]);
+                        XR val = xr_run_method((struct XRMethod *) c->data[0]);
                         PUSH(val);
                         break;
                     }
 
                     /* FIXME: make this neater, implement @rest / varargs? */
-                    switch (num_args) {
-                        case 0:
-                            ret = send(rcv, msg);
-                            break;
-                        case 1:
-                            {
-                                XR a = POP();
-                                ret = send(rcv, msg, a);
-                            }
-                            break;
-                        case 2:
-                            {
-                                XR a = POP();
-                                XR b = POP();
-                                ret = send(rcv, msg, a, b);
-                            }
-                            break;
-                        case 3:
-                            {
-                                XR a = POP();
-                                XR b = POP();
-                                XR c = POP();
-                                ret = send(rcv, msg, a, b, c);
-                            }
-                            break;
-                        default:
-                            fprintf(stderr, "vm: OP_SEND: FIXME\n");
-                            break;
-                    }
-                            
+                    XR *argv = &stack[pos - num_args];
+                    pos -= num_args;
+
+                    ret = call_method_args(cl, rcv, num_args, argv);
                     PUSH(ret);
                 }
                 break;
@@ -287,8 +265,8 @@ XR xr_run_method(struct XRMethod *m)
                 }
                 break;
             default:
-                printf("Unimplemented opcode");
-                break;
+                fprintf(stderr, "ICE: Unimplemented opcode %d.\n", op.code);
+                exit(1);
         }
     }
 

@@ -41,6 +41,18 @@ method init()  # Method on $root called init. This is the entry point called by 
     }
 
     self bar("jenga")
+
+    "Let's test string formatting!" showln
+
+    "%s * %s - %s = %s" fmt([3, 4, 1, 3 * 4 - 1]) showln
+
+    var from = "jawparker@gmail.com"
+    var to = "vjcoster@gmail.com"
+    var subject = "Hey watup"
+    var body = "This is a long email body let's see how we do."
+
+    var email = "From: %s\nTo: %s\nSubject: %s\n\n%s" fmt([from, to, subject, body]) showln
+
 }
 
 method bar(name)

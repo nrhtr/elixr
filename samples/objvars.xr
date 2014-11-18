@@ -1,17 +1,20 @@
 #!./parse_dump
 object $root;
 
-var test = :dog;
+var a = :alpha;
+var notyetdefined = :apple;
 method init()
 {
-    /test literal showln
+    /a literal showln
 
     self bar
 
-    /test literal showln
+    /a literal showln
 }
 
 method bar()
 {
-    /test = :cat
+    /a = :beta
+    /notyetdefined = :orange
+    /notyetdefined showln
 }

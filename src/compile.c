@@ -160,7 +160,10 @@ void ast_compile(XR ast, struct XRMethod *m)
                     args = xrListLen(oper[2]);
                 
                 if (args) {
-                    xrListEachR(oper[2], index, item, {
+                    /* If we POP each arg for methods we need to emit PUSH in reverse,
+                     * currently, however, we read the args off the stack and update the
+                     * stack pointer so its easiest to just push them in order */
+                    xrListEach(oper[2], index, item, {
                         ast_compile(item, m);
                     });
                 }

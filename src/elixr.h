@@ -216,6 +216,10 @@ struct XRAsm {
     XR_OP *ops;
 };
 
+typedef struct XRScope {
+    XR locals;
+} XRScope;
+
 /* Persistent compiled method on an object */
 struct XRMethod {
     XR_HEAD
@@ -228,6 +232,8 @@ struct XRMethod {
     XR values; /* list of literal values */
     XR locals; /* list of local names as symbols */
     XR args;   /* list of arg names as symbols */
+
+    XRScope running_scope; /* if running, ptr to current scope */
 };
 
 struct dbt_bucket {

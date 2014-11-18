@@ -1,0 +1,8 @@
+#!./parse_dump
+object $root;
+method init()
+{
+    var x = "test";
+    x showln
+    "new\nline" show
+}

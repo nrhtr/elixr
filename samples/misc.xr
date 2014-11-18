@@ -1,0 +1,8 @@
+#!./parse_dump
+object $root;
+method init() {
+    var m = self vt at(:init) get_m
+    var locals = m locals
+    "%s (locals[%s]) = %s\n" fmt([locals at(1), ])
+    #"%s %s" fmt(["This is a string", 1]) showln
+}

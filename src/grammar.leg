@@ -17,6 +17,16 @@
 
 unsigned int line_number;
 
+extern FILE* dbg_output;
+
+#define DEBUG_PARSER 1
+
+#if DEBUG_PARSER
+#define LOG(args...) fprintf(stderr, args)
+#else
+#define LOG(args...)
+#endif
+
 XR string_buf;
 
 #define YY_INPUT(buf, result, max)		\
@@ -27,9 +37,9 @@ XR string_buf;
   }
 
 
-#define XR_AST1(type, a)       ast_node(AST_##type, a, VAL_NIL, VAL_NIL)
-#define XR_AST2(type, a, b)    ast_node(AST_##type, a, b, VAL_NIL)
-#define XR_AST3(type, a, b, c) ast_node(AST_##type, a, b, c)
+#define AST1(type, a)       ast_node(AST_##type, a, VAL_NIL, VAL_NIL)
+#define AST2(type, a, b)    ast_node(AST_##type, a, b, VAL_NIL)
+#define AST3(type, a, b, c) ast_node(AST_##type, a, b, c)
 %}
 
 dump = -- h:object { $$ = h = list_new(h); }
@@ -55,7 +65,7 @@ objvars = i:objvar_item ';' - { i = xr_table_with_one(xrListAt(i,0), xrListAt(i,
             (EOL -- j:objvar_item ';' - { table_put(0, i, xrListAt(j,0), xrListAt(j,1)); })*
             { $$ = i; }
 
-objvar_item = VAR i:ID ASSIGN b:andor { $$ = list_build(2, i, ((struct XRAst*)b)->n[0]); }
+objvar_item = VAR i:ID EQUALS b:andor { $$ = list_build(2, i, ((struct XRAst*)b)->n[0]); }
                                 
 method = -- "method" - i:ID a:params -- s:code
        {
@@ -76,39 +86,39 @@ params = '(' - ')' { $$ = list_empty(); }
        { $$ = p1; } 
 
 code = LBRACE -- s:statements -- RBRACE
-     { $$ = XR_AST1(CODE, s);}
+     { $$ = AST1(CODE, s);}
 
 statements = s1:stmnt { $$ = s1 = list_new(s1); }
            ( SEP s2:stmnt { $$ = s1 = list_append(0, s1, s2); })* SEP?
            { $$ = s1; }
 
-stmnt = b:andor                  { $$ = XR_AST1(EXPRSTMT, b); }
+stmnt = b:andor                  { $$ = AST1(EXPRSTMT, b); }
      | c:code                   { $$ = c; }
-     | VAR i:ID !ASSIGN         { $$ = XR_AST1(VDECL, i); }
-     | VAR i:ID ASSIGN b:andor  { $$ = XR_AST2(VINIT, i, b); }
-     | !'/'i:ID ASSIGN b:andor      { $$ = XR_AST2(ASSIGN, i, b); }
-     | '/' i:ID ASSIGN b:andor  { $$ = XR_AST2(OBJASSIGN, i, b); }
-     | "if" - '(' - b:andor - ')' -- t:stmnt -- "else" -- f:stmnt { $$ = XR_AST3(IFELSE, b, t, f); }
-     | "if" - '(' - b:andor - ')' -- t:stmnt { $$ = XR_AST2(IF, b, t); }
-     | "while" - '(' - b:andor - ')' -- t:stmnt { $$ = XR_AST2(WHILE, b, t); }
-     | "assert" - b:andor -     { $$ = XR_AST1(ASSERT, b); }
-     | "return" - b:andor -     { $$ = XR_AST1(RETURN, b); }
+     | VAR i:ID !EQUALS         { $$ = AST1(VDECL, i); }
+     | VAR i:ID EQUALS b:andor  { $$ = AST2(VINIT, i, b); }
+     | !'/'i:ID EQUALS b:andor      { $$ = AST2(ASSIGN, i, b); }
+     | '/' i:ID EQUALS b:andor  { $$ = AST2(OBJASSIGN, i, b); }
+     | "if" - '(' - b:andor - ')' -- t:stmnt -- "else" -- f:stmnt { $$ = AST3(IFELSE, b, t, f); }
+     | "if" - '(' - b:andor - ')' -- t:stmnt { $$ = AST2(IF, b, t); }
+     | "while" - '(' - b:andor - ')' -- t:stmnt { $$ = AST2(WHILE, b, t); }
+     | "assert" - b:andor -     { $$ = AST1(ASSERT, b); }
+     | "return" - b:andor -     { $$ = AST1(RETURN, b); }
 
 #Top level expression?
 expr = andor
 
 andor = c:cmp
-        ( AND x:cmp { c = XR_AST2(AND, c, x); }
-        | OR x:cmp  { c = XR_AST2(OR, c, x);  })*
+        ( AND x:cmp { c = AST2(AND, c, x); }
+        | OR x:cmp  { c = AST2(OR, c, x);  })*
         { $$ = c; }
 
 cmp = s:sum
-      ( EQ  s2:sum { s = XR_AST2(EQ, s, s2);  }
-      | NEQ s2:sum { s = XR_AST2(NEQ, s, s2); }
-      | GT s2:sum  { s = XR_AST2(GT, s, s2);  }
-      | LT s2:sum  { s = XR_AST2(LT, s, s2);  }
-      | GTE s2:sum { s = XR_AST2(GTE, s, s2); }
-      | LTE s2:sum { s = XR_AST2(LTE, s, s2); })*
+      ( EQ  s2:sum { s = AST2(EQ, s, s2);  }
+      | NEQ s2:sum { s = AST2(NEQ, s, s2); }
+      | GT s2:sum  { s = AST2(GT, s, s2);  }
+      | LT s2:sum  { s = AST2(LT, s, s2);  }
+      | GTE s2:sum { s = AST2(GTE, s, s2); }
+      | LTE s2:sum { s = AST2(LTE, s, s2); })*
       { $$ = s; }
 
 arguments = LP - RP           - { $$ = VAL_NIL; }
@@ -120,35 +130,35 @@ list = '[' -- ']' - { $$ = list_empty(); }
 expr_list = h:andor { h = list_new(h); } (',' -- t:andor { list_append(0, h, t);} )* { $$ = h; }
 
 sum = l:product
-      ( PLUS  r:product { l = XR_AST2(PLUS, l, r); }
-      | MINUS r:product { l = XR_AST2(MINUS, l, r); })*
+      ( PLUS  r:product { l = AST2(PLUS, l, r); }
+      | DASH r:product { l = AST2(MINUS, l, r); })*
       { $$ = l; }
 
 product = l:msg
-          ( TIMES  r:msg { l = XR_AST2(TIMES, l, r); }
-          | DIVIDE r:msg { l = XR_AST2(DIVIDE, l, r); })*
+          ( STAR  r:msg { l = AST2(TIMES, l, r); }
+          | FSLASH r:msg { l = AST2(DIVIDE, l, r); })*
           { $$ = l; }
 
 msg         = s:binary_not 
-              ( i:ID !arguments            { s = XR_AST3(SEND, s, XR_AST1(SYMBOL, i), VAL_NIL);}
-              | i:ID a:arguments { s = XR_AST3(SEND, s, XR_AST1(SYMBOL, i), a); })*
+              ( i:ID !arguments            { s = AST3(SEND, s, AST1(SYMBOL, i), VAL_NIL);}
+              | i:ID a:arguments { s = AST3(SEND, s, AST1(SYMBOL, i), a); })*
               { $$ = s; }
 
 binary_not = v:value     { $$ = v;}
-          | NOT v:value { $$ = XR_AST1(NOT, v); }
+          | NOT v:value { $$ = AST1(NOT, v); }
 
 #FIXME: sort out values/symbols/ids
-value       = v:NUMBER          { $$ = XR_AST1(NUMBER, v); }
-            | v:str          { $$ = XR_AST1(STRING, v); }
-            | ':' v:ID          { $$ = XR_AST1(SYMBOL, v); }
+value       = v:NUMBER          { $$ = AST1(NUMBER, v); }
+            | v:str          { $$ = AST1(STRING, v); }
+            | ':' v:ID          { $$ = AST1(SYMBOL, v); }
             | v:OBJREF          { $$ = v; }
-            | v:list            { $$ = XR_AST1(LIST, v); }
-            | "false" -         { $$ = XR_AST1(VALUE, VAL_FALSE); }
-            | "true" -          { $$ = XR_AST1(VALUE, VAL_TRUE); }
-            | "nil" -           { $$ = XR_AST1(VALUE, VAL_NIL); }
-            | "self" -          { $$ = XR_AST1(SELF, 0); }
-            | v:ID !ASSIGN      { $$ = XR_AST1(VAR, v); }
-            | "/" v:ID !ASSIGN  { $$ = XR_AST1(OBJVAR, v); }
+            | v:list            { $$ = AST1(LIST, v); }
+            | "false" -         { $$ = AST1(VALUE, VAL_FALSE); }
+            | "true" -          { $$ = AST1(VALUE, VAL_TRUE); }
+            | "nil" -           { $$ = AST1(VALUE, VAL_NIL); }
+            | "self" -          { $$ = AST1(SELF, 0); }
+            | v:ID !EQUALS      { $$ = AST1(VAR, v); }
+            | "/" v:ID !EQUALS  { $$ = AST1(OBJVAR, v); }
             | LP e:expr RP      { $$ = e; }
 
 OBJREF  = '$' v:ID { $$ = v; }
@@ -163,7 +173,7 @@ utf8 = [\t\40-\176]
      | [\360-\364] [\200-\277] [\200-\277] [\200-\277]
      | EOL
 
-q = ["] { fprintf(stderr, "Matched quote.\n"); }
+q = ["] { LOG("Matched quote.\n"); }
 esc   = '\\'
 esc_n = esc 'n' { string_buf = xr_str_append_chars_n(0, string_buf, "\n", 1) }
 esc_b = esc 'b' { string_buf = xr_str_append_chars_n(0, string_buf, "\b", 1) }
@@ -171,23 +181,23 @@ esc_f = esc 'f' { string_buf = xr_str_append_chars_n(0, string_buf, "\f", 1) }
 esc_r = esc 'r' { string_buf = xr_str_append_chars_n(0, string_buf, "\r", 1) }
 esc_t = esc 't' { string_buf = xr_str_append_chars_n(0, string_buf, "\t", 1) }
 esc_q = '\\' ["] { string_buf = xr_str_append_chars_n(0, string_buf, "\"", 1) }
-char = < (!q !esc utf8)+ > { fprintf(stderr, "Matched utf8 seq = %.*s\n", yyleng, yytext); string_buf = xr_str_append_chars_n(0, string_buf, yytext, yyleng); fprintf(stderr, "Strbuf now contains [%s].\n", xrStrPtr(string_buf));}
+char = < (!q !esc utf8)+ > { LOG("Matched utf8 seq = %.*s\n", yyleng, yytext); string_buf = xr_str_append_chars_n(0, string_buf, yytext, yyleng); }
 
 
 str = q { string_buf = xr_str_empty(); }
             < ( esc_q | esc_n | esc_b | esc_f | esc_r | esc_t | char)* >
-            q - { $$ = string_buf; fprintf(stderr, "Matched whole string = [%s]\n", xrStrPtr(string_buf));  }
+            q - { $$ = string_buf; LOG("Matched whole string = [%s]\n", xrStrPtr(string_buf));  }
 
 SEP     = (';' | EOL)   --
 
 # TODO: sort out keywords
 KEYWORD = "nil" !. | "while" | "self" | "else" | "true" | "false" | "if" | "var" | "assert" | "return"
 
-ASSIGN  = '=' !'='      -
+EQUALS  = '=' !'='      -
 PLUS    = '+'           -
-MINUS   = '-'           -
-TIMES   = '*'           -
-DIVIDE  = '/'           -
+DASH   = '-'           -
+STAR   = '*'           -
+FSLASH  = '/'           -
 LP      = '('           -
 RP      = ')'           -
 VAR     = "var"         -
@@ -271,7 +281,6 @@ XR xr_parse_dump_from_stdin()
 
     while (yyparsefrom(&ctx, yy_dump));
 
-    yyerror("syntax error", &ctx);
     return ctx.dump;
 }
 
@@ -283,7 +292,6 @@ XR xr_parse_any_from_stdin()
     memset(&ctx, 0, sizeof(yycontext));
 
     while (yyparsefrom(&ctx, yy_stmnt));
-    yyerror("syntax error", &ctx);
 
     return ctx.yy;
 }

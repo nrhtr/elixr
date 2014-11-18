@@ -1,3 +1,4 @@
+#define GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -10,6 +11,8 @@
 #include "xrstring.h"
 #include "symbol.h"
 #include "closure.h"
+
+#include "types/list.h"
 
 XR xr_str_alloc(int size)
 {
@@ -108,7 +111,6 @@ XR xr_str_println(XR cl, XR self)
 
     printf("%.*s\n", (int)xrStrLen(self), xrStrPtr(self));
 
-    /* TODO: should println return anything? means you can do stuff like "" showln showln  */
     return self;
 }
 
@@ -239,6 +241,125 @@ XR xr_str_at(XR cl, XR self, XR _index)
     return ch;
 }
 
+/* FIXME: can we do this in a single *printf rather than
+ * all this malloc / copy / free */
+
+#define xrListAtFmt(list, index) xrStrPtr(qsend(xrListAt(list, index), "string"))
+
+/*
+XR xr_str_fmt_var(XR cl, XR self, ... )
+{
+    char *buf;
+    char *fmt = xrStrPtr(self);
+
+    unsigned int len;
+    va_list ap;
+
+    va_start(ap, fmt);
+    len = vsnprintf(NULL, 0, fmt, ap) + 1;
+    va_end(ap);
+
+    buf = malloc(len);
+
+    va_start(ap, fmt);
+    vsnprintf(buf, len, fmt, ap);
+    va_end(ap);
+
+    buf[len - 1] = '\0';
+
+    XR str = xr_str(buf);
+    free(buf);
+    return str;
+}
+*/
+
+XR xr_str_fmt(XR cl, XR self, XR args)
+{
+    int num_args = xrInt(list_len(0, args));
+    int size = 100;
+
+    char *p, *np;
+
+    p = malloc(size);
+    if (p == NULL)
+        return xr_str_empty();
+
+
+    while (1) {
+        int n;
+
+        if      (num_args == 1) n = snprintf(p, size, xrStrPtr(self), xrListAtFmt(args, 0));
+        else if (num_args == 2) n = snprintf(p, size, xrStrPtr(self), xrListAtFmt(args, 0),
+                xrListAtFmt(args, 1));
+        else if (num_args == 3) n = snprintf(p, size, xrStrPtr(self), xrListAtFmt(args, 0),
+                xrListAtFmt(args, 1),
+                xrListAtFmt(args, 2));
+        else if (num_args == 4) n = snprintf(p, size, xrStrPtr(self), xrListAtFmt(args, 0),
+                xrListAtFmt(args, 1),
+                xrListAtFmt(args, 2),
+                xrListAtFmt(args, 3));
+        else if (num_args == 5) n = snprintf(p, size, xrStrPtr(self), xrListAtFmt(args, 0),
+                xrListAtFmt(args, 1),
+                xrListAtFmt(args, 2),
+                xrListAtFmt(args, 3),
+                xrListAtFmt(args, 4));
+        else if (num_args == 6) n = snprintf(p, size, xrStrPtr(self), xrListAtFmt(args, 0),
+                xrListAtFmt(args, 1),
+                xrListAtFmt(args, 2),
+                xrListAtFmt(args, 3),
+                xrListAtFmt(args, 4),
+                xrListAtFmt(args, 5));
+        else if (num_args == 7) n = snprintf(p, size, xrStrPtr(self), xrListAtFmt(args, 0),
+                xrListAtFmt(args, 1),
+                xrListAtFmt(args, 2),
+                xrListAtFmt(args, 3),
+                xrListAtFmt(args, 5),
+                xrListAtFmt(args, 6));
+        else if (num_args == 8) n = snprintf(p, size, xrStrPtr(self), xrListAtFmt(args, 0),
+                xrListAtFmt(args, 1),
+                xrListAtFmt(args, 2),
+                xrListAtFmt(args, 3),
+                xrListAtFmt(args, 4),
+                xrListAtFmt(args, 5),
+                xrListAtFmt(args, 6),
+                xrListAtFmt(args, 7));
+        else if (num_args == 9) n = snprintf(p, size, xrStrPtr(self), xrListAtFmt(args, 0),
+                xrListAtFmt(args, 1),
+                xrListAtFmt(args, 2),
+                xrListAtFmt(args, 3),
+                xrListAtFmt(args, 4),
+                xrListAtFmt(args, 5),
+                xrListAtFmt(args, 6),
+                xrListAtFmt(args, 7),
+                xrListAtFmt(args, 8));
+
+        // Failed
+        if (n < 0) {
+            free(p);
+            return xr_str_empty();
+        }
+
+        // Worked
+        if (n < size) {
+            XR out = xr_str(p);
+            free(p);
+            return out;
+        }
+
+        size = n + 1;
+
+        np = realloc(p, size);
+        if (np == NULL) {
+            free(p);
+            return xr_str_empty();
+        } else {
+            p = np;
+        }
+    }
+
+    assert(0);
+}
+
 void xr_string_methods()
 {
     def_method(string_vt, s_string,  xr_str_string);
@@ -255,4 +376,5 @@ void xr_string_methods()
     qdef_method(string_vt, "append", xr_str_append);
     qdef_method(string_vt, "eq",      xr_str_eq);
     qdef_method(string_vt, "intern",  xr_str_intern);
+    qdef_method(string_vt, "fmt",     xr_str_fmt);
 }

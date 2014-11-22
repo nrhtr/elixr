@@ -10,13 +10,14 @@ int main(int argc, char *argv[])
 {
     xr_init();
 
-    if (argc > 1)
-        stdin = freopen(argv[1], "r", stdin);
+    XR obj_list;
 
-    if (!stdin)
-        return 1;
-
-    XR obj_list = xr_parse_dump_from_stdin();
+    if (argc > 1) {
+        char *file = argv[1];
+        obj_list = xr_parse_dump_file(file);
+    } else {
+        obj_list = xr_parse_dump_from_stdin();
+    }
 
     log("# Objs: %ld\n", xrListLen(obj_list));
     

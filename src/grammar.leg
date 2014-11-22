@@ -13,13 +13,12 @@
 #undef YY_DEBUG
 #define YYSTYPE XR
 #define YY_CTX_LOCAL
-#define YY_CTX_MEMBERS XR src; XR method; XR object; XR dump;
-
-unsigned int line_number;
+#define YY_CTX_MEMBERS XR src; XR method; XR object; XR dump; int line_number; char *filename; FILE *file_handle; int cursor;
 
 extern FILE* dbg_output;
 
 #define DEBUG_PARSER 1
+#define ERROR(args...) fprintf(stderr, "<%s>:%d:%d ", yy->filename, yy->line_number, yy->cursor); fprintf(stderr, args);
 
 #if DEBUG_PARSER
 #define LOG(args...) fprintf(stderr, args)
@@ -29,13 +28,13 @@ extern FILE* dbg_output;
 
 XR string_buf;
 
-#define YY_INPUT(buf, result, max)		\
-  {						\
-    int c= getc(stdin);				\
-    if ('\n' == c || '\r' == c) ++line_number;	\
-    result= (EOF == c) ? 0 : (*(buf)= c, 1);	\
+#define YY_INPUT(ctx, buf, result, max)	\
+  {\
+    int c = fgetc(ctx->file_handle);\
+    ctx->cursor++;\
+    if ('\n' == c || '\r' == c) { ++ctx->line_number; ctx->cursor = 0; }\
+    result= (EOF == c) ? 0 : (*(buf)= c, 1);\
   }
-
 
 #define AST1(type, a)       ast_node(AST_##type, a, VAL_NIL, VAL_NIL)
 #define AST2(type, a, b)    ast_node(AST_##type, a, b, VAL_NIL)
@@ -44,11 +43,11 @@ XR string_buf;
 
 dump = -- h:object { $$ = h = list_new(h); }
      ( -- t:object { $$ = h = list_append(0, h, t); })*
-     { ctx->dump = h;}
+     { yy->dump = h;}
 
 object = "object" - i:OBJREF ';' - EOL
-       { ctx->object = (i == xr_sym("root")) ? root : object_new(0, i); }
-       -- ( v:objvars )? { xrObjVars(ctx->object) = v; }
+       { yy->object = (i == xr_sym("root")) ? root : object_new(0, i); }
+       -- ( v:objvars )? { xrObjVars(yy->object) = v; }
        ( m:method {
             /* for each method we create a closure to hold it 
              * 1st arg = fptr = NULL since we have no jit :(
@@ -57,9 +56,9 @@ object = "object" - i:OBJREF ';' - EOL
             XR cl = closure_new(NULL, 1);
             ((struct XRClosure *)cl)->native = 0;
             xrClosureAt(cl, 0) = m;
-            object_add_closure(ctx->object, cl); }
+            object_add_closure(yy->object, cl); }
         )*
-       { $$ = ctx->object; }
+       { $$ = yy->object; }
 
 objvars = i:objvar_item ';' - { i = xr_table_with_one(xrListAt(i,0), xrListAt(i,1)); }
             (EOL -- j:objvar_item ';' - { table_put(0, i, xrListAt(j,0), xrListAt(j,1)); })*
@@ -74,9 +73,9 @@ method = -- "method" - i:ID a:params -- s:code
            ast_graph_head(s);
            qsend(s, "source", xrNum(0));
 #endif
-           m->object = ctx->object;
+           m->object = yy->object;
            ast_compile_method(s, m);
-           $$ = ctx->method = (XR)m; assert(ctx->object); 
+           $$ = yy->method = (XR)m; assert(yy->object); 
        }
 
     
@@ -186,7 +185,7 @@ char = < (!q !esc utf8)+ > { LOG("Matched utf8 seq = %.*s\n", yyleng, yytext); s
 
 str = q { string_buf = xr_str_empty(); }
             < ( esc_q | esc_n | esc_b | esc_f | esc_r | esc_t | char)* >
-            q - { $$ = string_buf; LOG("Matched whole string = [%s]\n", xrStrPtr(string_buf));  }
+            q ~{ERROR("syntax error: reached end-of-line while scanning string literal\n");} - { $$ = string_buf; LOG("Matched whole string = [%s]\n", xrStrPtr(string_buf));  }
 
 SEP     = (';' | EOL)   --
 
@@ -223,6 +222,7 @@ EOL     = '\n' | '\r\n' | '\r'
 #EOF     = !.
 %%
 
+/*
 void yyerror(char *message, yycontext *yyctx)
 {
     char *fileName = "<stdin>";
@@ -251,6 +251,7 @@ void yyerror(char *message, yycontext *yyctx)
 
     fprintf(stderr, "\n");
 }
+*/
 
 XR xr_parse_code_from_stdin()
 {
@@ -274,25 +275,45 @@ XR xr_parse_method_from_stdin()
 
 XR xr_parse_dump_from_stdin()
 {
-    line_number = 1;
-
     yycontext ctx;
     memset(&ctx, 0, sizeof(yycontext));
+
+    ctx.line_number = 1;
+    ctx.cursor = 0;
+    ctx.filename = "stdin";
+    ctx.file_handle = stdin;
+
+    while (yyparsefrom(&ctx, yy_dump));
+
+    //yyerror("syntax error", &ctx);
+    return ctx.dump;
+}
+
+XR xr_parse_dump_file(char *filename)
+{
+    yycontext ctx;
+    memset(&ctx, 0, sizeof(yycontext));
+    ctx.line_number = 1;
+    ctx.cursor = 0;
+    ctx.filename = filename;
+    ctx.file_handle = fopen(filename, "r");
 
     while (yyparsefrom(&ctx, yy_dump));
 
     return ctx.dump;
 }
 
+/*
 XR xr_parse_any_from_stdin()
 {
-    line_number = 1;
 
     yycontext ctx;
     memset(&ctx, 0, sizeof(yycontext));
 
     while (yyparsefrom(&ctx, yy_stmnt));
+    //yyerror("syntax error", &ctx);
 
-    return ctx.yy;
+    return ctx.;
 }
+*/
 

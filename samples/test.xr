@@ -1,0 +1,11 @@
+object $root;
+method init()
+{
+    [:a, 1, :b, 2] mktable literal showln
+    #self foo
+}
+
+method foo()
+{
+    self vt at(:foo) get_m show
+}

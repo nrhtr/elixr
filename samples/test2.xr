@@ -1,0 +1,14 @@
+object $root;
+
+method init()
+{
+    var name = "John"
+
+    ("Hello " + name) showln
+    # Hello John
+    # => "Hello John"
+    
+    "Hello " + name showln
+    # John
+    # => "Hello John"
+}

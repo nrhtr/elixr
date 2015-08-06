@@ -15,7 +15,7 @@
 # 
 # THE SOFTWARE IS PROVIDED 'AS IS'.  USE ENTIRELY AT YOUR OWN RISK.
 # 
-# Last edited: 2012-04-29 15:51:15 by piumarta on emilia
+# Last edited: 2013-08-16 00:14:11 by piumarta on emilia
 
 %{
 # include "tree.h"
@@ -76,8 +76,11 @@ definition=	identifier 				{ if (push(beginRule(findRule(yytext)))->rule.express
 expression=	sequence (BAR sequence			{ Node *f= pop();  push(Alternate_append(pop(), f)); }
 			    )*
 
-sequence=	prefix (prefix				{ Node *f= pop();  push(Sequence_append(pop(), f)); }
-			  )*
+sequence=	error   (error				{ Node *f= pop();  push(Sequence_append(pop(), f)); }
+			)*
+
+error=		prefix  (TILDE action			{ push(makeError(pop(), yytext)); }
+			)?
 
 prefix=		AND action				{ push(makePredicate(yytext)); }
 |		AND suffix				{ push(makePeekFor(pop())); }
@@ -112,6 +115,8 @@ class=		'[' < ( !']' range )* > ']' -
 range=		char '-' char | char
 
 char=		'\\' [-abefnrtv'"\[\]\\]
+|		'\\' 'x'[0-9A-Fa-f][0-9A-Fa-f]
+|		'\\' 'x'[0-9A-Fa-f]
 |		'\\' [0-3][0-7][0-7]
 |		'\\' [0-7][0-7]?
 |		!'\\' .
@@ -135,6 +140,7 @@ CLOSE=		')' -
 DOT=		'.' -
 BEGIN=		'<' -
 END=		'>' -
+TILDE=		'~' -
 RPERCENT=	'%}' -
 
 -=		(space | comment)*
@@ -148,17 +154,17 @@ end-of-file=	!.
 void yyerror(char *message)
 {
   fprintf(stderr, "%s:%d: %s", fileName, lineNumber, message);
-  if (yyctx->text[0]) fprintf(stderr, " near token '%s'", yyctx->text);
-  if (yyctx->pos < yyctx->limit || !feof(input))
+  if (yyctx->__text[0]) fprintf(stderr, " near token '%s'", yyctx->__text);
+  if (yyctx->__pos < yyctx->__limit || !feof(input))
     {
-      yyctx->buf[yyctx->limit]= '\0';
+      yyctx->__buf[yyctx->__limit]= '\0';
       fprintf(stderr, " before text \"");
-      while (yyctx->pos < yyctx->limit)
+      while (yyctx->__pos < yyctx->__limit)
 	{
-	  if ('\n' == yyctx->buf[yyctx->pos] || '\r' == yyctx->buf[yyctx->pos]) break;
-	  fputc(yyctx->buf[yyctx->pos++], stderr);
+	  if ('\n' == yyctx->__buf[yyctx->__pos] || '\r' == yyctx->__buf[yyctx->__pos]) break;
+	  fputc(yyctx->__buf[yyctx->__pos++], stderr);
 	}
-      if (yyctx->pos == yyctx->limit)
+      if (yyctx->__pos == yyctx->__limit)
 	{
 	  int c;
 	  while (EOF != (c= fgetc(input)) && '\n' != c && '\r' != c)

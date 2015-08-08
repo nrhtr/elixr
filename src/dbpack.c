@@ -34,3 +34,16 @@ XR data_unpack(FILE *fp)
 
     return data;
 }
+
+/*
+XR pack_object(XR cl, XR obj, FILE *fp)
+{
+    // pack name as string
+    // pack parents list
+    // pack objvar table
+    // pack method table
+    fprintf(stderr, "Packing object.\n");
+
+    fwrite("O", sizeof(char), 1, fp);
+}
+*/

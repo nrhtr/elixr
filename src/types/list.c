@@ -31,6 +31,13 @@ XR list_new_len(unsigned long size)
     return list;
 }
 
+XR list_pack(XR cl, XR self, FILE *fp)
+{
+    xrListEach(self, index, item, {
+        qsend(item, "pack", fp);
+    });
+}
+
 XR list_empty()
 {
     return list_alloc(1);

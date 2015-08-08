@@ -26,6 +26,16 @@ START_TEST (test_symbol_intern)
 }
 END_TEST
 
+/*
+START_TEST (test_symbol_pack_unpack)
+{
+    XR foo = xr_sym("foo");
+    FILE *fp = fopen("test_symbol_pack.tmp", "w");
+    qsend(
+}
+END_TEST
+*/
+
 START_TEST (test_symbol_literal)
 {
 	XR sym = xr_sym("symbol");

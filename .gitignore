@@ -8,5 +8,5 @@ leg
 ##### Do not edit.
 .tup
 /.gitignore
+/ecc
 /libelixr.a
-/parse_dump

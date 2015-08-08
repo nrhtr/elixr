@@ -4,4 +4,4 @@ REST=compile.o vm.c dbpack.o grammar.o init.o lookup3.o objmodel.o
 : grammar.leg |> ../tools/peg-0.1.15/leg %f -o %o |> grammar.c
 : foreach *.c |> $(CC) -I./ -I./types $(CFLAGS) -c %f -o %o |> %B.o
 : $(TYPES) $(REST) |> ar rcs %o %f |> libelixr.a
-: $(TYPES) $(REST) parse_dump.o |> $(CC) $(CFLAGS) %f -o %o |> parse_dump
+: $(TYPES) $(REST) ecc.o |> $(CC) $(CFLAGS) %f -o %o |> ecc

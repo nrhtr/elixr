@@ -68,6 +68,7 @@ XR xr_send(XR a, XR msg, XR b);
 #define xrTest(v)         ((v) != VAL_NIL && (v) != VAL_FALSE)
 
 #define xrObjVars(o) (((struct XRObject*)o)->vars)
+#define xrObjParents(o) (((struct XRObject*)o)->parent)
 
 #define VAL_NIL   ((XR)0)
 #define VAL_ZERO  ((XR)1)

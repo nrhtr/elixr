@@ -222,6 +222,7 @@ void ast_compile(XR ast, struct XRMethod *m)
             break;
         case AST_ASSIGN:
             {
+                // Look for method parameters as locals first.
                 int var_index = find_var(m->locals, oper[0]);
                 if (var_index != -1) {
                     ast_compile(oper[1], m);
@@ -229,8 +230,9 @@ void ast_compile(XR ast, struct XRMethod *m)
                     break;
                 }
 
-                /* FIXME: What's going on here?? */
+                /* FIXME!!*/
 
+                // Look in locals proper
                 var_index = find_var(m->locals, oper[0]);
                 if (var_index != -1) {
                     ast_compile(oper[1], m);

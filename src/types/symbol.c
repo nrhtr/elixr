@@ -227,5 +227,6 @@ void xr_symbol_methods()
 
     qdef_method(symbol_vt, "show", symbol_print);
     qdef_method(symbol_vt, "showln", symbol_println);
+    qdef_method(symbol_vt, "pack", symbol_pack);
     qdef_method(symbol_vt, "==",     symbol_eq);
 }

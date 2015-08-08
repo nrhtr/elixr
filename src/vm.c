@@ -39,6 +39,7 @@ XR xr_run_method(struct XRMethod *m)
 
     for (i = 0; i < m->code.len; i++) {
         XR_OP op = m->code.ops[i];
+        assert(pos >= 0 && pos < 256);
         
         switch (op.code) {
             case OP_IVAL:
@@ -152,6 +153,7 @@ XR xr_run_method(struct XRMethod *m)
                     XR val = POP();
                     table_put(0, xrObjVars(m->object), name, val);
                 }
+                break;
             case OP_NOTJMP:
                 {
                     XR val = POP();

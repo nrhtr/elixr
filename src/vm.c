@@ -28,10 +28,8 @@ size_t pos;
 XR xr_run_method(struct XRMethod *m)
 {
     size_t i;
-    log("####### Running VM ##############\n");
 
     XR locals = list_new_len(xrListLen(m->locals) + xrListLen(m->args));
-    fprintf(stderr, "Scope locals len = %ld.\n", xrInt(list_len(0, locals)));
 
     XRScope new;
     new.locals = locals;

@@ -15,4 +15,6 @@ typedef SOPHIST_int64 s64;
 
 #define log(ARGS...) fprintf(stderr, ##ARGS);
 
+extern int verbose;
+
 #endif

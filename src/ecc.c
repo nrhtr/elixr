@@ -20,6 +20,7 @@ int main(int argc, char **argv)
         switch (c) {
         case 'e':
             eval = true;
+            break;
         case 'v':
             verbose = true;
             break;

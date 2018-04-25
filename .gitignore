@@ -12,3 +12,4 @@ dump.db
 /.gitignore
 /ecc
 /libelixr.a
+/run

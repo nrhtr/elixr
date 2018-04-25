@@ -1,3 +1,5 @@
 include_rules
 : src/libelixr.a |> cp %f %o |> libelixr.a
 : src/ecc |> cp %f %o |> ecc
+: src/run |> cp %f %o |> run
+

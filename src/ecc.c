@@ -49,7 +49,7 @@ int main(int argc, char **argv)
         qsend(init_m, "show");
 
     if (!eval) {
-        FILE *fp = fopen("blahtestsymfile", "w");
+        FILE *fp = fopen("dump.db", "w");
         qsend(root, "pack", fp);
         fclose(fp);
         return 0;

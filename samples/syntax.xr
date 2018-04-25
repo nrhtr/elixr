@@ -6,7 +6,7 @@ method init()  # Method on $root called init. This is the entry point called by 
 {
     "This is a string";
 
-    "Let's send the :showln message to this string" showln;
+    "Let's send the :showln message to this string" showln
 
     "Semicolons are only needed" show; " to seperate multiple statements on one line" showln
 

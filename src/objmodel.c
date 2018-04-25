@@ -4,6 +4,7 @@
 
 #include "internal.h"
 #include "elixr.h"
+#include "dbpack.h"
 #include "types.h"
 
 /*
@@ -121,13 +122,19 @@ XR bind(XR rcv, XR msg)
 void object_add_closure(XR obj, XR cl)
 {
     assert(cl);
+    //assert(0);
 
     XR m = xrClosureAt(cl, 0);
-
     XR nm = ((struct XRClosure*)cl)->data[0];
+
+    char *mname = xrSymPtr(xrMethName(m));
+
+    fprintf(stderr, "Added closure (%s) to object.\n", mname);
+    fprintf(stderr, "m = %p\n", m);
 
     assert(nm);
     assert(m);
+
 
     send(xrMTable(obj), s_put, xrMethName(m), cl);
 }
@@ -139,40 +146,11 @@ XR xr_obj_symbol(XR cl, XR self)
     return xrObj(self)->name;
 }
 
-XR root_pack(XR cl, XR obj, FILE *fp)
-{
-    // pack name as string
-    // pack parents list
-    // pack objvar table
-    // pack method table
-
-    fprintf(stderr, "Packing object.\n");
-    fwrite("O", sizeof(char), 1, fp);
-
-    XR parents = xrObjParents(obj);
-    if (parents == VAL_NIL) {
-        fprintf(stderr, "No parents.\n");
-    } else {
-        fprintf(stderr, "Packing parents.\n");
-        qsend(qsend(xrObjParents(obj), "literal", fp), "showln");
-        qsend(xrObjParents(obj), "pack", fp);
-    }
-
-    XR vars = xrObjVars(obj);
-    if (vars == VAL_NIL) {
-        fprintf(stderr, "No vars.\n");
-    } else {
-        fprintf(stderr, "Packing vars.\n");
-        qsend(vars, "pack", fp);
-    }
-}
-
-
-XR object_new(XR parent, XR name)
+XR object_new(XR parents, XR name)
 {
     struct XRObject *obj = malloc(sizeof(struct XRObject));
     obj->mt = xr_table_empty();
-    obj->parent = parent;
+    obj->parents = parents;
     obj->name = name;
 
     return (XR)obj;
@@ -191,5 +169,5 @@ void xr_root_methods(void)
 
     /* TODO: sort out object model/cloning/lobby system */
     qdef_method(xrMTable(root), "vt", xr_root_vt);
-    qdef_method(xrMTable(root), "pack", root_pack);
+    qdef_method(xrMTable(root), "pack", db_pack_object);
 }

@@ -15,7 +15,9 @@ method init()
 
     "" showln showln
 
-    self bar(55)
+    m show
+
+    "self bar(55)"
 }
 
 method bar(baz)

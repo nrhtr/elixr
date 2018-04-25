@@ -5,7 +5,7 @@
 
 void xr_table_methods(void);
 
-XR xr_table_unpack(FILE *fp);
+XR table_unpack(FILE *fp);
 XR xr_table_empty (void);
 XR xr_table_alloc (size_t desired_size);
 XR xr_table_with_one (XR k, XR v);

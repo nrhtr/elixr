@@ -1,22 +1,9 @@
-NOTES
+TODO
 =====
-
-TODOs and other things
-----------------------
-* change to slot-type system (activatable vs non-activatable)
-    - closures with generic getter/setters for values (as in piumarta's oop model)?
-    - do regular lookup then decide whether its "callable" or not?
-
-* quickcheck?
-* pseudo-bootstrap ASAP!
-* combine xr_tests with tests
-* grand renaming!
-* Decide on garbage collection strategy (probably refcounting). This depends on how the caching setup will end up working. Simplest(really?) thing would to just do what Genesis does w/ refcounts, 'dirty' flags, etc.
-* fix up various functions into methods proper
+* fix "lookup" implementation to use itself / shortcut as per open object model
+* garbage collection
+* combine xr_tests with tests - ??
 * implement networking using 0mq or something
 * sort out objrefs, numrefs, etc. or equivalent.
-* distinguish more clearly between internal functions and full elixr methods - reduce unecessary message sends within the codebase? not a big deal so far
 * move global state into a vm struct
-* implement object cache - undecided. can have enormous caches with modern memory capacities. most games would fit entirely in memory.
-* implement xr type to handle files
-* persistance
+* implement object cache - probably don't bother

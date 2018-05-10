@@ -1,4 +1,5 @@
 #include <string.h>
+#include <stdlib.h>
 
 #include "internal.h"
 #include "elixr.h"
@@ -127,8 +128,9 @@ XR method_pack(XR cl, XR self, FILE *fp)
     fwrite(&(code->ops), sizeof(*(code->ops)), code->len, fp);
 }
 
-XR method_unpack(XR cl, XR self, FILE *fp)
+XR method_unpack(FILE *fp)
 {
+    XR self = malloc(sizeof(struct XRMethod));
     //FIXME: move to XRList of opcodes?
     
 }

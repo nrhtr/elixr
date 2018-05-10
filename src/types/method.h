@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 XR method_pack(XR cl, XR self, FILE *fp);
+XR method_unpack(FILE *fp);
 
 XR xr_method_name(XR cl, XR self);
 XR xr_method_literal(XR cl, XR self);

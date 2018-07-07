@@ -3,7 +3,7 @@ object $root;
 method init()
 {
     "hey" showln
-    self vt at("init") source showln
+    self vt at(:init) literal showln
 }
 
 object $sword;

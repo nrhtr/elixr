@@ -31,6 +31,10 @@ XR data_unpack(FILE *fp)
             fprintf(stderr, "Unpacking string...\n");
             data = xr_str_unpack(fp);
             break;
+	case 'M':
+	    fprintf(stderr, "Unpacking method...\n");
+	    data = method_unpack(fp);
+	    break;
         default:
             fprintf(stderr, "Attempt to unpack unknown type %c\n", type);
             assert(0);

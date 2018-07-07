@@ -111,7 +111,7 @@ XR bind(XR rcv, XR msg)
     assert(vt);
     assert(msg);
 
-    if (msg == s_lookup && object == 
+//if (msg == s_lookup && object == 
     XR m = table_at(0, vt, msg);
     if (m == VAL_NIL) {
         printf("Method lookup %s failed.\n", xrSymPtr(msg));

@@ -1,7 +1,12 @@
 #ifndef LIST_H
 #define LIST_H
 
+#include <stdio.h>
+
 void xr_list_methods(void);
+
+XR list_pack(XR cl, XR self, FILE *f);
+XR list_unpack(FILE *f);
 
 XR list_alloc(unsigned long size);
 XR list_empty(void);

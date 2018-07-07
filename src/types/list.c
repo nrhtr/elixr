@@ -6,6 +6,7 @@
 
 #include "elixr.h"
 #include "xrstring.h"
+#include "dbpack.h"
 #include "list.h"
 #include "number.h"
 #include "table.h"
@@ -33,9 +34,39 @@ XR list_new_len(unsigned long size)
 
 XR list_pack(XR cl, XR self, FILE *fp)
 {
+    fwrite("L", 1, 1, fp);
+    unsigned long len = xrListLen(self);
+    fwrite(&len, sizeof(len), 1, fp);
     xrListEach(self, index, item, {
         qsend(item, "pack", fp);
     });
+}
+
+XR list_unpack(FILE *fp)
+{
+    fprintf(stderr, "Unpack list.\n");
+
+    char c;
+    fread(&c, 1, 1, fp);
+    if (c != 'L') {
+        fprintf(stderr, "Invalid list header.\n");
+        return VAL_NIL;
+    }
+
+    long size = 0;
+    fread(&size, sizeof(size), 1, fp);
+    if (c == 0) {
+        fprintf(stderr, "Invalid list size.\n");
+        return VAL_NIL;
+    }
+
+    XR lst = list_empty();
+    while (size--) {
+        XR item = data_unpack(fp);
+        list_append(0, lst, item);
+    }
+
+    return lst;
 }
 
 XR list_empty()
@@ -199,6 +230,8 @@ void xr_list_methods()
     def_method(list_vt, s_string, list_string);
     def_method(list_vt, s_at, list_at);
     def_method(list_vt, s_put, list_put);
+
+    def_method(list_vt, xr_sym("pack"), list_pack);
 
     def_method(list_vt, xr_sym("len"), list_len);
     def_method(list_vt, xr_sym("append"), list_append);

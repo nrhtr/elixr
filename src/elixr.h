@@ -52,6 +52,7 @@ XR xr_send(XR a, XR msg, XR b);
 #define xrList(v)         ((struct XRList*)v)
 #define xrSym(v)          ((struct XRSymbol*)v)
 #define xrMthd(v)         ((struct XRMethod*)v)
+#define xrClosure(v)	  ((struct XRClosure*)v)
 
 /* Objmodel macros
 ------------------ */
@@ -68,7 +69,7 @@ XR xr_send(XR a, XR msg, XR b);
 #define xrTest(v)         ((v) != VAL_NIL && (v) != VAL_FALSE)
 
 #define xrObjVars(o) (((struct XRObject*)o)->vars)
-#define xrObjParents(o) (((struct XRObject*)o)->parent)
+#define xrObjParents(o) (((struct XRObject*)o)->parents)
 
 #define VAL_NIL   ((XR)0)
 #define VAL_ZERO  ((XR)1)
@@ -261,7 +262,7 @@ struct XRList {
 
 struct XRObject {
     XR_HEAD
-    XR parent;
+    XR parents;
     XR name;
     XR vars;
     int refs;

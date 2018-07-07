@@ -1,3 +1,5 @@
+#include <string.h>
+
 #include "internal.h"
 #include "elixr.h"
 #include "method.h"
@@ -104,12 +106,42 @@ XR method_show(XR cl, XR self)
     return VAL_NIL;
 }
 
+XR method_pack(XR cl, XR self, FILE *fp)
+{
+    assert(self);
+
+    fwrite("M", 1, 1, fp);
+    //char *str = "test method packing";
+    //fwrite(str, strlen(str), 1, fp);
+
+    struct XRMethod *m = (struct XRMethod *) self;
+    struct XRAsm *code = (struct XRAsm *) &(m->code);
+
+    assert(m);
+    assert(code);
+
+    char *msym = xrSymPtr(m->name);
+    fprintf(stderr, "Method (%s) has %d opcodes.\n", msym, code->len);
+
+    fwrite(&(code->len), sizeof(code->len), 1, fp);
+    fwrite(&(code->ops), sizeof(*(code->ops)), code->len, fp);
+}
+
+XR method_unpack(XR cl, XR self, FILE *fp)
+{
+    //FIXME: move to XRList of opcodes?
+    
+}
+
 void xr_method_methods()
 {
     qdef_method(method_vt, "name", method_name);
     qdef_method(method_vt, "literal", method_literal);
     qdef_method(method_vt, "locals", method_locals);
     qdef_method(method_vt, "scope_locals", method_scope_locals);
+    qdef_method(method_vt, "pack", method_pack);
+    qdef_method(method_vt, "unpack", method_unpack);
+
     qdef_method(method_vt, "values", method_values);
     qdef_method(method_vt, "args", method_args);
     qdef_method(method_vt, "show", method_show);

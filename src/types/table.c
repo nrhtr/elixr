@@ -179,14 +179,20 @@ XR table_literal(XR cl, XR self)
 XR table_pack(XR cl, XR self, FILE *fp)
 {
     (void) cl;
+    
+    fwrite("T", 1, 1, fp);
 
     unsigned long size = xrTblSize(self);
+
+    fprintf(stderr, "Packing table of size %d.\n", size);
+
     if (fwrite(&size, sizeof(size), 1, fp) != 1) {
         fprintf(stderr, "Failed to write table header");
         return VAL_FALSE;
     }
 
     xrTblEach(self, key, val, {
+    	fprintf(stderr, "\t(%d => %d)\n", key, val);
         if (xrIsNum(key))
             number_pack(0, key, fp);
         else
@@ -204,8 +210,17 @@ XR table_pack(XR cl, XR self, FILE *fp)
 XR table_unpack(FILE *fp)
 {
     XR self = xr_table_empty();
-    unsigned long size;
 
+    char c;
+    fread(&c, sizeof(char), 1, fp);
+    if (c != 'T') {
+        fprintf(stderr, "Invalid table header.\n");
+        fprintf(stderr, "pos: %d.\n", ftell(fp));
+	assert(0);
+        return VAL_NIL;
+    }
+
+    unsigned long size;
     int read = fread(&size, sizeof(size), 1, fp);
     if (read != 1) {
         fprintf(stderr, "Failed reading size of table entry.\n");
@@ -213,7 +228,8 @@ XR table_unpack(FILE *fp)
     }
 
     unsigned long x;
-    printf("Unpacking table with size %ld\n", size);
+    fprintf(stderr, "Unpacking table with size %ld\n", size);
+    fprintf(stderr, "pos: %d.\n", ftell(fp));
     for (x = 0; x < size; x++) {
         XR a, b;
 

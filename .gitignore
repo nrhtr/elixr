@@ -2,6 +2,7 @@
 *.o
 *.pyc
 *.edb
+*.log
 peg
 leg
 .gdb_history

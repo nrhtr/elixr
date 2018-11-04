@@ -28,7 +28,7 @@ XR closure_literal(XR cl, XR self)
     return xr_str("(closure)");
 }
 
-XR closure_get_method(XR cl, XR self)
+XR closure_getMethod(XR cl, XR self)
 {
     (void) cl;
 
@@ -60,7 +60,8 @@ XR closure_pack(XR cl, XR self, FILE *fp)
 void xr_closure_methods()
 {
     def_method(closure_vt, s_literal, closure_literal);
-    qdef_method(closure_vt, "get_m", closure_get_method);
-
-    qdef_method(closure_vt, "pack", closure_pack);
+#define m(NAME) qdef_method(string_vt, #NAME, closure_##NAME)
+    m(getMethod);
+    m(pack);
+#undef m
 }

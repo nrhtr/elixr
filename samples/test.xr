@@ -7,5 +7,5 @@ method init()
 
 method foo()
 {
-    self vt at(:foo) get_m show
+    self vt at(:foo) getMethod show
 }

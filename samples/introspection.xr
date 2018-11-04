@@ -3,7 +3,7 @@ object $root;
 method init()
 {
     var v = self vt
-    var m = v at(:init) get_m
+    var m = v at(:init) getMethod
     
     "Object:   " show; self symbol showln
     "VT:       " show; v literal showln
@@ -23,7 +23,7 @@ method init()
 method bar(baz)
 {
     var v = self vt
-    var m = v at(:bar) get_m
+    var m = v at(:bar) getMethod
 
 "Object: %s
 -----------

@@ -371,14 +371,14 @@ void xr_string_methods()
     m(literal);
     m(pack);
     m(unpack);
-    m(add);
     m(at);
     m(show);
     m(showln);
     m(len);
     m(append);
-    m(eq);
     m(intern);
     m(fmt);
 #undef m
+    qdef_method(string_vt, "+", xr_str_add);
+    def_method(string_vt, s_eq, xr_str_eq);
 }

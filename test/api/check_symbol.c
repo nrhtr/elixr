@@ -41,7 +41,7 @@ START_TEST (test_symbol_literal)
 	XR sym = xr_sym("symbol");
 	XR lit = send(sym, s_literal);
 
-	fail_unless(qsend(lit, "eq", xr_str(":symbol")) == VAL_TRUE);
+	fail_unless(qsend(lit, "==", xr_str(":symbol")) == VAL_TRUE);
 }
 END_TEST
 
@@ -50,7 +50,7 @@ START_TEST (test_symbol_string)
     XR sym = xr_sym("symbol");
     XR str = send(sym, s_string);
 
-    fail_unless(qsend(str, "eq", xr_str("symbol")) == VAL_TRUE);
+    fail_unless(qsend(str, "==", xr_str("symbol")) == VAL_TRUE);
 }
 END_TEST
 

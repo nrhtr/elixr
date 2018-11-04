@@ -228,6 +228,6 @@ void xr_symbol_methods()
     m(show);
     m(showln);
     m(pack);
-    qdef_method(symbol_vt, "==", symbol_eq);
+    def_method(symbol_vt, s_eq, symbol_eq);
 #undef m
 }

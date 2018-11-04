@@ -62,7 +62,7 @@ void xr_init()
     s_string    = xr_sym("string");
     s_symbol    = xr_sym("symbol");
 
-    s_eq        = xr_sym("==");   
+    s_eq        = xr_sym("==");
 
     s_add       = xr_sym("+");
     s_sub       = xr_sym("-");

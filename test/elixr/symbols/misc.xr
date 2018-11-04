@@ -9,9 +9,3 @@
 
 (:foo == :bar) string showln
 #false
-
-(:foo eq(:foo)) string showln
-#true
-
-(:foo eq(:bar)) string showln
-#false

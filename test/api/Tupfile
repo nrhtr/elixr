@@ -1,3 +1,4 @@
 include_rules
-: foreach check_*.c |> $(CC) -I../../src -I../../src/types $(CFLAGS) -c %f -o %o |> %B.o
-: *.o ../../libelixr.a |> $(CC) $(CFLAGS) %f -o %o -lcheck -lm -lrt -lsubunit -lpthread |> run_tests
+CFLAGS = $(CFLAGS) -I../../src/
+: foreach check_*.c |> !cc |>
+: *.o ../../src/libelixr.a |> $(CC) $(CFLAGS) %f -o %o -lcheck -lm -lrt -lsubunit -lpthread |> run_tests

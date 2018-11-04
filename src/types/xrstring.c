@@ -286,7 +286,7 @@ XR xr_str_fmt(XR cl, XR self, XR args)
 
 
     while (1) {
-        int n;
+        int n = -1;
 
         if      (num_args == 1) n = snprintf(p, size, xrStrPtr(self), xrListAtFmt(args, 0));
         else if (num_args == 2) n = snprintf(p, size, xrStrPtr(self), xrListAtFmt(args, 0),

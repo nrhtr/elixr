@@ -169,9 +169,9 @@ XR xr_root_vt(XR cl, XR self)
 
 void xr_root_methods(void)
 {
-    def_method(xrMTable(root), s_symbol, xr_obj_symbol);
+    XR root_vt = xrMTable(root);
 
-    /* TODO: sort out object model/cloning/lobby system */
-    qdef_method(xrMTable(root), "vt", xr_root_vt);
-    qdef_method(xrMTable(root), "pack", db_pack_object);
+    qdef_method(root_vt, "symbol", xr_obj_symbol);
+    qdef_method(root_vt, "vt", xr_root_vt);
+    qdef_method(root_vt, "pack", db_pack_object);
 }

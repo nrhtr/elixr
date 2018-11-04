@@ -359,7 +359,8 @@ void xr_ast_methods()
 {
     def_method(ast_vt, s_literal, ast_literal);
     def_method(ast_vt, s_string, ast_string);
-
-    qdef_method(ast_vt, "name", ast_name);
-    qdef_method(ast_vt, "source", ast_source);
+#define m(NAME) qdef_method(string_vt, #NAME, ast_##NAME)
+    m(name);
+    m(source);
+#undef m
 }

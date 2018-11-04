@@ -20,8 +20,9 @@ XR xr_str_unpack(FILE *fp);
 
 
 /* Messages */
-XR xr_str_length(XR cl, XR self);
-XR xr_str_print(XR cl, XR self);
+XR xr_str_len(XR cl, XR self);
+XR xr_str_show(XR cl, XR self);
+XR xr_str_showln(XR cl, XR self);
 XR xr_str_append(XR cl, XR _self, XR _extra);
 XR xr_str_pack(XR cl, XR self, FILE *fp);
 XR xr_str_eq(XR cl, XR self, XR other);

@@ -340,14 +340,16 @@ XR table_values(XR cl, XR self)
 
 void xr_table_methods()
 {
+    // Once we've installed s_put, we can use message sending to install the rest
     table_put(0, table_vt, s_put, def_closure(table_put));
-    table_put(0, table_vt, s_at, def_closure(table_at));
 
-    def_method(table_vt, s_print,   table_print);
-    def_method(table_vt, s_literal, table_literal);
-    def_method(table_vt, s_pack,    table_pack);
-    def_method(table_vt, s_unpack,  table_unpack);
+    qdef_method(table_vt, "at", table_at); //table_put(0, table_vt, s_at, def_closure(table_at));
 
-    def_method(table_vt, xr_sym("keys"), table_keys);
-    def_method(table_vt, xr_sym("values"), table_values);
+    qdef_method(table_vt, "print",   table_print);
+    qdef_method(table_vt, "literal", table_literal);
+    qdef_method(table_vt, "pack",    table_pack);
+    qdef_method(table_vt, "unpack",  table_unpack);
+
+    qdef_method(table_vt, "keys", table_keys);
+    qdef_method(table_vt, "values", table_values);
 }

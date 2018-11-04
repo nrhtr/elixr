@@ -84,6 +84,10 @@ XR call_method_args(XR cl, XR self, int argc, XR *argv)
             return c->method(cl, self, argv[0], argv[1], argv[2], argv[3], argv[4],
                     argv[5], argv[6], argv[7], argv[8], argv[9], argv[10], argv[11],
                     argv[12], argv[13], argv[14]);
+        case 16:
+            return c->method(cl, self, argv[0], argv[1], argv[2], argv[3], argv[4],
+                    argv[5], argv[6], argv[7], argv[8], argv[9], argv[10], argv[11],
+                    argv[12], argv[13], argv[14], argv[15]);
     }
 }
 

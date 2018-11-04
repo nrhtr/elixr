@@ -2,8 +2,8 @@ all:
 	@tup upd
 
 check: all
-	@./test/run_tests
-	@./xr_tests/all_tests.sh
+	@cd ./test/api && ./run_tests
+	@cd ./test/elixr && ./all_tests.sh
 
 clean:
 	@rm -f src/*.o

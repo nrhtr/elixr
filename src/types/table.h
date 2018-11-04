@@ -15,7 +15,7 @@ XR table_dump     (XR cl, XR self);
 XR table_raw_dump (XR cl, XR self);
 XR table_at       (XR cl, XR self, XR key);
 XR table_put      (XR cl, XR self, XR key, XR val);
-XR table_print    (XR cl, XR self);
+XR table_show     (XR cl, XR self);
 
 XR table_pack     (XR cl, XR self, FILE *fp);
 

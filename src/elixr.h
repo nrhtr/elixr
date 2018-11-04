@@ -21,7 +21,7 @@ ast_vt, bool_vt, nil_vt, method_vt;
 extern XR root;
 
 /* main symbols */
-extern XR s_put, s_at, s_def, s_allocate, s_delegated, s_print, s_literal,
+extern XR s_put, s_at, s_def, s_allocate, s_delegated, s_show, s_literal,
 s_pack, s_unpack, s_string, s_symbol, s_eq;
 
 /* math */
@@ -123,7 +123,7 @@ do { \
 #define xrListForeach(L, I) \
 for (int n = 0, XR I = xrListAt(L, n); n < xrListLen(L); n++, I = xrListAt(L, n))
 
-#define xrDoFail(S) send(S, s_print); exit(1);
+#define xrDoFail(S) send(S, s_show); exit(1);
 
 /* Symbol macros
 ---------------- */

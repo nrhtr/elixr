@@ -88,14 +88,14 @@ XR xr_str_from_num(XR cl, XR num)
     return xr_str_sprintf("%ld", xrInt(num));
 }
 
-XR xr_str_length(XR cl, XR self)
+XR xr_str_len(XR cl, XR self)
 {
     (void) cl;
 
     return xrNum(((struct XRString *)self)->len);
 }
 
-XR xr_str_print(XR cl, XR self)
+XR xr_str_show(XR cl, XR self)
 {
     (void) cl;
 
@@ -105,7 +105,7 @@ XR xr_str_print(XR cl, XR self)
     return self;
 }
 
-XR xr_str_println(XR cl, XR self)
+XR xr_str_showln(XR cl, XR self)
 {
     (void) cl;
 

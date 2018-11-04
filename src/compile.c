@@ -106,7 +106,7 @@ void ast_compile(XR ast, struct XRMethod *m)
     assert(ast);
 
     /*printf("\n------\n");*/
-    /*send(send(ast, s_string), s_print);*/
+    /*send(send(ast, s_string), s_show);*/
     /*printf("\n------\n");*/
 
     struct XRAst *n = (struct XRAst*) ast;

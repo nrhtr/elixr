@@ -97,7 +97,7 @@ void ast_graph_string_each(XR self)
 {
 
     struct XRAst * s = ((struct XRAst *)self);
-    send(AST_NAME(self), s_print);
+    send(AST_NAME(self), s_show);
 
     int i;
     for (i = 0; i < 3; i++) {
@@ -106,7 +106,7 @@ void ast_graph_string_each(XR self)
             if (xrIsNum(n)) {
                 printf("%ld", xrInt(n));
             } else {
-                send(send(n, s_string), s_print);
+                send(send(n, s_string), s_show);
             }
         }
         printf(" ");
@@ -148,7 +148,7 @@ void ast_graph_nodex(XR self)
     };
 
     XR label = AST_NAME(self);
-    printf("node%p [label=\"", s); send(label, s_print); printf("\"];\n");
+    printf("node%p [label=\"", s); send(label, s_show); printf("\"];\n");
 }
 
 void ast_graph_head(struct XRAst *tree)

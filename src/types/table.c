@@ -241,7 +241,7 @@ XR table_unpack(FILE *fp)
     return self;
 }
 
-XR table_print(XR cl, XR self)
+XR table_show(XR cl, XR self)
 { 
     (void) cl;
 
@@ -252,9 +252,9 @@ XR table_print(XR cl, XR self)
             printf(", ");
         }
         
-        send(xrSafeLit(key), s_print);
+        send(xrSafeLit(key), s_show);
         printf(" => ");
-        send(xrSafeLit(val), s_print);
+        send(xrSafeLit(val), s_show);
 
         first = 0;
     });
@@ -273,7 +273,7 @@ XR table_dump(XR cl, XR self)
         printf("[");
         while (b) {
             if (b->key) {
-                send(xrSafeLit(b->key), s_print);
+                send(xrSafeLit(b->key), s_show);
                 printf("[%ld]=>(%ld), ", b->key, xrHash(b->key));
             } 
             b = b->next;
@@ -345,7 +345,7 @@ void xr_table_methods()
 
     qdef_method(table_vt, "at", table_at); //table_put(0, table_vt, s_at, def_closure(table_at));
 
-    qdef_method(table_vt, "print",   table_print);
+    qdef_method(table_vt, "show",   table_show);
     qdef_method(table_vt, "literal", table_literal);
     qdef_method(table_vt, "pack",    table_pack);
     qdef_method(table_vt, "unpack",  table_unpack);

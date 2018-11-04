@@ -8,7 +8,7 @@
 #include "objmodel.h"
 
 XR s_lookup, s_at, s_put, s_def;
-XR s_print, s_literal, s_string, s_symbol;
+XR s_show, s_literal, s_string, s_symbol;
 XR s_pack, s_unpack;
 
 XR s_eq, s_neq, s_gt, s_lt, s_gte, s_lte;
@@ -57,7 +57,7 @@ void xr_init()
     s_at        = xr_sym("at");
     s_put       = xr_sym("put");
     s_def       = xr_sym("def");
-    s_print     = xr_sym("print");
+    s_show      = xr_sym("show");
     s_literal   = xr_sym("literal");
     s_string    = xr_sym("string");
     s_symbol    = xr_sym("symbol");

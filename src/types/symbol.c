@@ -25,7 +25,7 @@ XR sym_lookup(const char *str)
 }
 
 
-XR symbol_print(XR cl, XR self)
+XR symbol_show(XR cl, XR self)
 {
     (void) cl;
 
@@ -35,7 +35,7 @@ XR symbol_print(XR cl, XR self)
     return VAL_NIL;
 }
 
-XR symbol_println(XR cl, XR self)
+XR symbol_showln(XR cl, XR self)
 {
     (void) cl;
 

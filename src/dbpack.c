@@ -46,6 +46,8 @@ XR data_unpack(FILE *fp)
 
 XR db_pack_object(XR cl, XR obj, FILE *fp)
 {
+    (void) cl;
+
     // pack name as string
     // pack parents list
     // pack objvar table

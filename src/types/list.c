@@ -34,6 +34,8 @@ XR list_new_len(unsigned long size)
 
 XR list_pack(XR cl, XR self, FILE *fp)
 {
+    (void) cl;
+
     fwrite("L", 1, 1, fp);
     unsigned long len = xrListLen(self);
     fwrite(&len, sizeof(len), 1, fp);
@@ -208,6 +210,8 @@ XR list_len(XR cl, XR self)
 
 XR list_mktable(XR cl, XR self)
 {
+    (void) cl;
+
     if (xrListLen(self) % 2 != 0)
         return VAL_NIL;
 

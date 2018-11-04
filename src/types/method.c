@@ -109,6 +109,8 @@ XR method_show(XR cl, XR self)
 
 XR method_pack(XR cl, XR self, FILE *fp)
 {
+    (void) cl;
+
     assert(self);
 
     fwrite("M", 1, 1, fp);
@@ -126,11 +128,18 @@ XR method_pack(XR cl, XR self, FILE *fp)
 
     fwrite(&(code->len), sizeof(code->len), 1, fp);
     fwrite(&(code->ops), sizeof(*(code->ops)), code->len, fp);
+
+    return VAL_NIL;
 }
 
 XR method_unpack(FILE *fp)
 {
-    XR self = malloc(sizeof(struct XRMethod));
+    (void) fp;
+
+    fprintf(stderr, "ERROR: method_unpack unimplemented");
+    exit(1);
+
+    //XR self = malloc(sizeof(struct XRMethod));
     //FIXME: move to XRList of opcodes?
 }
 

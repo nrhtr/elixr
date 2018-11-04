@@ -3,6 +3,6 @@
 
 #include "elixr.h"
 
-XR xr_run_method(struct XRMethod *m);
+XR xr_run_method(XR m);
 
 #endif

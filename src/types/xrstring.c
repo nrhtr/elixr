@@ -224,6 +224,8 @@ XR xr_str_add(XR cl, XR self, XR other)
 /* Currently treats Strings as just byte arrays */
 XR xr_str_at(XR cl, XR self, XR _index)
 {
+    (void) cl;
+
     int index = xrInt(_index);
 
     if (index > (int) xrStrLen(self) - 1) {
@@ -275,6 +277,8 @@ XR xr_str_fmt_var(XR cl, XR self, ... )
 
 XR xr_str_fmt(XR cl, XR self, XR args)
 {
+    (void) cl;
+
     int num_args = xrInt(list_len(0, args));
     int size = 100;
 

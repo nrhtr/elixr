@@ -40,6 +40,8 @@ XR closure_get_method(XR cl, XR self)
 
 XR closure_pack(XR cl, XR self, FILE *fp)
 {
+    (void) cl;
+
     struct XRClosure *c = (struct XRClosure *) self;
     fprintf(stderr, "Packing closure.\n");
     fprintf(stderr, "\tmethod = %p\n", c->method);

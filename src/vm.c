@@ -25,9 +25,10 @@ size_t pos;
 /* Temp function to quickly run a method,
  * should work for now just to get some proper
  * debugging going. Fix up and optimise later. */
-XR xr_run_method(struct XRMethod *m)
+XR xr_run_method(XR method)
 {
     size_t i;
+    struct XRMethod *m = (struct XRMethod *) method;
 
     XR locals = list_new_len(xrListLen(m->locals) + xrListLen(m->args));
 
@@ -186,7 +187,7 @@ XR xr_run_method(struct XRMethod *m)
                     struct XRClosure *c = (struct XRClosure *) cl;
                     if (c->native == 0) {
                         /* TODO: reentry? */
-                        XR val = xr_run_method((struct XRMethod *) c->data[0]);
+                        XR val = xr_run_method(c->data[0]);
                         PUSH(val);
                         break;
                     }

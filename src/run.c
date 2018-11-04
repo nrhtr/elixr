@@ -23,7 +23,7 @@ int main(int argc, char **argv)
         }
     }
 
-    FILE *fp = fopen("dump.db", "r");
+    FILE *fp = fopen("elixr.edb", "r");
     if (!fp) {
         fprintf(stderr, "Error opening dump file.\n");
         return 1;

@@ -49,7 +49,7 @@ int main(int argc, char **argv)
         qsend(init_m, "show");
 
     if (!eval) {
-        FILE *fp = fopen("dump.db", "w");
+        FILE *fp = fopen("elixr.edb", "w");
         qsend(root, "pack", fp);
         fclose(fp);
         return 0;

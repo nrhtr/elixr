@@ -1,2 +1,0 @@
-include_rules
-: ../../ecc |> ./all_tests.sh |> stderr.log

@@ -3,3 +3,15 @@
 
 :blah literal showln
 #:blah
+
+(:foo == :foo) string showln
+#true
+
+(:foo == :bar) string showln
+#false
+
+(:foo eq(:foo)) string showln
+#true
+
+(:foo eq(:bar)) string showln
+#false

@@ -223,10 +223,11 @@ void xr_symbol_methods()
 {
     def_method(symbol_vt, s_string,  symbol_string);
     def_method(symbol_vt, s_literal, symbol_literal);
-    def_method(symbol_vt, s_print,   symbol_print);
 
-    qdef_method(symbol_vt, "show", symbol_print);
-    qdef_method(symbol_vt, "showln", symbol_println);
-    qdef_method(symbol_vt, "pack", symbol_pack);
-    qdef_method(symbol_vt, "==",     symbol_eq);
+#define m(NAME) qdef_method(symbol_vt, #NAME, symbol_##NAME)
+    m(show);
+    m(showln);
+    m(pack);
+    qdef_method(symbol_vt, "==", symbol_eq);
+#undef m
 }

@@ -230,14 +230,14 @@ XR list_mktable(XR cl, XR self)
 
 void xr_list_methods()
 {
-    def_method(list_vt, s_literal, list_literal);
-    def_method(list_vt, s_string, list_string);
-    def_method(list_vt, s_at, list_at);
-    def_method(list_vt, s_put, list_put);
-
-    def_method(list_vt, xr_sym("pack"), list_pack);
-
-    def_method(list_vt, xr_sym("len"), list_len);
-    def_method(list_vt, xr_sym("append"), list_append);
-    def_method(list_vt, xr_sym("mktable"), list_mktable);
+#define m(NAME) qdef_method(list_vt, #NAME, list_##NAME)
+    m(literal);
+    m(string);
+    m(at);
+    m(put);
+    m(pack);
+    m(len);
+    m(append);
+    m(mktable);
+#undef m
 }

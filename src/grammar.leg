@@ -164,7 +164,7 @@ OBJREF  = '$' v:ID { $$ = v; }
 NUMBER  = FIXNUM | DECIMAL
 FIXNUM  = < '-'? [0-9]+ !'.' >          - { $$ = xrNum(atoi(yytext)); }
 DECIMAL = < [0-9]* '.'? [0-9]+ >        - { $$ = xr_double(atof(yytext)); }
-ID      = !KEYWORD < [a-z] [a-z0-9_]* [?!]?> - { $$ = xr_sym_n(yytext, yyleng); }
+ID      = !KEYWORD < [a-z] [a-zA-Z0-9_]* [?!]?> - { $$ = xr_sym_n(yytext, yyleng); }
 
 utf8 = [\t\40-\176]
      | [\302-\337] [\200-\277]

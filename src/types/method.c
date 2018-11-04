@@ -39,7 +39,7 @@ XR method_locals(XR cl, XR self)
     return ((struct XRMethod *)self)->locals;
 }
 
-XR method_scope_locals(XR cl, XR self)
+XR method_scopeLocals(XR cl, XR self)
 {
     (void) cl;
 
@@ -145,14 +145,15 @@ XR method_unpack(FILE *fp)
 
 void xr_method_methods()
 {
-    qdef_method(method_vt, "name", method_name);
-    qdef_method(method_vt, "literal", method_literal);
-    qdef_method(method_vt, "locals", method_locals);
-    qdef_method(method_vt, "scope_locals", method_scope_locals);
-    qdef_method(method_vt, "pack", method_pack);
-    qdef_method(method_vt, "unpack", method_unpack);
-
-    qdef_method(method_vt, "values", method_values);
-    qdef_method(method_vt, "args", method_args);
-    qdef_method(method_vt, "show", method_show);
+#define m(NAME) qdef_method(method_vt, #NAME, method_##NAME)
+    m(name);
+    m(literal);
+    m(locals);
+    m(scopeLocals);
+    m(pack);
+    m(unpack);
+    m(values);
+    m(args);
+    m(show);
+#undef m
 }

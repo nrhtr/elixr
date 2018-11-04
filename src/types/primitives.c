@@ -45,12 +45,15 @@ XR xr_nil_nil(XR cl, XR self)
 
 void xr_primitive_methods()
 {
-    def_method(bool_vt, s_string,  xr_bool_string);
-    def_method(bool_vt, s_literal,  xr_bool_string);
-    def_method(bool_vt, s_symbol,  xr_bool_symbol);
+#define m(NAME) qdef_method(bool_vt, #NAME, xr_bool_##NAME)
+    m(string);
+    m(symbol);
+#define m(NAME) qdef_method(nil_vt, #NAME, xr_nil_##NAME)
+    m(string);
+    m(symbol);
+#undef m
 
-    def_method(nil_vt, s_string,  xr_nil_string);
-    def_method(nil_vt, s_literal,  xr_nil_string);
-    def_method(nil_vt, s_symbol,  xr_nil_symbol);
-    qdef_method(nil_vt, "nil?",  xr_nil_nil);
+    qdef_method(nil_vt,  "nil?",     xr_nil_nil);
+    qdef_method(bool_vt, "literal",  xr_bool_string);
+    qdef_method(nil_vt,  "literal",  xr_nil_string);
 }

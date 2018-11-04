@@ -60,7 +60,7 @@ XR closure_pack(XR cl, XR self, FILE *fp)
 void xr_closure_methods()
 {
     def_method(closure_vt, s_literal, closure_literal);
-#define m(NAME) qdef_method(string_vt, #NAME, closure_##NAME)
+#define m(NAME) qdef_method(closure_vt, #NAME, closure_##NAME)
     m(getMethod);
     m(pack);
 #undef m

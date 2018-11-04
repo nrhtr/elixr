@@ -110,12 +110,13 @@ XR double_unpack(FILE *fp)
 
 void xr_number_methods(void)
 {
-    def_method(num_vt, s_string, number_string);
-    def_method(num_vt, s_literal, number_string);
-    def_method(num_vt, s_pack, number_pack);
-    
-    def_method(num_vt, s_add, number_add);
-    def_method(num_vt, s_sub, number_sub);
-    def_method(num_vt, s_mul, number_mul);
-    def_method(num_vt, s_div, number_div);
+#define m(NAME) qdef_method(num_vt, #NAME, number_##NAME)
+    m(string);
+    m(pack);
+#undef m
+    qdef_method(num_vt, "literal", number_string);
+    qdef_method(num_vt, "+", number_add);
+    qdef_method(num_vt, "-", number_sub);
+    qdef_method(num_vt, "*", number_mul);
+    qdef_method(num_vt, "/", number_div);
 }

@@ -366,19 +366,19 @@ XR xr_str_fmt(XR cl, XR self, XR args)
 
 void xr_string_methods()
 {
-    def_method(string_vt, s_string,  xr_str_string);
-    def_method(string_vt, s_print,   xr_str_print);
-    def_method(string_vt, s_literal, xr_str_literal);
-    def_method(string_vt, s_pack,    xr_str_pack);
-    def_method(string_vt, s_unpack,  xr_str_unpack);
-    def_method(string_vt, s_add,      xr_str_add);
-    def_method(string_vt, s_at,      xr_str_at);
-
-    qdef_method(string_vt, "show",  xr_str_print);
-    qdef_method(string_vt, "showln",  xr_str_println);
-    qdef_method(string_vt, "len",  xr_str_length);
-    qdef_method(string_vt, "append", xr_str_append);
-    qdef_method(string_vt, "eq",      xr_str_eq);
-    qdef_method(string_vt, "intern",  xr_str_intern);
-    qdef_method(string_vt, "fmt",     xr_str_fmt);
+#define m(NAME) qdef_method(string_vt, #NAME, xr_str_##NAME)
+    m(string);
+    m(literal);
+    m(pack);
+    m(unpack);
+    m(add);
+    m(at);
+    m(show);
+    m(showln);
+    m(len);
+    m(append);
+    m(eq);
+    m(intern);
+    m(fmt);
+#undef m
 }

@@ -30,8 +30,8 @@ XR xr_table_alloc(size_t desired)
     while (alloc < desired)
         alloc <<= 1;
 
-    struct XRTable *new = malloc(sizeof(struct XRTable) + sizeof(struct dbt_bucket) * alloc);
-    new->mt = table_vt;
+    struct XRTable *new = xr_alloc(sizeof(struct XRTable) + sizeof(struct dbt_bucket) * alloc);
+    new->mt[-1] = table_vt;
     new->alloc = alloc;
     new->len = 0;
 

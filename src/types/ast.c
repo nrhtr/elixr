@@ -176,9 +176,9 @@ void ast_traverse(struct XRAst *tree, void (*func)(XR))
 XR ast_node(enum AST_TYPE t, XR a, XR b, XR c)
 {
     /* alloc mem for Z object + 3 object refs */
-    struct XRAst *node = malloc(sizeof(struct XRAst) + 3 * sizeof(XR));
+    struct XRAst *node = xr_alloc(sizeof(struct XRAst) + 3 * sizeof(XR));
 
-    node->mt = ast_vt;
+    node->mt[-1] = ast_vt;
 
     node->type = t;
     node->n[0] = a;

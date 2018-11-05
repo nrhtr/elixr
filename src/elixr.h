@@ -9,6 +9,7 @@
 /* remove */
 #include "opcodes.h"
 #include "objmodel.h"
+#include "util.h"
 
 void xr_init(void);
 int data_eq(XR a, XR b);
@@ -90,7 +91,7 @@ XR xr_send(XR a, XR msg, XR b);
 
 /* Header macros
 ---------------- */
-#define xrMTable(v)     (((struct XRObject*)v)->mt)
+#define xrMTable(v)     (((struct XRObject*)v)->mt[-1])
 
 /* List macros
 -------------- */
@@ -172,7 +173,7 @@ do { \
 #if 0
 #define XR_HEAD XR mt; char *name;
 #else
-#define XR_HEAD XR mt;
+#define XR_HEAD XR mt[0];
 #endif
 
 struct XRAst {

@@ -14,7 +14,7 @@ XR xr_double(double num)
 {
     struct XRDouble *d = malloc(sizeof (struct XRDouble));
     d->val = num;
-    d->mt = num_vt;
+    d->mt[-1] = num_vt;
     
     return (XR)d;
 }

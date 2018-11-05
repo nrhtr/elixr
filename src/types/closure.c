@@ -12,10 +12,10 @@
 
 XR closure_new(val_f method, int dlen)
 {
-    struct XRClosure *closure = malloc(sizeof(struct XRClosure) + dlen * sizeof(XR));
+    struct XRClosure *closure = xr_alloc(sizeof(struct XRClosure) + dlen * sizeof(XR));
     closure->method = method;
     closure->native = 1;
-    closure->mt = closure_vt;
+    closure->mt[-1] = closure_vt;
 
     return (XR)closure;
 }

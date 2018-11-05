@@ -36,7 +36,7 @@ void xr_asm_op(struct XRAsm *m, u8 ins, int _a, int _b)
 
 struct XRMethod *xr_method_new(XR name, XR args)
 {
-    struct XRMethod *meth = malloc(sizeof(struct XRMethod));
+    struct XRMethod *meth = xr_alloc(sizeof(struct XRMethod));
 
     meth->code.len = 0;
     meth->code.alloc = 0;
@@ -47,7 +47,7 @@ struct XRMethod *xr_method_new(XR name, XR args)
     meth->args = args;
     meth->name = name;
 
-    meth->mt = method_vt;
+    meth->mt[-1] = method_vt;
 
     return meth;
 }

@@ -56,26 +56,14 @@ XR _xr_sym_alloc(const char *str)
     size_t len = strlen(str);
     size_t size = len + sizeof('\0');
 
-    struct XRSymbol *sym = malloc(sizeof(struct XRSymbol) + size*sizeof(char));
-    memcpy(sym->chars, str, len);
-    sym->chars[len] = '\0';
-
-    sym->len = len;
-    sym->alloc = size;
-    /* FIXME: change to reflect use of khash */
-    sym->hash = kh_str_hash_func(sym->chars);
-    /* Just allocing, symbol not necessarily interned */
-    sym->interned = 0;
-    sym->mt = symbol_vt;
-
-    return (XR) sym;
+    return _xr_sym_alloc_n(str, len);
 }
 
 XR _xr_sym_alloc_n(const char *str, size_t len)
 {
     size_t size = len + sizeof('\0');
 
-    struct XRSymbol *sym = malloc(sizeof(struct XRSymbol) + size*sizeof(char));
+    struct XRSymbol *sym = xr_alloc(sizeof(struct XRSymbol) + size*sizeof(char));
     memcpy(sym->chars, str, len);
     sym->chars[len] = '\0';
 
@@ -85,7 +73,7 @@ XR _xr_sym_alloc_n(const char *str, size_t len)
     sym->hash = kh_str_hash_func(str);
     /* Just allocing, symbol not necessarily interned */
     sym->interned = 0;
-    sym->mt = symbol_vt;
+    sym->mt[-1] = symbol_vt;
 
     return (XR) sym;
 }

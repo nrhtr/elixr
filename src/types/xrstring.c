@@ -16,11 +16,11 @@
 
 XR xr_str_alloc(int size)
 {
-    struct XRString *new = malloc(sizeof(struct XRString) + size*sizeof(char));
+    struct XRString *new = xr_alloc(sizeof(struct XRString) + size*sizeof(char));
 
     new->len = 0;
     new->alloc = size;
-    new->mt = string_vt;
+    new->mt[-1] = string_vt;
 
     return (XR) new;
 }

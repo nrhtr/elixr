@@ -136,7 +136,7 @@ XR db_unpack_object(FILE *fp)
 
     xrObj(o)->parents = list_unpack(fp);
     xrObj(o)->vars = table_unpack(fp);
-    xrObj(o)->mt = table_unpack(fp);
+    xrObj(o)->mt[-1] = table_unpack(fp);
 
     return o;
 }

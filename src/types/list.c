@@ -15,10 +15,10 @@
 
 XR list_alloc(unsigned long size)
 {
-    struct XRList *lst = malloc(sizeof(struct XRList));
+    struct XRList *lst = xr_alloc(sizeof(struct XRList));
     lst->alloc = size;
     lst->len = 0;
-    lst->mt = list_vt;
+    lst->mt[-1] = list_vt;
     lst->data = malloc(size * sizeof(XR));
 
     return (XR)lst;

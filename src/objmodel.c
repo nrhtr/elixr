@@ -152,8 +152,8 @@ XR xr_obj_symbol(XR cl, XR self)
 
 XR object_new(XR parents, XR name)
 {
-    struct XRObject *obj = malloc(sizeof(struct XRObject));
-    obj->mt = xr_table_empty();
+    struct XRObject *obj = xr_alloc(sizeof(struct XRObject));
+    obj->mt[-1] = xr_table_empty();
     obj->parents = parents;
     obj->name = name;
 

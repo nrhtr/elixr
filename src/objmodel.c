@@ -7,31 +7,37 @@
 #include "dbpack.h"
 #include "types.h"
 
-/*
-XR xr_bind(XR rcv, XR msg)
+XR bind(XR rcv, XR msg)
 {
-    struct vtable * vt = ((struct XRSymbol*)rcv)->mt;
+    assert(msg);
 
-    struct XRClosure *closure;
-    closure = ((msg == s_lookup) && (rcv == (XR)vtable_vt))
-        ? (struct XRClosure *)vtable_lookup(0, vt, msg)
-        : (struct XRClosure *)send(vt, s_lookup, msg);
+    XR vt = 0;
+    XR closure = NULL;
+
+    switch (rcv & 3) {
+        case 0: // all we know if its either Nil or an object
+            if (rcv == VAL_NIL) vt = nil_vt; else vt = xrMTable(rcv);
+            break;
+        case VAL_FALSE:
+        case VAL_TRUE:
+            fprintf(stderr, "Looking up method on a BOOL. When does this happen?\n");
+            vt = bool_vt;
+            break;
+        default:
+            vt = num_vt;
+    }
+
+    if (msg == s_at && rcv == table_vt) {
+        closure = table_at(0, rcv, msg);
+    } else {
+        closure = send(vt, s_at, msg);
+    }
+
+    if (closure == VAL_NIL) {
+        fprintf(stderr, "Method lookup %s failed.\n", xrSymPtr(msg));
+    }
 
     return closure;
-}
-*/
-
-
-
-XR xr_send(XR a, XR msg, XR b)
-{
-    if (a == VAL_NIL)
-        return VAL_NIL;
-
-    if (!xrIsPtr(a))
-        return VAL_NIL;
-
-    return send(a, msg, b);
 }
 
 XR call_method_args(XR cl, XR self, int argc, XR *argv)
@@ -91,42 +97,9 @@ XR call_method_args(XR cl, XR self, int argc, XR *argv)
     }
 }
 
-XR bind(XR rcv, XR msg)
-{
-    /* TODO: Use proper message-sending lookups */
-
-    XR vt = 0;
-
-    /* FIXME: We do this instead of just boxing everything with a reference to its vtable.
-     * Is that reasonable?
-     */
-    if (rcv == VAL_NIL) {
-        vt = nil_vt;
-    } else if (rcv == VAL_TRUE || rcv == VAL_FALSE) {
-        vt = bool_vt;
-    } else if (xrIsPtr(rcv)) {
-        vt = xrMTable(rcv);
-    } else if (xrIsNum(rcv)) {
-        vt = num_vt;
-    } else {
-        fprintf(stderr, "FIXME: sort out primitive type VTs.\n");
-    }
-
-    assert(vt);
-    assert(msg);
-
-    XR m = table_at(0, vt, msg);
-    if (m == VAL_NIL) {
-        fprintf(stderr, "Method lookup %s failed.\n", xrSymPtr(msg));
-    }
-
-    return m;
-}
-
 void object_add_closure(XR obj, XR cl)
 {
     assert(cl);
-    //assert(0);
 
     XR m = xrClosureAt(cl, 0);
     XR nm = ((struct XRClosure*)cl)->data[0];

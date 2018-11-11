@@ -40,8 +40,6 @@ extern XR s_add, s_sub, s_mul, s_div;
     (CL == VAL_NIL ? VAL_NIL : CL->method((XR)CL, OBJ, ##ARGS));\
 })
 
-XR xr_send(XR a, XR msg, XR b);
-
 /* Malloc stuff
 --------------- */
 

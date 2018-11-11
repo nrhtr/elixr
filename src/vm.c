@@ -20,7 +20,7 @@ size_t pos;
         ? xrNum(xrInt(A) OP xrInt(B))\
         : (xrIsNum(A)\
             ? number_##MSG(0, A, B)\
-            : xr_send(A, s_##MSG, B)))
+            : send(A, s_##MSG, B)))
 
 /* Temp function to quickly run a method,
  * should work for now just to get some proper

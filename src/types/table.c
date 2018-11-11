@@ -338,16 +338,18 @@ XR table_values(XR cl, XR self)
 
 void xr_table_methods()
 {
-    // Once we've installed s_put, we can use message sending to install the rest
+    // Once we've installed s_put & s_at, we can use message sending to install the rest
+    fprintf(stderr, "DEBUG: Install 'put' into 'table_vt'\n");
     table_put(0, table_vt, s_put, def_closure(table_put));
+    fprintf(stderr, "DEBUG: Install 'at' into 'table_vt'\n");
+    table_put(0, table_vt, s_at, def_closure(table_at));
 
-    qdef_method(table_vt, "at", table_at); //table_put(0, table_vt, s_at, def_closure(table_at));
-
-    qdef_method(table_vt, "show",   table_show);
-    qdef_method(table_vt, "literal", table_literal);
-    qdef_method(table_vt, "pack",    table_pack);
-    qdef_method(table_vt, "unpack",  table_unpack);
-
-    qdef_method(table_vt, "keys", table_keys);
-    qdef_method(table_vt, "values", table_values);
+#define m(NAME) qdef_method(table_vt, #NAME, table_##NAME); fprintf(stderr, "DEBUG: Install '"#NAME"' into 'table_vt'\n")
+    m(show);
+    m(literal);
+    m(pack);
+    m(unpack);
+    m(keys);
+    m(values);
+#undef m
 }

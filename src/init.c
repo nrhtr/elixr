@@ -37,6 +37,7 @@ void xr_init()
 {
     xr_init_symtable();
 
+    fprintf(stderr, "DEBUG: Init'ing empty 'table_vt'\n");
     table_vt = xr_table_empty();
     xrMTable(table_vt) = table_vt;
 

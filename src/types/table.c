@@ -240,7 +240,7 @@ XR table_unpack(FILE *fp)
 }
 
 XR table_show(XR cl, XR self)
-{ 
+{
     (void) cl;
 
     int first = 1;

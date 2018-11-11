@@ -76,9 +76,10 @@ extern XR s_add, s_sub, s_mul, s_div;
 #define VAL_TRUE  ((XR)6) 
 
 /* nil   =  00b is_ptr
- * zero  =  01b is_num >> 1 == 0
+ * num   =   1b
  * false =  10b is_ptr is_bool
  * true  = 110b is_ptr is_bool
+ * obj   = X00b
 */
 
 /* Convenience macros
